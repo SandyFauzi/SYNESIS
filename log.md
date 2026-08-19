@@ -246,6 +246,34 @@ jadi kesalahan implementasi ketahuan sebelum angka waktunya dibaca.
 Diuji jalan: bagian 1 dan 2 keluar benar, bagian 4 melewati diri sendiri dengan
 pesan jelas selama TODO belum diisi.
 
+### Soal latihan disiapkan
+
+Dibuat `notebooks/soal-hari02.md`, lima soal dengan petunjuk bertingkat yang
+tertutup di blok `<details>`. Pemilik bisa mengatur sendiri seberapa banyak
+bantuan yang diambil.
+
+| Soal | Isi |
+|---|---|
+| 1 | Ramalkan enam bentuk broadcasting sebelum menjalankan |
+| 2 | Tulis `dot_manual`, tiga tingkat petunjuk |
+| 3 | Tulis `matmul_manual`, tiga tingkat plus panduan kalau hasilnya transpos |
+| 4 | Baca angka adu cepat, empat pertanyaan analisis |
+| 5 | Cari bug broadcasting yang tidak melempar error |
+
+Soal 5 memakai matriks persegi 3x3, karena bentuk persegi membuat kesalahan
+sumbu lolos tanpa error. Pada bentuk (100,3) kesalahan yang sama langsung
+ditolak numpy. Ini melatih kebiasaan menguji dengan dimensi yang berbeda-beda,
+kebiasaan yang akan menyelamatkan Bulan 1.
+
+Kunci jawaban diverifikasi dengan menjalankannya:
+
+```text
+1a (3,4)   1b ERROR   1c (3,4)   1d (3,3)   1e (2,3,4)   1f (5,4,3)
+```
+
+Klaim Soal 5 juga diuji: pada (3,3) kedua operasi jalan, pada (100,3) numpy
+menolak dengan ValueError.
+
 ### Belum selesai
 
 Menunggu pemilik mengisi TODO 3 dan TODO 4, lalu membaca hasil adu cepat.
