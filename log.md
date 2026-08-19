@@ -317,6 +317,62 @@ naif yang sama akan memisahkan keduanya.
 
 ---
 
+## Hari 2 bonus · 20 Agustus 2026 · Julia
+
+Dibuat `notebooks/hari02_bonus_julia.jl` untuk memisahkan dua variabel yang
+tercampur pada percobaan Python lawan numpy: bahasa dan optimasi algoritma.
+
+Julia 1.12.5 sudah terpasang. Berkas memuat tiga versi:
+
+| Versi | Isi |
+|---|---|
+| `matmul_naif` | terjemahan persis dari matmul_manual Python |
+| `matmul_kolom` | algoritma sama, urutan loop disesuaikan tata letak column-major Julia |
+| `*` bawaan | BLAS |
+
+### Dua bug pada percobaan pertama
+
+**Dead code elimination.** Fungsi `ukur` versi awal membuang hasil pemanggilan
+di dalam generator, jadi kompilator Julia berhak menghapus seluruh perhitungan.
+Waktunya keluar 0,008 ms untuk 1 juta operasi, setara 125 GFLOPS, mustahil untuk
+loop skalar satu core. Diperbaiki dengan menampung hasil ke variabel yang
+tertangkap closure.
+
+**Pembanding BLAS yang keliru.** `sum(x .* y)` dipakai sebagai wakil BLAS,
+padahal ia mengalokasi array perantara sebesar n dan justru lebih lambat dari
+loop naif. Diganti `LinearAlgebra.dot`.
+
+Pelajarannya sama dengan yang sudah muncul di Hari 1: angka yang terlalu bagus
+wajib dicurigai sebelum dipercaya.
+
+### Hasil setelah perbaikan
+
+```text
+dot     n=1.000.000    Python 291,74 ms   Julia naif 0,840 ms   Julia BLAS 0,384 ms
+
+matmul  200x200        Python 2.814,0 ms
+                       Julia naif   6,125 ms
+                       Julia kolom  1,065 ms
+                       Julia BLAS   0,357 ms
+```
+
+### Pembagian jurang pada 200x200
+
+| Lompatan | Faktor | Sebabnya |
+|---|---|---|
+| Python naif ke Julia naif | 461x | ongkos penafsir, algoritma identik |
+| Julia naif ke Julia kolom | 5,8x | urutan loop cocok tata letak memori |
+| Julia kolom ke BLAS | 3,3x | SIMD, pemblokan cache, multithread |
+| **Total Python ke BLAS** | **8.928x** | |
+
+Perkalian ketiga faktor menghasilkan 8.825, cocok dengan 8.928 dalam batas
+derau pengukuran.
+
+Temuan pokoknya: **461 dari 8.928 kali lipat itu semata soal bahasa.** Sisanya
+yang 19 kali lipat baru berasal dari tata letak memori dan kecerdasan BLAS.
+
+---
+
 ## Berikutnya
 
 **Hari 2, numpy sampai paham.** Broadcasting, slicing, lalu menulis dot product
