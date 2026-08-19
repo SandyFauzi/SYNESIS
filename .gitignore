@@ -1,0 +1,35 @@
+# Lingkungan Python (tinggal di E:\SYNESIS\.venv, bukan di repo)
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Notebook
+.ipynb_checkpoints/
+
+# Dataset & bobot model - semua di E:\SYNESIS\
+data/
+*.pt
+*.pth
+*.onnx
+*.ckpt
+*.safetensors
+*.gguf
+*.npz
+
+# Keluaran
+outputs/
+figures/*.png
+*.log
+
+# Rahasia
+.env
+*.key
+
+# OS
+Thumbs.db
+desktop.ini
+
+# Dokumen akademik pribadi (nama, NPM, nilai) - jangan masuk git
+docs/akademik/
