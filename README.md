@@ -204,6 +204,21 @@ Kalau C: sempit saat itu, pindahkan foldernya lalu buat symlink.
 
 ---
 
+## Aturan Kerja
+
+**Setiap proses yang selesai wajib dicatat di [`log.md`](log.md).**
+
+Berlaku untuk: penyelesaian satu hari di Bulan 0, pemasangan paket baru,
+perubahan keputusan arsitektur, dan setiap kesalahan beserta perbaikannya.
+
+Format entri: apa yang dikerjakan, keputusan yang diambil beserta alasannya,
+kesalahan yang terjadi, dan hasil akhir yang terverifikasi.
+
+Kesalahan ditulis apa adanya. Log yang hanya memuat keberhasilan tidak menolong
+siapa pun yang menelusuri masalah tiga bulan kemudian.
+
+---
+
 ## Dokumen
 
 | Berkas | Isi |

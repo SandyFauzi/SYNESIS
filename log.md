@@ -218,6 +218,40 @@ dengan Start-Process FilePath.
 
 ---
 
+## Hari 2 · 20 Agustus 2026 · numpy (berjalan)
+
+### Aturan baru
+
+Pemilik menetapkan: setiap proses yang selesai wajib dicatat di log ini.
+Aturannya ditulis di README bagian Aturan Kerja.
+
+### Kerangka latihan disiapkan
+
+Dibuat `notebooks/hari02_numpy.py`, berisi empat bagian:
+
+| Bagian | Isi | Status |
+|---|---|---|
+| 1 | Array lawan list: dtype, shape, strides, nbytes | contoh diberikan |
+| 2 | Broadcasting: aturan, kasus gagal, jebakan kolom lawan baris | contoh diberikan |
+| 3 | `dot_manual` dengan loop Python | TODO pemilik |
+| 4 | `matmul_manual` tiga loop bersarang | TODO pemilik |
+| 5 | Adu cepat lawan numpy, tiga ukuran n | otomatis |
+
+Kode inti sengaja tidak diisi. Nilai Bulan 0 ada pada menulisnya sendiri, jadi
+asisten hanya menyiapkan kerangka, penjelasan, dan pemeriksa kebenaran.
+
+Bagian adu cepat memuat `assert` yang membandingkan hasil pemilik dengan numpy,
+jadi kesalahan implementasi ketahuan sebelum angka waktunya dibaca.
+
+Diuji jalan: bagian 1 dan 2 keluar benar, bagian 4 melewati diri sendiri dengan
+pesan jelas selama TODO belum diisi.
+
+### Belum selesai
+
+Menunggu pemilik mengisi TODO 3 dan TODO 4, lalu membaca hasil adu cepat.
+
+---
+
 ## Berikutnya
 
 **Hari 2, numpy sampai paham.** Broadcasting, slicing, lalu menulis dot product
