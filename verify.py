@@ -12,7 +12,7 @@ OK, BAD = "  OK   ", "  ALARM"
 
 def cek_venv():
     prefix = Path(sys.prefix)
-    benar = str(prefix).upper().startswith("E:\SYNESIS")
+    benar = str(prefix).upper().startswith(r"E:\SYNESIS")
     print(f"{OK if benar else BAD} venv aktif : {prefix}")
     if not benar:
         print("         Jalankan dulu:  . .\activate.ps1")
@@ -25,6 +25,8 @@ def cek_envvar():
         "HF_HOME": r"E:\SYNESIS\.cache\huggingface",
         "TORCH_HOME": r"E:\SYNESIS\.cache\torch",
         "OLLAMA_MODELS": r"E:\SYNESIS\.cache\ollama",
+        "TMP": r"E:\SYNESIS\.cache	mp",
+        "TEMP": r"E:\SYNESIS\.cache	mp",
     }
     semua = True
     for nama, nilai in diharapkan.items():

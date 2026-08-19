@@ -109,6 +109,24 @@ Empat pengalih ini menahan semua yang tadinya bocor ke C:.
 | `HF_HOME` | `E:\SYNESIS\.cache\huggingface` | Whisper dan model embedding, 1 sampai 3 GB |
 | `TORCH_HOME` | `E:\SYNESIS\.cache\torch` | silero-vad dan torch.hub |
 | `OLLAMA_MODELS` | `E:\SYNESIS\.cache\ollama` | Qwen3-4B, 2,5 GB |
+| `TMP` | `E:\SYNESIS\.cache	mp` | Ruang kerja pip saat mengunduh |
+| `TEMP` | `E:\SYNESIS\.cache	mp` | Sama, pip membaca keduanya |
+
+> **`PIP_CACHE_DIR` saja tidak cukup.** pip mengunduh ke `%TEMP%` lebih dulu,
+> lalu memindahkannya ke cache. Tanpa `TMP` dan `TEMP` diarahkan, wheel PyTorch
+> 2,5 GB tetap transit di C:. Ini ketahuan di Hari 1 setelah 1,78 GB menumpuk
+> di sana.
+
+> **Jebakan yang sudah pernah kena.** Variabel lingkungan diwariskan saat proses
+> dibuat. Menyetelnya secara permanen tidak mengubah terminal yang sudah terbuka,
+> jadi `pip` di jendela lama tetap menulis cache ke C:. Tutup dan buka lagi
+> terminalnya setelah menyetel, atau setel ulang di sesi berjalan:
+>
+> ```powershell
+> $env:PIP_CACHE_DIR = "E:\SYNESIS\.cache\pip"
+> ```
+>
+> Ini yang membuat 140 MB sempat mendarat di C: pada Hari 1.
 
 InsightFace tidak memakai variabel lingkungan. Arahkan lewat parameter saat
 inisialisasi:
