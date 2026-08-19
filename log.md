@@ -373,6 +373,39 @@ yang 19 kali lipat baru berasal dari tata letak memori dan kecerdasan BLAS.
 
 ---
 
+## Hari 3 · 20 Agustus 2026 · data dan loss (disiapkan)
+
+Dibuat `notebooks/hari03_data_loss.py` dan `notebooks/soal-hari03.md`.
+
+Data sintetis `y = 3x + 2 + derau`, n=50, sigma=1.5, seed 42. Tiga fungsi
+dikosongkan sebagai TODO: `prediksi`, `mse`, `mae`.
+
+Bagian 4 menyapu `w` dengan `b` dikunci, menghasilkan irisan 1D dari permukaan
+loss. Bentuknya parabola, dan itu jembatan ke potensial harmonik di Mekanika.
+
+### Kunci jawaban, diverifikasi
+
+```text
+Ranking Soal 1 : E(1,3554) < F(1,4971) < C(4,3552) < D(32,52) < B(38,75) < A(79,49)
+Uji mse/mae    : 1,3333 dan 0,6667
+w* analitik    : 3,0066     w asli 3,0     sapuan grid 3,0251
+A = 7,8435 (positif)   B = -47,1647
+```
+
+### Temuan yang jadi soal tambahan
+
+Loss di parameter asli keluar 1,3554, padahal varians derau 2,25. Selisihnya
+diperiksa dan bukan bug: sampel n=50 dengan seed 42 jatuh di -1,99 simpangan
+baku. Pada n=200 angkanya 2,3187, pada n=10000 jadi 2,2594.
+
+Dijadikan Soal 3e, lengkap dengan rumus sebaran $\sigma^2\sqrt{2/n}$ dan
+kaitannya ke ketidakpastian pengukuran di Eksperimen Fisika.
+
+Soal 4 menjadi puncak Hari 3: pemilik menurunkan sendiri bentuk $Aw^2+Bw+C$
+lalu $w^* = -B/2A$, yaitu solusi kuadrat terkecil bentuk tertutup.
+
+---
+
 ## Berikutnya
 
 **Hari 2, numpy sampai paham.** Broadcasting, slicing, lalu menulis dot product
