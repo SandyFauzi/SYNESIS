@@ -274,9 +274,46 @@ Kunci jawaban diverifikasi dengan menjalankannya:
 Klaim Soal 5 juga diuji: pada (3,3) kedua operasi jalan, pada (100,3) numpy
 menolak dengan ValueError.
 
-### Belum selesai
+### Selesai
 
-Menunggu pemilik mengisi TODO 3 dan TODO 4, lalu membaca hasil adu cepat.
+Pemilik mengisi TODO 3 dan TODO 4, menjawab seluruh soal, dan menulis ulang
+soal-hari02.md dengan gaya bahasanya sendiri.
+
+Hasil pemeriksaan: Soal 1 enam-enamnya benar, `dot_manual` dan `matmul_manual`
+benar, Soal 4 dan Soal 5 semuanya benar.
+
+Angka adu cepat pada mesin ini:
+
+```text
+dot     n=1.000       manual    0,31 ms   numpy 0,003 ms      107x
+        n=100.000     manual   39,06 ms   numpy 0,078 ms      501x
+        n=1.000.000   manual  291,74 ms   numpy 0,490 ms      596x
+
+matmul  50x50         manual    44,32 ms   numpy 0,019 ms    2.365x
+        100x100       manual   349,42 ms   numpy 0,090 ms    3.886x
+        200x200       manual  2.813,98 ms  numpy 0,286 ms    9.837x
+```
+
+Rasio 100x100 ke 200x200 keluar 8,06x, cocok dengan ramalan n pangkat tiga.
+
+### Catatan perbaikan
+
+Tiga hal kecil yang diangkat saat pemeriksaan:
+
+1. `matmul_manual` menghitung `k2` dari bentuk B tapi tidak memakainya. Sebaiknya
+   memvalidasi `k == k2`, yang langsung menyambung ke pelajaran Soal 5 soal
+   memeriksa bentuk sebelum menghitung.
+2. Angka pada n=1.000 berbeda jauh antara dua kali jalan, 24x lawan 107x. Fungsi
+   `ukur` menjalankan versi manual sekali saja, terlalu berisik pada n kecil.
+3. Pesan moral 5d perlu sedikit dilonggarkan. Matriks persegi tidak terlarang,
+   yang penting memakai dimensi berbeda saat menguji kode yang sensitif bentuk.
+
+### Pertanyaan terbuka
+
+Pemilik menyebut punya Julia 1.12.5 terpasang dan menanyakan apakah kompilasi
+seperti C ada gunanya di sini. Jawabannya ya, karena percobaan saat ini masih
+mencampur dua variabel: bahasa dan optimasi algoritma. Julia dengan algoritma
+naif yang sama akan memisahkan keduanya.
 
 ---
 

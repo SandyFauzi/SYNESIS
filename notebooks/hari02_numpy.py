@@ -62,9 +62,9 @@ def bagian2():
     u = np.array([100, 200, 300])
 
     # TODO 2a: sebelum menjalankan, TULIS tebakanmu di sini.
-    #   A + v            -> shape ?
-    #   A + u            -> shape ?
-    #   A + u[:, None]   -> shape ?
+    #   A + v            -> shape (3, 4)
+    #   A + u            -> shape ERROR
+    #   A + u[:, None]   -> shape (3, 4)
     #   Baru jalankan dan bandingkan.
 
     print(f"A shape          : {A.shape}")
@@ -99,7 +99,10 @@ def dot_manual(a, b):
 
     TODO 3: isi fungsi ini. Dilarang memakai np.dot atau np.sum.
     """
-    raise NotImplementedError("TODO 3")
+    total = 0.0
+    for i in range(len(a)):
+        total += a[i] * b[i]
+    return total
 
 
 def matmul_manual(A, B):
@@ -109,7 +112,16 @@ def matmul_manual(A, B):
 
     TODO 4: isi fungsi ini. Tiga loop bersarang.
     """
-    raise NotImplementedError("TODO 4")
+    n, k = A.shape
+    k2, m = B.shape
+    C = np.zeros((n, m))
+    for i in range(n):
+        for j in range(m):
+            total = 0.0
+            for kk in range(k):
+                total += A[i, kk] * B[kk, j]
+            C[i, j] = total
+    return C
 
 
 # ══════════════════════════════════════════════════════════════
