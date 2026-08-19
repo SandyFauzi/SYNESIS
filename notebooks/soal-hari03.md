@@ -135,7 +135,7 @@ Jadi loss-nya adalah rata-rata kuadrat derau atas `n` sampel.
 Nilai harapannya memang $\sigma^2$. Tapi rata-rata satu sampel berhingga bukan
 nilai harapan, ia berfluktuasi di sekitarnya. Sebaran fluktuasinya:
 
-$$	ext{SD}[	ext{MSE}] = \sigma^2\sqrt{rac{2}{n}}$$
+$$\text{SD}[\text{MSE}] = \sigma^2\sqrt{\frac{2}{n}}$$
 
 Untuk `n = 50` dan `sigma = 1.5`, angkanya sekitar 0,45. Sampel dengan seed 42
 kebetulan jatuh sekitar dua simpangan baku di bawah rata-rata.
