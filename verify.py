@@ -25,8 +25,6 @@ def cek_envvar():
         "HF_HOME": r"E:\SYNESIS\.cache\huggingface",
         "TORCH_HOME": r"E:\SYNESIS\.cache\torch",
         "OLLAMA_MODELS": r"E:\SYNESIS\.cache\ollama",
-        "TMP": r"E:\SYNESIS\.cache	mp",
-        "TEMP": r"E:\SYNESIS\.cache	mp",
     }
     semua = True
     for nama, nilai in diharapkan.items():

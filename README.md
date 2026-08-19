@@ -109,13 +109,19 @@ Empat pengalih ini menahan semua yang tadinya bocor ke C:.
 | `HF_HOME` | `E:\SYNESIS\.cache\huggingface` | Whisper dan model embedding, 1 sampai 3 GB |
 | `TORCH_HOME` | `E:\SYNESIS\.cache\torch` | silero-vad dan torch.hub |
 | `OLLAMA_MODELS` | `E:\SYNESIS\.cache\ollama` | Qwen3-4B, 2,5 GB |
-| `TMP` | `E:\SYNESIS\.cache	mp` | Ruang kerja pip saat mengunduh |
-| `TEMP` | `E:\SYNESIS\.cache	mp` | Sama, pip membaca keduanya |
 
-> **`PIP_CACHE_DIR` saja tidak cukup.** pip mengunduh ke `%TEMP%` lebih dulu,
-> lalu memindahkannya ke cache. Tanpa `TMP` dan `TEMP` diarahkan, wheel PyTorch
-> 2,5 GB tetap transit di C:. Ini ketahuan di Hari 1 setelah 1,78 GB menumpuk
-> di sana.
+> **Temp tetap di C:, dan itu disengaja.** pip mengunduh ke `%TEMP%` lebih dulu,
+> baru memindahkan hasilnya ke cache di E:. Untuk PyTorch itu berarti sekitar
+> 2,5 GB singgah di C: lalu hilang lagi.
+>
+> `TMP` dan `TEMP` dibaca semua aplikasi Windows. Mengarahkannya ke E: berarti
+> mencabut enclosure akan merusak hal-hal di luar proyek ini. Ongkosnya lebih
+> besar daripada manfaatnya, jadi aturan drive ini hanya mengatur **penyimpanan
+> yang menetap**. Sisa temp bisa dihapus kapan saja:
+>
+> ```powershell
+> Remove-Item "$env:TEMP\pip-*" -Recurse -Force
+> ```
 
 > **Jebakan yang sudah pernah kena.** Variabel lingkungan diwariskan saat proses
 > dibuat. Menyetelnya secara permanen tidak mengubah terminal yang sudah terbuka,
