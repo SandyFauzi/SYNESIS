@@ -227,6 +227,7 @@ siapa pun yang menelusuri masalah tiga bulan kemudian.
 | `Bulan-0-Harian.md` | Diagnosa lingkungan dan rencana harian 13 sampai 31 Agustus |
 | `Name.md` | Identitas, etimologi, konvensi penamaan |
 | `Silabus.md` | Silabus per modul beserta tujuan pembelajarannya |
+| `Modul.md` | Penjelasan semua konsep dengan gambaran konkret, plus versi `Modul.pdf` |
 | `log.md` | Log kerja: apa yang dikerjakan, keputusan, dan kesalahan |
 | `README.md` | Berkas ini |
 

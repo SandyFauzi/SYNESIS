@@ -468,10 +468,53 @@ em dash, en dash, curly quote, dan emoji pada judul. 368 baris, 16 bagian utama,
 
 ---
 
+## Modul all-in-one · 20 Agustus 2026
+
+Menulis `Modul.md`, dokumen penjelasan yang berdiri sendiri di samping silabus.
+Silabus menjawab "belajar apa dan kapan". Modul menjawab "barangnya itu apa".
+
+857 baris, 14 bagian utama, 41 sub-bagian. Isinya penjelasan seluruh konsep dari
+tujuh modul: gradient descent, overfitting, backpropagation, embedding, softmax,
+Fourier, konvolusi, metric learning, attention, transformer, dan agent loop.
+
+Tiga hal dipasang di tiap bagian. Gambaran konkret sebelum rumus. Catatan
+"di mana analoginya rusak" supaya kasus tepi tidak salah dipahami. Blok
+"tanya diri sendiri" berisi pertanyaan Socratic untuk dijawab dengan suara keras.
+
+Bagian 9 memuat kamus 19 baris yang memetakan konsep fisika yang sudah dikuasai
+ke nama panggilannya di machine learning. Bagian 10 berisi lima uji kejujuran
+untuk membedakan paham dari hafal, termasuk deteksi pemujaan kargo.
+
+Bagian yang sengaja mengaku tidak tahu: kenapa model overparameterisasi tetap
+menggeneralisasi (double descent masih diperdebatkan), tafsir peran attention
+head dan neuron lapisan dalam (interpretability masih muda), dan apakah LLM
+"mengerti" (mekanismenya prediksi token, perilakunya menyerupai penalaran,
+lompatan di antaranya belum terbukti).
+
+Ditulis dengan skill `humanizer`, `stop-slop`, `feynman-perspective`, dan
+`ai-feynman-techniek-coach` aktif. Verifikasi bersih: 0 em dash, 0 en dash,
+0 curly quote, tanpa emoji.
+
+### Versi PDF
+
+Dikonversi ke `Modul.pdf` dengan pandoc 3 dan xelatex dari MiKTeX di
+`S:\Apps\MiTex`. A4, margin 2,3 cm, Georgia untuk badan teks, Consolas untuk
+kode, daftar isi dua level. 24 halaman, 124 KB.
+
+Satu cacat ditemukan saat memeriksa hasil cetakan dan sudah diperbaiki. Notasi
+bra-ket `<psi|phi>` di dalam sel tabel Bagian 9 tercetak berikut backslash-nya,
+karena pipe di dalam inline code tidak bisa di-escape untuk tabel Markdown.
+Selnya ditulis ulang jadi teks biasa. Pelajarannya: verifikasi keluaran PDF
+dengan melihat halamannya, bukan cuma dengan mengecek exit code pandoc.
+
+---
+
 ## Berikutnya
 
-**Hari 2, numpy sampai paham.** Broadcasting, slicing, lalu menulis dot product
-dan perkalian matriks manual untuk diadu kecepatannya melawan np.dot.
+**Sesi A, gradient descent utuh.** Turunkan `dMSE/dw` dan `dMSE/db` di kertas,
+kodekan gradiennya, verifikasi dengan beda hingga sampai selisihnya di bawah
+`1e-6`, lalu tulis training loop pertama sampai `w` mendekati 3 dan `b`
+mendekati 2.
 
-Jadwal bergeser sepekan dari rencana semula. Hari 19 mendarat sekitar
+Jadwal bergeser sepekan dari rencana semula. Akhir Bulan 0 mendarat sekitar
 7 September, kemungkinan sudah masuk masa kuliah.
