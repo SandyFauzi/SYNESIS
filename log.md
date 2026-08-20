@@ -734,6 +734,73 @@ yang akan muncul terus mulai Modul 2.
 
 ---
 
+## Rapikan struktur dan push pertama · 20 Agustus 2026
+
+### Struktur folder
+
+Akar repo tadinya memuat tujuh berkas markdown, satu PDF, tiga skrip, dan
+requirements. Dirapikan jadi:
+
+```text
+README.md, log.md, requirements.txt, .gitignore   di akar
+docs/       Roadmap, Silabus, Modul.md, Modul.pdf, Bulan-0-Harian, Name
+            akademik/ tetap di-gitignore
+notebooks/  tetap datar, karena scaffold saling impor lewat nama modul
+            dan soal .md menaut ke .py di folder yang sama
+scripts/    activate.ps1, verify.py, progress.ps1
+```
+
+Tautan silang diperbarui: `docs/Silabus.md` menunjuk `../log.md` dan
+`../README.md`, kelima scaffold menunjuk `scripts\\activate.ps1`, dan tabel
+dokumen di README jadi tautan yang bisa diklik.
+
+### Dua kerusakan lama di README
+
+README belum pernah masuk pemindaian karakter kontrol, dan ternyata memuat
+dua sisa bug escape yang sekelas dengan kasus LaTeX di soal Hari 3.
+
+Pertama, byte `0x07` (BEL) di posisi 5528, sisa dari `\a` pada baris
+`. .\activate.ps1`. Yang tampil di layar jadi `. .ctivate.ps1`.
+
+Kedua, pohon direktori yang barisnya menyatu jadi
+`pip| huggingface| torch|` karena `\n` tertelan saat penulisan.
+
+Pohonnya ditulis ulang mengikuti struktur baru, memakai ASCII, bukan karakter
+gambar kotak. `verify.py` juga diperbaiki jadi raw string supaya `\s` tidak
+jadi escape tak sah.
+
+Pelajarannya: pemindaian karakter kontrol dulu cuma menyasar `notebooks/*.md`
+dan beberapa berkas rencana. README terlewat justru karena ia berkas paling
+awal dan dianggap sudah beres.
+
+### Push pertama
+
+Remote `https://github.com/SandyFauzi/SYNESIS` ternyata publik dan kosong,
+nol commit. Branch lokal `master` diubah jadi `main` mengikuti default GitHub.
+
+Sebelum push, dilaporkan ke pemilik bahwa berkas terlacak memuat NPM di tiga
+berkas dan nilai huruf tujuh mata kuliah di `docs/Silabus.md`, sementara PDF
+akademik sudah di-gitignore. Keputusan pemilik: PDF resmi kampus tetap
+dikunci, sisanya boleh terbit.
+
+Diverifikasi bahwa PDF akademik tidak pernah ter-commit sama sekali, bukan
+sekadar tidak ada di commit terakhir. Satu-satunya PDF terlacak adalah
+`docs/Modul.pdf`.
+
+Push pertama ditolak dengan 403. Git Credential Manager menyimpan token akun
+`Praktikum-KN-FisikaUnpad-26`, yang tidak punya izin tulis ke repo ini.
+Identitas commit sendiri sudah benar.
+
+Diperbaiki tanpa menyentuh token praktikum, dengan menaruh username di URL
+remote menjadi `https://SandyFauzi@github.com/...`. GCM lalu mencari
+kredensial yang terkunci pada username itu, jadi kedua akun bisa hidup
+berdampingan.
+
+Hasil: 24 berkas dalam 17 commit terbit di `main`. Tidak ada berkas akademik
+yang ikut.
+
+---
+
 ## Berikutnya
 
 **Sesi C dikerjakan pemilik.** Empat TODO diisi, empat catatan Sesi B
