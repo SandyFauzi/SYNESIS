@@ -180,8 +180,12 @@ Pola tiap hari: satu tujuan, tugas konkret, dan definisi selesai yang bisa diper
 - **Gradient check**: bandingkan analitik lawan beda hingga, target selisih < `1e-6`
 - Training loop: hitung loss, hitung gradien, perbarui, ulang
 
-**Selesai bila:** `w → 3` dan `b → 2` dari tebakan awal apa pun, dan gradient
-check lolos.
+**Selesai bila:** gradient check lolos di bawah `1e-6`, dan training konvergen
+ke titik yang sama dari tebakan awal apa pun.
+
+Titik itu `w = 3.018`, `b = 1.744`, bukan `w = 3`, `b = 2`. Gradient descent
+mencari dasar permukaan loss, dan permukaan itu dibangun dari 50 titik data
+yang sudah digeser acak. Ia tidak pernah diberi tahu parameter asli itu ada.
 
 Gradient check itu teknik yang akan kamu pakai terus sampai Bulan 5. Di Bulan 1
 ia menjadi satu-satunya cara memverifikasi mesin autograd buatanmu sendiri.

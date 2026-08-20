@@ -509,12 +509,69 @@ dengan melihat halamannya, bukan cuma dengan mengecek exit code pandoc.
 
 ---
 
+## Sesi A · 20 Agustus 2026
+
+Menyiapkan `notebooks/sesiA_gradient_descent.py` dan `notebooks/soal-sesiA.md`.
+Scaffold memakai ulang `buat_data`, `prediksi`, dan `mse` dari berkas Hari 3
+lewat import, jadi kalau yang di sana benar yang di sini ikut benar.
+
+Tiga TODO: `gradien` analitik, `beda_hingga` numerik, dan `latih` sebagai
+training loop. Sisanya sudah jadi: gradient check di lima titik, konvergensi
+dari tiga titik awal, sapuan learning rate, dan pembanding `np.linalg.lstsq`.
+
+### Kunci jawaban diverifikasi
+
+Implementasi pembanding dijalankan lebih dulu supaya angka di soal bukan
+tebakan. Yang terverifikasi:
+
+- Gradient check lolos di `1e-11` sampai `1e-12`, jauh di bawah target `1e-6`
+- Konvergen ke `w = 3.018114`, `b = 1.743558` dari `(0,0)`, `(-5,10)`, dan
+  `(100,-100)`, ketiganya sama sampai enam angka di belakang koma
+- Cocok dengan `lstsq` sampai `0.00e+00` untuk `w` dan `2.66e-15` untuk `b`
+- Rata-rata residu di optimum `-2.84e-16`, dan garis lewat titik pusat massa
+  data tepat di `y` rata-rata `2.806923`
+- `A = 7.8435`, eigen Hessian `1.9638` dan `15.7233`, bilangan kondisi `8.01`
+- `lr` kritis ramalan `2/lambda_max = 0.1272`. Terukur: `0.12` konvergen,
+  `0.13` divergen. Ramalan dan pengukuran cocok.
+
+### Temuan yang mengubah soal
+
+Sapuan `h` pada beda hingga memberi hasil yang melawan aturan umum. Galat
+relatif di `h = 1e-1` justru `0.000e+00`, sementara di `h = 1e-11` membengkak
+jadi `8.2e-06`. Tidak ada kompromi optimum di tengah.
+
+Sebabnya: beda pusat punya galat pemotongan `(h^2/6) f'''`, dan MSE terhadap
+`w` adalah polinomial derajat dua persis, seperti yang sudah dibuktikan sendiri
+di Soal 4a Hari 3. Turunan ketiganya nol, jadi galat pemotongannya nol untuk
+`h` sebesar apa pun. Yang tersisa cuma galat pembulatan, dan itu membesar saat
+`h` mengecil.
+
+Jadi anjuran "pakai h = 1e-5" adalah menara bambu di sesi ini. Ia tetap
+anjuran yang benar mulai Bulan 1, saat ReLU membuat turunan ketiga tidak nol
+lagi. Ini jadi Soal 3.
+
+### Koreksi tolok ukur
+
+Bulan-0-Harian.md menulis kriteria selesai `w -> 3` dan `b -> 2`. Itu tidak
+tepat. Gradient descent mencari dasar permukaan loss, dan dasarnya ada di
+`w = 3.018`, `b = 1.744`, bukan di parameter yang membangkitkan data. Selisih
+`b` sebesar 0,256 itu sekitar 1,2 kali `sigma/akar(n) = 0.212`, jadi wajar.
+Kriterianya diperbaiki, dan bedanya dijadikan Soal 4.
+
+### Modul.md ditulis ulang pemilik
+
+Pemilik menulis ulang `Modul.md` dengan suaranya sendiri, dari 857 baris jadi
+148 baris. Sepuluh bagian dan kamus fisika tetap ada. Yang hilang: catatan
+"di mana analoginya rusak" dan blok "tanya diri sendiri" di tiap bagian.
+`Modul.pdf` dibangun ulang mengikuti versi baru.
+
+---
+
 ## Berikutnya
 
-**Sesi A, gradient descent utuh.** Turunkan `dMSE/dw` dan `dMSE/db` di kertas,
-kodekan gradiennya, verifikasi dengan beda hingga sampai selisihnya di bawah
-`1e-6`, lalu tulis training loop pertama sampai `w` mendekati 3 dan `b`
-mendekati 2.
+**Sesi A dikerjakan pemilik.** Tiga TODO diisi, sepuluh kotak tolok ukur
+dituntaskan, lalu jawabannya diperiksa.
 
-Jadwal bergeser sepekan dari rencana semula. Akhir Bulan 0 mendarat sekitar
-7 September, kemungkinan sudah masuk masa kuliah.
+**Sesi B setelahnya, lanskap dan langkah.** Plot permukaan loss `L(w, b)` dalam
+3D, timpa dengan lintasan gradient descent, lalu animasikan. Sesi ini ditandai
+tidak boleh dipadatkan lagi.
