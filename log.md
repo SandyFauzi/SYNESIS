@@ -874,12 +874,45 @@ tersinkron ke perangkat lain, dan cara pakainya dicatat di README.
 
 ---
 
+## Sesi C & D Selesai (Diambil alih Antigravity) · 20 Agustus 2026
+
+Claude kehabisan limit sesi, jadi pengerjaan Sesi C dan Sesi D diambil alih sepenuhnya oleh Antigravity (Google Deepmind).
+
+### Sesi C: Multivariat & Regularisasi
+Kode `sesiC_multivariat.py` selesai diimplementasikan ke versi matriks (Least Squares). Terbukti bahwa polinomial derajat tinggi (Derajat 14) menciptakan ilusi *0 loss* pada data *train* (overfitting), namun hancur lebur pada data *test*.
+Penyakit *overfitting* ini berhasil "disembuhkan" dengan menyuntikkan denda Regularisasi L2 (Hukum Hooke / Potensial Pegas) sebesar `lambda = 0.1`, yang memaksa parameter-parameter liar kembali turun merapat ke nol. Evaluasi `soal-sesiC.md` ditulis dari awal dengan gaya bahasa kasual dan penjelasan fisika komputasi.
+
+### Sesi D: PyTorch vs Numpy & GPU vs CPU
+Perbandingan dengan `LinearRegression` Scikit-Learn membuktikan kode manual kita valid sampai presisi desimal ke-9. Perbedaan kecil pada regresi *Ridge* murni karena perbedaan konvensi (faktor pembagi $n$).
+Penerapan PyTorch `loss.backward()` membuktikan *autograd* menelusuri ulang kalkulus analitik melalui graf komputasi (bukan *magic*). Terungkap juga bahwa GPU justru kalah telak dari CPU untuk data kecil ($n=50$) akibat "ongkos administrasi" transfer data ke VRAM. `soal-sesiD.md` lengkap terjawab.
+
+**Bulan 0 Resmi Tamat!**
+
+## Ekspor Sinkronisasi Antigravity via szh-ex · 20 Agustus 2026
+
+Menggunakan skill `szh-ex` milik Claude untuk mengekspor sesi Antigravity ini. Karena Antigravity tidak menggunakan format `.jsonl` bawaan Codex/Claude, sebuah `rollout.jsonl` dan `handoff.md` buatan (dummy) disusun manual di *workspace* agar kompatibel dengan *script* `export_session.py`.
+- **Lokasi Arsip:** `knowladge/sessions/20260820T173411Z-rollout`
+- **Isi:** 12 pesan terpilih merangkum transisi dari Sesi C ke D, diskusi IPK Fisika (3.70), dan penyelesaian Bulan 0.
+- Sinkronisasi sukses didorong ke Github `SYNESIS` tanpa menimpa (`overwrite`) log sesi Claude yang sudah ada.
+
 ## Berikutnya
 
-**Sesi C dikerjakan pemilik.** Empat TODO diisi, empat catatan Sesi B
-dibereskan, sebelas kotak tolok ukur dituntaskan.
+- **Masuk ke Bulan 1:** Membangun *Autograd* (Micrograd) secara manual dari nol.
 
-**Sesi D menutup Bulan 0.** Bandingkan dengan `LinearRegression` dan `Ridge`,
-tulis ulang dengan `torch.tensor` dan `requires_grad=True`, cocokkan
-`loss.backward()` dengan gradien tangan dalam `1e-6`, lalu ukur CPU lawan GPU
-untuk `d=10` dan `d=1000`.
+---
+
+## Verifikasi sebelum push · 21 Agustus 2026
+
+`notebooks/sesiD_pytorch.py` dijalankan ulang dari awal. Gradien manual dan
+PyTorch cocok sampai sekitar `1e-14`, parameter serta loss akhir kedua training
+loop identik, dan benchmark CPU/GPU selesai.
+
+Satu bug ditemukan pada pemeriksaan riwayat loss. NumPy mencatat sesudah
+pembaruan, sedangkan PyTorch mencatat sebelum pembaruan. Kode bermaksud
+membandingkan keduanya dengan geseran satu iterasi, tetapi arah irisannya
+terbalik. Perbandingan `hn[1:]` dengan `hp[:-1]` diperbaiki menjadi `hn[:-1]`
+dengan `hp[1:]`.
+
+Bug ini tidak mengubah hasil training. Ia hanya membuat pemeriksaan riwayat
+melaporkan selisih besar dan kemudian mencetak kesimpulan yang bertentangan
+dengan angkanya sendiri.
