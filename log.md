@@ -567,11 +567,97 @@ Pemilik menulis ulang `Modul.md` dengan suaranya sendiri, dari 857 baris jadi
 
 ---
 
+## Sesi A diperiksa, Sesi B disiapkan · 20 Agustus 2026
+
+### Pemeriksaan jawaban Sesi A
+
+Delapan tanda gradien di Soal 1 benar semua, termasuk titik C dan D yang
+gradiennya kecil dan tandanya tidak kentara. Soal 3 tentang turunan ketiga
+nol, Soal 4a sampai 4c, dan Soal 6 semuanya benar.
+
+Dua hal meleset.
+
+**Soal 4d, verifikasi dipakai menggantikan bukti.** Soal meminta pembuktian
+aljabar bahwa garis optimum lewat titik pusat massa. Jawabannya menunjuk ke
+keluaran program yang menunjukkan angkanya cocok. Itu bukti untuk satu
+dataset dengan satu seed, bukan bukti untuk data apa pun. Buktinya cuma tiga
+baris dari `dMSE/db = 0`. Dijadikan Soal 0a Sesi B.
+
+**Soal 5b, nilai populasi dipakai di tempat nilai sampel.** `A = 8.33` itu
+`E[x^2] = 25/3` untuk sebaran seragam di `[-5, 5]`, bukan `(1/n) sum x^2`
+dari dataset yang nilainya `7.8435`. Ramalannya jadi `0.120`, seharusnya
+`0.1275`.
+
+Kesimpulan "ramalan akurat tanpa meleset" tidak tertopang, karena sapuan `lr`
+di Sesi A langkahnya `0.12` lalu `0.13`, dan kedua ramalan sama-sama jatuh di
+celah itu. Pengukurannya tidak cukup teliti untuk memisahkan keduanya.
+
+### Uji pembeda dijalankan
+
+Sapuan halus antara `0.119` dan `0.130` dijalankan untuk memisahkan ketiga
+ramalan:
+
+| ramalan | nilai | hasil |
+|---|---|---|
+| `1/A` populasi | `0.120000` | salah, `0.121` sampai `0.127` masih konvergen |
+| `1/A` sampel | `0.127493` | sedikit ketinggian |
+| `2/lambda_max` Hessian 2D | `0.127200` | tepat di dalam jepitan |
+
+Batas terukur ada antara `0.127` dan `0.1272`. Ramalan Hessian meleset di
+bawah 0,2 persen. Yang 1D ketinggian karena mengabaikan elemen luar diagonal
+Hessian yang bernilai `0.7047`, dan elemen itu nol cuma kalau `x` rata-rata
+nol persis.
+
+Ini kali ketiga nilai populasi dipakai menggantikan nilai sampel, setelah
+Soal 3e Hari 3 dan Soal 4b Sesi A. Dijadikan Soal 0b dan 0c Sesi B.
+
+### Sesi B disiapkan
+
+`notebooks/sesiB_lanskap.py` dan `notebooks/soal-sesiB.md`. Tiga TODO:
+`permukaan_loss` versi loop, `sumbu_utama` untuk Hessian dan eigen, serta
+`permukaan_loss_vektor` versi broadcasting sebagai lanjutan Hari 2.
+
+Enam bagian: kisi permukaan, plot 3D linear dan log, lintasan di atas kontur
+untuk tiga `lr`, sumbu utama dari vektor eigen, animasi GIF, dan sapuan `lr`
+halus.
+
+Angka yang terverifikasi dengan menjalankan versi terisi:
+
+- Versi vektor 17,7 kali lebih cepat dari versi loop, hasil identik
+- Hessian `[[15.6871, 0.7047], [0.7047, 2.0]]`, eigen `1.9638` dan `15.7233`
+- Determinan Hessian `30.8776`, sama dengan `4 * var(x)`, jadi irisannya elips
+- Bilangan kondisi `8.0065`
+- Panjang lintasan 60 iterasi: `5.74` di `lr=0.01`, `7.59` di `0.06`,
+  `63.41` di `0.12`
+- Faktor pengali galat arah curam: `+0.843`, `+0.057`, `-0.887`
+- Ambang munculnya gergaji `1/lambda_max = 0.0636`
+- Animasi GIF 80 bingkai selesai dalam 16 detik
+
+### Keadaan ketiga di sapuan lr
+
+Di `lr = 0.1272` persis, loss berhenti di `77.1` setelah 3000 iterasi. Tidak
+meledak, tapi juga tidak turun ke dasar `1.2903`. Label status awalnya cuma
+dua keadaan dan menyebut ini konvergen, dan itu salah. Diperbaiki jadi tiga
+keadaan: konvergen, berayun tetap, divergen.
+
+Sebabnya faktor pengali galat bernilai tepat `-1` di titik itu, jadi
+amplitudonya tidak pernah berubah. Osilator tanpa redaman sama sekali.
+Dijadikan Soal 5b dan 5c.
+
+### Panah sumbu utama diperbaiki
+
+Panah arah curam awalnya terlalu pendek dan tertimpa lintasan, jadi rasio
+kedua sumbu tidak terbaca. Skalanya dinaikkan dan `zorder`-nya ditaruh di
+atas lintasan. Diperiksa dengan melihat gambarnya, bukan dengan menganggap
+kodenya benar.
+
+---
+
 ## Berikutnya
 
-**Sesi A dikerjakan pemilik.** Tiga TODO diisi, sepuluh kotak tolok ukur
-dituntaskan, lalu jawabannya diperiksa.
+**Sesi B dikerjakan pemilik.** Tiga TODO diisi, dua utang Sesi A dilunasi,
+sepuluh kotak tolok ukur dituntaskan.
 
-**Sesi B setelahnya, lanskap dan langkah.** Plot permukaan loss `L(w, b)` dalam
-3D, timpa dengan lintasan gradient descent, lalu animasikan. Sesi ini ditandai
-tidak boleh dipadatkan lagi.
+**Sesi C setelahnya, multivariat dan overfitting.** Perluas ke `X` berbentuk
+`(n, d)` dalam bentuk matriks penuh, pasang polinomial derajat 1, 3, 9, dan 15
+ke data sedikit, pisahkan train dan test, lalu tambahkan suku L2.

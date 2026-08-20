@@ -32,29 +32,14 @@ FIGUR.mkdir(exist_ok=True)
 # ══════════════════════════════════════════════════════════════
 
 def gradien(x, y, w, b):
-    """Turunan MSE terhadap w dan b, dari rumus yang kamu turunkan di kertas.
+    n = len(x)
+    r = (w * x + b) - y
 
-    Tulis residunya dulu:
-
-        r_i = w * x_i + b - y_i          (ramalan minus asli)
-
-    Lalu:
-
-        dMSE/dw = (2/n) * jumlah dari (r_i * x_i)
-        dMSE/db = (2/n) * jumlah dari r_i
-
-    Kembalikan tuple (dL_dw, dL_db), dua angka biasa.
-
-    Perhatikan bedanya sebelum mengetik. Turunan terhadap w punya x_i
-    menempel, turunan terhadap b tidak. Kalau kamu lupa mana yang mana,
-    gradient check di Bagian 3 akan langsung menangkapnya.
-
-    Boleh memakai prediksi() yang sudah ada. Dilarang memakai autograd
-    apa pun. Ini justru barang yang sedang kita bongkar.
-
-    TODO 1
-    """
-    raise NotImplementedError("gradien")
+    dw = (2.0 / n) * np.sum(r * x)
+    
+    db = (2.0 / n) * np.sum(r)
+    
+    return dw, db
 
 
 # ══════════════════════════════════════════════════════════════
@@ -62,25 +47,30 @@ def gradien(x, y, w, b):
 # ══════════════════════════════════════════════════════════════
 
 def beda_hingga(x, y, w, b, h=1e-5):
-    """Gradien versi numerik, memakai beda pusat.
+    # --- Bagian nyari turunan parsial w (b diam) ---
+    
+    # 1. Hitung Loss kalau w maju sejauh h
+    loss_w_maju   = mse(prediksi(x, w + h, b), y)
+    
+    # 2. Hitung Loss kalau w mundur sejauh h
+    loss_w_mundur = mse(prediksi(x, w - h, b), y)
+    
+    # 3. Hitung selisihnya lalu bagi jarak lintasan (2h)
+    dw = (loss_w_maju - loss_w_mundur) / (2 * h)
 
-        df/dw kira-kira = ( f(w+h) - f(w-h) ) / (2h)
-
-    Fungsi f di sini adalah loss, jadi f(w+h) berarti
-    mse(prediksi(x, w+h, b), y).
-
-    Kerjakan untuk w dan b secara terpisah. Saat menggoyang w,
-    b dibiarkan diam. Begitu juga sebaliknya. Itulah arti kata
-    "parsial" pada turunan parsial.
-
-    Kembalikan tuple (dL_dw, dL_db).
-
-    Kamu sudah kenal metode ini dari Komputasi Numerik. Beda pusat,
-    bukan beda maju, karena galat pemotongannya O(h^2) bukan O(h).
-
-    TODO 2
-    """
-    raise NotImplementedError("beda_hingga")
+    # --- Bagian nyari turunan parsial b (w diam) ---
+    
+    # 4. Hitung Loss kalau b maju sejauh h
+    loss_b_maju   = mse(prediksi(x, w, b + h), y)
+    
+    # 5. Hitung Loss kalau b mundur sejauh h
+    loss_b_mundur = mse(prediksi(x, w, b - h), y)
+    
+    # 6. Hitung selisihnya lalu bagi jarak lintasan (2h)
+    db = (loss_b_maju - loss_b_mundur) / (2 * h)
+    
+    # 7. Kembalikan 2 angkanya
+    return dw, db
 
 
 # ══════════════════════════════════════════════════════════════
@@ -149,7 +139,21 @@ def latih(x, y, w, b, lr, n_iter):
 
     TODO 3
     """
-    raise NotImplementedError("latih")
+    riwayat = []
+    
+    for i in range(n_iter):
+        loss_skrg = mse(prediksi(x, w, b), y)
+        riwayat.append((i, w, b, loss_skrg))
+        
+        dw, db = gradien(x, y, w, b)
+        
+        w = w - (lr * dw)
+        b = b - (lr * db)
+        
+        if not np.isfinite(w):
+            break
+            
+    return w, b, riwayat
 
 
 def bagian4(x, y):
