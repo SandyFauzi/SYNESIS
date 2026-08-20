@@ -653,11 +653,93 @@ kodenya benar.
 
 ---
 
+## Sesi B diperiksa, Sesi C disiapkan · 20 Agustus 2026
+
+### Pemeriksaan jawaban Sesi B
+
+Bukti aljabar 0a rapi dan benar. Faktor pengali galat di 4a benar ketiganya.
+Cerita animasi di 6a bersih dari istilah teknis. Soal 3 tentang Hessian yang
+tidak bergantung pada `y` benar, begitu juga padanan fisikanya.
+
+Empat hal meleset, satu di antaranya bukan soal ketelitian.
+
+**Jawaban 4c bertentangan dengan tabel yang dicetak sendiri.** Jawabannya
+menyebut lintasan `lr = 0.12` sebagai yang paling lama sampai dasar. Kolom
+loss akhir di Bagian 3 membantahnya, dan pengukuran tambahan memperkuat:
+
+| lr | loss di iterasi 60 | panjang lintasan | iterasi sampai 1% dasar |
+|---|---|---|---|
+| 0.01 | 3.168473 | 5.74 | 185 |
+| 0.06 | 1.290335 | 7.59 | 30 |
+| 0.12 | 1.290407 | 63.41 | 38 |
+
+Yang menggergaji justru hampir lima kali lebih cepat dari yang merayap lurus.
+Gergaji bukan penyebab lambat, melainkan harga yang dibayar supaya boleh
+memakai `lr` besar. Dijadikan Soal 0a Sesi C.
+
+Ini pola kedua yang sama dengan Sesi A: kesimpulan yang terdengar masuk akal
+ditulis tanpa membaca ulang angka yang membantahnya.
+
+**Tiga koreksi kecil.** Parabola naik kuadratik, bukan eksponensial. Hessian
+bergantung pada `y` di model taklinear bukan karena ReLU patah, melainkan
+karena suku Gauss-Newton kedua memuat residu. Bilangan kondisi setelah
+pembakuan bukan sekadar "turun", tapi tepat `1`, dan itu persis kasus
+lingkaran yang sudah dijawab sendiri di Soal 2c.
+
+### Sesi C disiapkan
+
+`notebooks/sesiC_multivariat.py` dan `notebooks/soal-sesiC.md`. Empat TODO:
+`desain_polinom`, `mse_matriks`, `gradien_matriks` dengan denda L2, dan
+`latih_matriks`.
+
+Data barunya kubik `0.5x^3 - 2x + 1` dengan derau `1.5`, 15 titik latih dan
+200 titik uji. Derajat 3 adalah model yang benar, jadi ada pembanding jujur.
+
+Angka yang terverifikasi:
+
+- Verifikasi tiga arah di derajat 1 sepakat sampai `7e-15`: bentuk matriks,
+  rumus skalar Sesi A, dan beda hingga
+- Bilangan kondisi naik dari `2.6` di derajat 1 sampai `1.7e20` di derajat 14
+- Setelah dibakukan, derajat 1 memberi bilangan kondisi tepat `1.000e+00`
+- Derajat 3 butuh 242 iterasi mentah, 27 iterasi setelah dibakukan
+- Train loss turun monoton dari `3.47` sampai `0.000000` di derajat 14
+- Test loss punya dasar di derajat 3 dengan `4.26`, lalu meledak jadi
+  `5.7e9` di derajat 14
+- L2 menurunkan test loss derajat 14 dari `8.7e9` jadi `5.42` di
+  `lambda = 0.1`, dan `|theta|` dari `1.2e7` jadi `1.70`
+
+### Nilai eigen negatif sebagai alarm
+
+Di derajat 14 mentah, `eigvalsh` mengembalikan nilai eigen terkecil
+`-2.488e-08`. Matriks `X^T X` selalu semidefinit positif, jadi angka itu
+mustahil secara matematis.
+
+Versi pertama Bagian 3 memakai angka itu sebagai pembagi dan menghasilkan
+`inf` beserta peringatan overflow. Diperbaiki memakai `np.linalg.cond`, dan
+`lambda_min` sekarang dicetak sebagai kolom tersendiri supaya angka
+mustahilnya terlihat. Dijadikan Soal 3b.
+
+Angka yang mustahil adalah alarm paling jujur yang bisa didapat, dan
+harganya gratis.
+
+### Keputusan rancangan
+
+Bagian 5 dan 6 memakai solusi tertutup, bukan gradient descent. Alasannya
+jumlah iterasi sebanding dengan bilangan kondisi, dan di derajat 14 angkanya
+`1.7e20`. Disebutkan terbuka di berkasnya, dan jadi Soal 3e.
+
+Pembakuan data uji memakai statistik data latih, bukan statistiknya sendiri.
+Ini pencegahan kebocoran data, dan jadi Soal 6e sebagai pengantar bahaya
+yang akan muncul terus mulai Modul 2.
+
+---
+
 ## Berikutnya
 
-**Sesi B dikerjakan pemilik.** Tiga TODO diisi, dua utang Sesi A dilunasi,
-sepuluh kotak tolok ukur dituntaskan.
+**Sesi C dikerjakan pemilik.** Empat TODO diisi, empat catatan Sesi B
+dibereskan, sebelas kotak tolok ukur dituntaskan.
 
-**Sesi C setelahnya, multivariat dan overfitting.** Perluas ke `X` berbentuk
-`(n, d)` dalam bentuk matriks penuh, pasang polinomial derajat 1, 3, 9, dan 15
-ke data sedikit, pisahkan train dan test, lalu tambahkan suku L2.
+**Sesi D menutup Bulan 0.** Bandingkan dengan `LinearRegression` dan `Ridge`,
+tulis ulang dengan `torch.tensor` dan `requires_grad=True`, cocokkan
+`loss.backward()` dengan gradien tangan dalam `1e-6`, lalu ukur CPU lawan GPU
+untuk `d=10` dan `d=1000`.

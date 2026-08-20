@@ -21,6 +21,8 @@ data/
 # Keluaran
 outputs/
 figures/*.png
+figures/*.gif
+figures/*.mp4
 *.log
 
 # Rahasia

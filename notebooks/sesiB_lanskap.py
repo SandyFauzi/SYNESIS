@@ -54,10 +54,14 @@ def permukaan_loss(x, y, ws, bs):
 
     Versi ini boleh pakai loop bersarang. Yang penting benar dulu.
     Versi cepatnya ada di TODO 3.
-
-    TODO 1
     """
-    raise NotImplementedError("permukaan_loss")
+    nb = len(bs)
+    nw = len(ws)
+    L = np.zeros((nb, nw))
+    for j in range(nb):
+        for i in range(nw):
+            L[j, i] = mse(prediksi(x, ws[i], bs[j]), y)
+    return L
 
 
 def sumbu_utama(x):
@@ -72,10 +76,13 @@ def sumbu_utama(x):
 
     Kenapa Hessian tidak bergantung pada y sama sekali, padahal loss jelas
     bergantung pada y? Itu Soal 3.
-
-    TODO 2
     """
-    raise NotImplementedError("sumbu_utama")
+    A = np.sum(x * x) / len(x)
+    x_rata = np.mean(x)
+    H = np.array([[2 * A, 2 * x_rata], 
+                  [2 * x_rata, 2]])
+    nilai_eigen, vektor_eigen = np.linalg.eigh(H)
+    return H, nilai_eigen, vektor_eigen
 
 
 def permukaan_loss_vektor(x, y, ws, bs):
@@ -96,11 +103,15 @@ def permukaan_loss_vektor(x, y, ws, bs):
 
     Kembalikan array berbentuk (nb, nw), harus sama persis dengan
     keluaran permukaan_loss.
-
-    TODO 3, boleh dilewati kalau waktumu habis. Tapi jangan dilewati
-    kalau alasannya cuma karena terasa sulit.
     """
-    raise NotImplementedError("permukaan_loss_vektor")
+    ws_v = ws.reshape(1, len(ws), 1)
+    bs_v = bs.reshape(len(bs), 1, 1)
+    x_v  = x.reshape(1, 1, len(x))
+    y_v  = y.reshape(1, 1, len(y))
+    
+    ramalan = ws_v * x_v + bs_v
+    residu = ramalan - y_v
+    return np.mean(residu**2, axis=-1)
 
 
 def bagian1(x, y):
