@@ -1,0 +1,4 @@
+interface:
+  display_name: "SZH Skill Sync"
+  short_description: "Sync a safe Claude skill catalog with Git"
+  default_prompt: "Use $szh-skill-sync to plan the skills needed for this session."

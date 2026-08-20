@@ -1,0 +1,4 @@
+interface:
+  display_name: "SZH Import"
+  short_description: "Pull and load a SYNESIS chat archive"
+  default_prompt: "Use $szh-im to pull SYNESIS knowledge on this device."

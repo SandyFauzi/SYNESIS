@@ -1,0 +1,4 @@
+interface:
+  display_name: "SZH Export"
+  short_description: "Archive and push a Codex chat safely"
+  default_prompt: "Use $szh-ex to export this Codex chat to SYNESIS."
