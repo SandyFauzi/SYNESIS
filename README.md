@@ -161,7 +161,8 @@ S:\Code\Make A Jarvis\        workspace, repo git
 |-- scripts\                  utilitas
 |   |-- activate.ps1          aktivasi venv di drive lain
 |   |-- verify.py             audit lingkungan
-|   `-- progress.ps1          pemantau unduhan
+|   |-- progress.ps1          pemantau unduhan
+|   `-- cc_to_codex.py        jembatan arsip Claude Code ke Codex
 |-- figures\                  keluaran plot (di-gitignore)
 `-- synesis\                  kode sistem
 
@@ -256,6 +257,32 @@ siapa pun yang menelusuri masalah tiga bulan kemudian.
 | [`docs/Name.md`](docs/Name.md) | Identitas, etimologi, konvensi penamaan |
 | [`log.md`](log.md) | Log kerja: apa yang dikerjakan, keputusan, dan kesalahan |
 | [`notebooks/`](notebooks) | Latihan berpasangan: scaffold `.py` dan soal `.md` |
+
+---
+
+## Arsip Sesi Lintas Perangkat
+
+Folder `knowladge/sessions/` menyimpan arsip percakapan supaya konteks kerja
+bisa dilanjutkan di perangkat lain. Tiap arsip berisi `conversation.md`,
+`handoff.md`, dan `metadata.md`.
+
+Arsip dibuat oleh skill `szh-ex`, yang membaca log sesi Codex. Untuk sesi
+Claude Code, transkripnya dikonversi dulu ke skema yang sama:
+
+```powershell
+python scripts\cc_to_codex.py `
+  "$env:USERPROFILE\.claude\projects\<proyek>\<session-id>.jsonl" `
+  "$env:TEMP\rollout-<stamp>-<session-id>.jsonl" `
+  "s:\Code\Make A Jarvis"
+```
+
+Konverter membuang blok penalaran, panggilan alat, sisipan system-reminder,
+definisi skill, dan ringkasan sistem. Yang tersisa hanya pesan yang terlihat.
+Ia juga memangkas spasi di ujung baris, karena exporter menolak commit yang
+gagal `git diff --cached --check`.
+
+Nama berkas keluaran harus berakhir dengan UUID sesi, karena id arsip diambil
+dari situ.
 
 ---
 

@@ -801,6 +801,79 @@ yang ikut.
 
 ---
 
+## Ekspor arsip sesi lewat szh-ex · 20 Agustus 2026
+
+Pemilik meminta skill `szh-ex` dijalankan. Skill itu dibuat lewat Codex dan
+membaca log sesi Codex, sementara percakapan ini berjalan di Claude Code.
+Maksud pemilik: arsipnya jadi jembatan dua arah supaya konteks bisa dilanjutkan
+di perangkat mana pun.
+
+### Cara menyambungkannya
+
+`export_session.py` ternyata tidak mengunci diri ke Codex. Ia cuma mem-parse
+JSONL dengan skema tertentu, dan semua pengamannya berlaku apa pun sumbernya:
+redaksi rahasia, penolakan repo kotor, penolakan origin yang bukan SYNESIS,
+`pull --ff-only`, dan penjagaan supaya tidak ada berkas di luar folder sesi
+baru yang ikut ter-commit.
+
+Jadi skill-nya tidak disentuh sama sekali. Yang dibuat cuma konverter,
+`scripts/cc_to_codex.py`, yang memetakan transkrip Claude Code ke skema itu.
+
+### Yang dibuang konverter
+
+Sesuai batas yang ditetapkan SKILL.md sendiri: blok `thinking`, `tool_use`,
+`tool_result`, sisipan `<system-reminder>`, perancah perintah lokal, definisi
+skill, daftar alat, instruksi MCP, dan ringkasan sistem.
+
+Hasil akhir: 197 pesan terlihat dari 926 baris transkrip.
+
+### Dua kesalahan dan perbaikannya
+
+**Definisi skill ikut terbawa.** Versi pertama konverter meloloskan 6 pesan
+berisi definisi skill dan ringkasan sistem, sekitar 79 ribu dari 215 ribu
+karakter atau 37 persen arsip. Sebabnya isi skill tiba sebagai pesan ber-peran
+`user`, jadi lolos filter peran. Ditambahkan penyaring berbasis penanda, dan
+arsip menyusut jadi 137 ribu karakter.
+
+**Spasi di ujung baris menggagalkan commit.** Exporter menjalankan
+`git diff --cached --check` dan menolak. Penjagaannya bekerja. Konverter
+sekarang memangkas spasi ujung tiap baris. Konsekuensinya jeda baris markdown
+gaya dua spasi ikut hilang, dan itu memang harga memakai alat ini.
+
+Percobaan pertama meninggalkan tiga berkas ter-stage di klon sinkron.
+Dibersihkan dengan `git rm -r --cached` lalu hapus foldernya, bukan dengan
+`reset` atau `clean`, karena keduanya dilarang skill.
+
+**Nama berkas menentukan id arsip.** Percobaan pertama menghasilkan id
+`20260820T170917Z-sesi` karena berkasnya bernama `sesi.jsonl`. Regex
+`session_suffix` mencari UUID di akhir nama. Berkas dinamai ulang mengikuti
+pola `rollout-<stamp>-<uuid>.jsonl`.
+
+### Hasil
+
+```text
+archive    = knowladge/sessions/20260820T171024Z-b7845516-007e-41a6-8303-8bf009ed35ab
+messages   = 197
+redactions = 0
+commit     = a539361
+```
+
+Diverifikasi mendarat di `origin/main`. Push berjalan tanpa 403 karena Git
+Credential Manager sudah menyimpan kredensial `SandyFauzi` dari autentikasi
+sebelumnya, meski `export_session.py` memakai URL tanpa username.
+
+### Tinjauan sebelum push
+
+Repo ini publik, dan SKILL.md meminta diff ditinjau lebih dulu. Dipindai:
+nol token, nol kata sandi, nol blok penalaran, nol NPM. Tersisa satu penyebutan
+path home Windows dan dua penyebutan nama akun GitHub praktikum, keduanya
+muncul dalam prosa saat membahas kegagalan push, dan keduanya bukan rahasia.
+
+Konverter dipindahkan dari scratchpad ke `scripts/cc_to_codex.py` supaya ikut
+tersinkron ke perangkat lain, dan cara pakainya dicatat di README.
+
+---
+
 ## Berikutnya
 
 **Sesi C dikerjakan pemilik.** Empat TODO diisi, empat catatan Sesi B
