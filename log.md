@@ -447,6 +447,27 @@ dan pengalaman melihat overfitting di Sesi C. Keduanya pengalaman, bukan tugas.
 
 ---
 
+## Silabus · 20 Agustus 2026
+
+Dibuat `Silabus.md`, versi silabus dari roadmap dengan tujuan pembelajaran per
+modul. Ditulis ulang dari nol atas permintaan pemilik supaya berdiri sendiri
+sebagai rencana utuh, tanpa penanda progres. Progres tetap tinggal di berkas
+log ini.
+
+Struktur: identitas, deskripsi, delapan tujuan pembelajaran, tabel prasyarat
+yang sudah dipenuhi, tujuh modul, skema penilaian, aturan kerja, daftar alat,
+dan referensi.
+
+Tiap modul memuat bagian "kenapa modul ini ada" yang menjawab alasan materinya
+dipelajari, bukan cuma daftar isinya. Modul 0 dirinci jadi tujuh sesi mulai dari
+penyiapan lingkungan.
+
+Ditulis dengan skill `humanizer` dan `stop-slop` aktif. Diverifikasi bersih dari
+em dash, en dash, curly quote, dan emoji pada judul. 368 baris, 16 bagian utama,
+44 sub-bagian.
+
+---
+
 ## Berikutnya
 
 **Hari 2, numpy sampai paham.** Broadcasting, slicing, lalu menulis dot product

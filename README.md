@@ -226,6 +226,7 @@ siapa pun yang menelusuri masalah tiga bulan kemudian.
 | `Roadmap.md` | Rencana enam bulan, arsitektur, jembatan fisika ke ML |
 | `Bulan-0-Harian.md` | Diagnosa lingkungan dan rencana harian 13 sampai 31 Agustus |
 | `Name.md` | Identitas, etimologi, konvensi penamaan |
+| `Silabus.md` | Silabus per modul beserta tujuan pembelajarannya |
 | `log.md` | Log kerja: apa yang dikerjakan, keputusan, dan kesalahan |
 | `README.md` | Berkas ini |
 
