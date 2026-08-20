@@ -406,6 +406,47 @@ lalu $w^* = -B/2A$, yaitu solusi kuadrat terkecil bentuk tertutup.
 
 ---
 
+## Hari 3 selesai + akselerasi · 20 Agustus 2026
+
+### Jawaban Hari 3 diperiksa
+
+Seluruhnya benar. Ranking Soal 1 cocok persis dengan kunci. Tiga fungsi lolos
+uji. Soal 3a sampai 3e benar. Soal 4b, 4c, 4d benar termasuk penurunan
+`w* = -B/2A`. Soal 5a sampai 5c benar.
+
+Satu koreksi presisi: pada 5a padanannya `k = 2A`, bukan `k = A`, karena
+potensial pegas memuat faktor setengah sementara bentuk `A(w-w*)^2` tidak.
+
+### Akselerasi diminta dan diterapkan
+
+Pemilik menyatakan diri pembelajar cepat dengan 5 tahun pengalaman C ke Python.
+Bukti mendukung: Hari 1 sampai 3 tuntas dalam satu hari, seluruh jawaban benar
+termasuk penurunan aljabar dan ramalan perilaku divergensi sebelum melihat data.
+
+**Bulan-0-Harian.md**: Hari 5 sampai 19 digabung jadi empat sesi.
+
+| Sesi | Menggantikan | Isi |
+|---|---|---|
+| A | Hari 5, 6, 7 | turunkan gradien, gradient check, training loop |
+| B | Hari 8, 9 | sapuan learning rate, permukaan 3D, animasi |
+| C | Hari 10, 12, 13 | multivariat, overfitting, regularisasi |
+| D | Hari 14, 15, 16 | sklearn, PyTorch autograd, GPU |
+
+**Roadmap.md**: bagian 5b ditambahkan. Total kira-kira 4 bulan, bukan 6.
+
+Tiga bulan sengaja tidak dipadatkan: Bulan 3 karena debugging audio tidak bisa
+dipercepat, Bulan 5 karena attention memang sulit, Bulan 6 karena integrasi
+selalu molor.
+
+Dicatat juga bahwa batas sebenarnya adalah kalender, bukan kemampuan. Dengan
+22 SKS dan sekitar 8 jam per minggu, akselerasi berarti lebih sedikit sesi
+untuk cakupan sama, bukan lebih banyak jam.
+
+Dua sesi ditandai tidak boleh dipadatkan lagi: animasi permukaan loss di Sesi B
+dan pengalaman melihat overfitting di Sesi C. Keduanya pengalaman, bukan tugas.
+
+---
+
 ## Berikutnya
 
 **Hari 2, numpy sampai paham.** Broadcasting, slicing, lalu menulis dot product

@@ -262,6 +262,71 @@ Modelnya akan payah. Itu wajar dan bukan masalah — **poinnya kamu sudah memban
 
 ---
 
+## 5b. Kecepatan yang Direvisi
+
+> **Direvisi 20 Agustus 2026**, setelah Hari 1 sampai 3 selesai dalam satu hari
+> dengan seluruh jawaban benar, termasuk penurunan `w* = -B/2A` dan ramalan
+> perilaku divergensi sebelum melihat datanya. Ditambah 5 tahun pengalaman C
+> dan Python, kecepatan aslinya terlalu lambat.
+
+Urutan bulannya tidak berubah. Yang berubah durasinya.
+
+| Bulan | Semula | Jadi | Alasan |
+|---|---|---|---|
+| 0 · fondasi | 19 hari | **4 sesi** | keterampilan Python sudah menutupinya |
+| 1 · backprop & autograd | 4 minggu | **2 minggu** | matematikanya sudah kamu kuasai |
+| 2 · embedding & classifier | 4 minggu | **2 minggu** | mayoritas rekayasa, bukan konsep baru |
+| 3 · konvolusi & suara | 4 minggu | **3 minggu** | **ditahan** — lihat catatan di bawah |
+| 4 · metric learning & wajah | 4 minggu | **2 minggu** | mayoritas pemanggilan pustaka |
+| 5 · attention & transformer | 4 minggu | **3–4 minggu** | **ditahan** — bagian tersulit |
+| 6 · integrasi & LLM lokal | 4 minggu | **4 minggu** | **ditahan** — integrasi selalu molor |
+
+Total kira-kira **4 bulan**, bukan 6. Dua bulan yang terbebas jatuh ke produk,
+yang memang tanpa tenggat.
+
+### Yang tidak dipadatkan, dan kenapa
+
+Tiga bulan sengaja ditahan pada durasi aslinya. Bukan karena meragukan
+kecepatanmu, tapi karena hambatannya bukan kecepatan belajar.
+
+**Bulan 3, suara.** Di sinilah kenyataan menggigit. Latensi, kuirk perangkat
+audio, ambang VAD yang meleset, wake word yang salah picu di ruangan berisik.
+Semua itu perlu waktu berjam-jam yang tidak bisa dipercepat dengan membaca
+lebih cepat. Ini debugging perangkat keras, bukan belajar konsep.
+
+**Bulan 5, transformer.** Attention benar-benar sulit, bahkan bagi programmer
+berpengalaman. Bug di sini tidak melempar error, ia menghasilkan model yang
+melatih diri tanpa pernah membaik. Menemukannya butuh kesabaran, bukan
+kecepatan.
+
+**Bulan 6, integrasi.** Menyatukan enam modul yang masing-masing jalan sendiri
+selalu memakan waktu lebih lama dari perkiraan siapa pun. Ini hukum, bukan
+dugaan.
+
+### Batas sebenarnya bukan kemampuanmu
+
+Kamu punya sekitar 8 jam per minggu dengan beban 22 SKS. Belajar tiga kali
+lebih cepat tidak menambah jam dalam seminggu.
+
+Jadi akselerasi ini berarti **lebih sedikit sesi untuk cakupan yang sama**,
+bukan lebih banyak jam. Kalender tetap yang memegang kendali.
+
+### Satu risiko yang naik
+
+Yang paling sering menjatuhkan pembelajar cepat adalah melompati bagian yang
+terasa lambat padahal justru di situ intuisinya dibangun.
+
+Dua hal berikut wajib dikerjakan utuh meski terasa remeh:
+
+- **Sesi B Bulan 0**, animasi lintasan di permukaan loss
+- **Sesi C Bulan 0**, melihat sendiri test loss naik saat train loss turun
+
+Keduanya pengalaman, bukan tugas. Kamu sudah menjelaskan overfitting dengan
+benar di Soal 3b secara konsep. Melihatnya terjadi di layarmu sendiri adalah
+hal yang berbeda, dan itulah yang menempel.
+
+---
+
 ## 6. Posisi Kamu di Akhir Februari
 
 **Yang akan kamu pahami — bukan sekadar pakai:**

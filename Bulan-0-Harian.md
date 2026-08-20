@@ -159,117 +159,96 @@ Pola tiap hari: satu tujuan, tugas konkret, dan definisi selesai yang bisa diper
 
 ---
 
-### Minggu 2 · Gradient descent (17–23 Agt)
+### Sisa Bulan 0 — dipadatkan jadi 4 sesi
 
-#### Hari 5 — Senin 17 Agt *(HUT RI)* · 1 jam ringan · *Turunkan di kertas*
-
-- Turunkan `∂MSE/∂w` dan `∂MSE/∂b` **dengan tangan, di kertas**
-- Tanpa kode hari ini. Ini kerja Fisika Matematika, dan kamu sudah ahli
-
-**Selesai bila:** punya rumus gradien tertulis yang bisa kamu jelaskan langkah demi langkah.
-
-#### Hari 6 — Selasa 18 Agt · 2 jam · *Implementasi gradien*
-
-- Kode fungsi gradien dari rumus kemarin
-- **Gradient check**: bandingkan dengan turunan numerik (beda hingga) — ini keahlian Komputasi Numerik-mu, dan teknik yang akan kamu pakai terus sampai Bulan 5
-
-**Selesai bila:** selisih gradien analitik vs numerik < `1e-6`.
-
-#### Hari 7 — Rabu 19 Agt · 2 jam · *Training loop pertama*
-
-- Loop: hitung loss → hitung gradien → perbarui bobot → ulang
-- Cetak loss tiap 100 iterasi
-
-**Selesai bila:** `w → 3` dan `b → 2`, dan kamu melihat loss menurun di layar. **Ini training pertamamu.**
-
-#### Hari 8 — Kamis 20 Agt · 2 jam · *Learning rate*
-
-- Coba `lr` = 0.0001, 0.01, 0.1, 1.0
-- Amati: terlalu kecil → merambat; terlalu besar → **divergen**
-- Plot kurva loss semua `lr` dalam satu grafik
-
-**Selesai bila:** bisa menunjukkan grafik yang divergen dan menjelaskan kenapa langkah terlalu besar melampaui minimum.
-
-#### Hari 9 — Jumat 21 Agt · 2.5 jam · *Permukaan loss 3D* ⭐
-
-- Plot permukaan `L(w, b)` dalam 3D
-- Timpa dengan lintasan gradient descent
-- Animasikan — `matplotlib.FuncAnimation`, atau `manim` yang sudah terpasang
-
-**Ini hari paling penting di Bulan 0.** Kamu akan melihat langsung bahwa training itu bola menggelinding menuruni permukaan energi potensial. Setelah melihatnya, kamu tidak akan pernah lagi menganggap gradient descent abstrak.
-
-**Selesai bila:** punya animasi lintasan turun ke minimum.
-
-#### Hari 10 — Sabtu 22 Agt · 2 jam · *Multivariat & vektorisasi*
-
-- Perluas ke banyak fitur: `X` berukuran `(n, d)`, `w` berukuran `(d,)`
-- Tulis ulang seluruhnya dalam bentuk matriks — **tanpa satu pun loop**
-
-**Selesai bila:** kode yang sama jalan untuk `d=1` dan `d=10` tanpa diubah.
-
-#### Hari 11 — Minggu 23 Agt · **ISTIRAHAT**
+> **Direvisi 20 Agustus 2026.** Hari 1 sampai 3 selesai dalam satu hari dengan
+> seluruh jawaban benar, termasuk penurunan aljabar dan ramalan perilaku
+> divergensi. Ditambah 5 tahun pengalaman C dan Python, rencana harian aslinya
+> terlalu lambat. Hari 5 sampai 19 digabung jadi empat sesi.
+>
+> Yang dipadatkan: bagian yang keterampilanmu sudah menutupinya.
+> Yang **tidak** dipadatkan: bagian yang membangun intuisi, karena itu
+> pengalaman, bukan tugas.
 
 ---
 
-### Minggu 3 · Overfitting, PyTorch & konsolidasi (24–31 Agt)
+#### Sesi A — Gradient descent utuh · ~3 jam
+*Menggantikan Hari 5, 6, 7*
 
-#### Hari 12 — Senin 24 Agt · 2 jam · *Overfitting pertamamu*
+- Turunkan `∂MSE/∂w` dan `∂MSE/∂b` di kertas
+- Kode fungsi gradien dari rumus itu
+- **Gradient check**: bandingkan analitik lawan beda hingga, target selisih < `1e-6`
+- Training loop: hitung loss, hitung gradien, perbarui, ulang
 
-- Fit polinomial derajat 1, 3, 9, 15 ke data yang sedikit
-- Plot semuanya — derajat 15 akan melewati **semua** titik tapi berperilaku liar di antaranya
-- Split train/test, plot kedua loss-nya
+**Selesai bila:** `w → 3` dan `b → 2` dari tebakan awal apa pun, dan gradient
+check lolos.
 
-**Selesai bila:** punya grafik di mana **test loss naik** sementara **train loss terus turun**. Itulah wajah overfitting.
+Gradient check itu teknik yang akan kamu pakai terus sampai Bulan 5. Di Bulan 1
+ia menjadi satu-satunya cara memverifikasi mesin autograd buatanmu sendiri.
 
-#### Hari 13 — Selasa 25 Agt · 2 jam · *Regularisasi*
+---
 
-- Tambahkan suku L2 ke loss
-- Amati efeknya pada polinomial derajat 15
-- **Jembatan fisika:** ini peredaman — persis seperti suku redaman pada osilator
+#### Sesi B — Lanskap dan langkah · ~3 jam ⭐
+*Menggantikan Hari 8 dan 9*
 
-**Selesai bila:** derajat 15 + L2 menghasilkan kurva yang halus kembali.
+- Sapu `lr` = 0.0001, 0.01, 0.1, 1.0. Plot semua kurva loss dalam satu grafik
+- **Cocokkan dengan ramalanmu di Soal 5c Hari 3**
+- Plot permukaan loss `L(w, b)` dalam 3D
+- Timpa dengan lintasan gradient descent, lalu animasikan
 
-#### Hari 14 — Rabu 26 Agt · 1.5 jam · *Bandingkan dengan sklearn*
+**Selesai bila:** kamu punya animasi bola menggelinding ke dasar mangkuk, dan
+grafik yang menunjukkan `lr` besar melempar keluar.
 
-- Jalankan `LinearRegression` dan `Ridge` dari scikit-learn
-- Bandingkan koefisiennya dengan hasil tulisanmu
+**Sesi ini tidak boleh dipadatkan lagi.** Melihat lintasan itu bergerak mengubah
+gradient descent dari rumus jadi benda yang kamu kenali. Setelah itu kamu tidak
+akan pernah lagi menganggapnya abstrak, dan seluruh Bulan 1 sampai 5 berdiri di
+atas intuisi ini.
 
-**Selesai bila:** selisih koefisien < `1e-6` — dan kamu tahu langsung bahwa sklearn tidak melakukan sihir apa pun.
+---
 
-#### Hari 15 — Kamis 27 Agt · 2 jam · *PyTorch mengerjakan hal yang sama*
+#### Sesi C — Multivariat, overfitting, regularisasi · ~3 jam
+*Menggantikan Hari 10, 12, 13*
 
-- Tulis ulang regresi linear dengan `torch.tensor` + `requires_grad=True`
-- Panggil `loss.backward()`, lalu **bandingkan gradiennya dengan gradien manualmu**
+- Perluas ke `X` berbentuk `(n, d)`, tulis ulang penuh dalam bentuk matriks
+- Fit polinomial derajat 1, 3, 9, 15 ke data sedikit
+- Split train/test, plot kedua loss dalam satu grafik
+- Tambahkan suku L2, amati efeknya pada derajat 15
 
-**Selesai bila:** gradien PyTorch sama dengan gradien tulisanmu (selisih < `1e-6`). Inilah momen `autograd` berhenti terasa gaib — dan pintu masuk ke Bulan 1.
+**Selesai bila:** kamu punya grafik dengan **test loss naik sementara train loss
+turun**, dan kamu bisa menunjukkan L2 memperbaikinya.
 
-#### Hari 16 — Jumat 28 Agt · 2 jam · *GPU*
+Kamu sudah menjelaskan overfitting dengan benar di Soal 3b secara konsep.
+Sesi ini membuatmu **melihatnya terjadi**. Dua hal berbeda.
 
-- Pindahkan tensor ke `.cuda()`, ukur waktunya
-- Bandingkan CPU vs GPU untuk `d=10` dan `d=1000`
-- Catat pemakaian VRAM dengan `nvidia-smi`
+---
 
-**Selesai bila:** kamu tahu kapan GPU menang dan kapan tidak — untuk data kecil, **CPU justru lebih cepat** karena ongkos transfer memori. Ini pelajaran yang menyelamatkanmu dari banyak salah paham nanti.
+#### Sesi D — Penutup: sklearn, PyTorch, GPU · ~3 jam
+*Menggantikan Hari 14, 15, 16*
 
-#### Hari 17 — Sabtu 29 Agt · 2 jam · *Rapikan & dokumentasikan*
+- Jalankan `LinearRegression` dan `Ridge`, bandingkan koefisiennya dengan hasilmu
+- Bandingkan juga dengan `w*` analitik dari Soal 4c Hari 3
+- Tulis ulang dengan `torch.tensor` dan `requires_grad=True`
+- Panggil `loss.backward()`, **bandingkan gradiennya dengan gradien tanganmu**
+- Pindahkan ke `.cuda()`, ukur CPU lawan GPU untuk `d=10` dan `d=1000`
 
-- Pindahkan notebook ke modul `.py` yang rapi
-- Tulis README: apa yang kamu pelajari, lengkap dengan plot
-- Commit
+**Selesai bila:** gradien PyTorch cocok dengan gradien tulisanmu dalam `1e-6`,
+dan kamu tahu kapan GPU justru kalah dari CPU.
 
-**Selesai bila:** repo bisa dibaca orang lain tanpa penjelasan lisan.
+Momen `backward()` cocok dengan turunan tanganmu adalah pintu masuk Bulan 1.
+Setelah itu autograd berhenti terasa gaib, dan membangunnya sendiri jadi masuk
+akal.
 
-#### Hari 18 — Minggu 30 Agt · **ISTIRAHAT / buffer**
+---
 
-Kalau ada hari yang meleset minggu ini, pakai hari ini untuk mengejar.
+#### Rapikan dan tinjau
+*Menggantikan Hari 17 dan 19*
 
-#### Hari 19 — Senin 31 Agt · 1.5 jam · *Tinjau & siapkan Bulan 1*
+Tidak lagi jadi sesi terpisah. Rapikan sambil jalan, dan tulis entri log di
+akhir tiap sesi sesuai aturan di README.
 
-- Baca ulang seluruh kodemu — bisakah kamu jelaskan **tiap baris**?
-- Susun pertanyaan untuk dosen Machine Learning dan DSP soal menjadikan modul sebagai tugas besar
-- Baca sekilas apa itu `micrograd` — **jangan dikode dulu**, itu jatah Bulan 1
-
-**Selesai bila:** kamu siap masuk Bulan 1 tanpa ada yang mengganjal dari Bulan 0.
+Satu hal yang tetap perlu waktu khusus: **susun pertanyaan untuk dosen Machine
+Learning dan DSP** soal menjadikan modul proyek ini sebagai tugas besar.
+Lakukan di minggu pertama kuliah, sebelum topik tugas ditetapkan.
 
 ---
 

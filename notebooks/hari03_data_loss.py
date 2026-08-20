@@ -74,7 +74,7 @@ def prediksi(x, w, b):
 
     TODO 1
     """
-    raise NotImplementedError("TODO 1")
+    return w * x + b
 
 
 def mse(y_ramal, y_asli):
@@ -89,7 +89,8 @@ def mse(y_ramal, y_asli):
 
     TODO 2
     """
-    raise NotImplementedError("TODO 2")
+    diff = y_ramal - y_asli
+    return np.sum(diff * diff) / len(y_asli)
 
 
 def mae(y_ramal, y_asli):
@@ -99,7 +100,7 @@ def mae(y_ramal, y_asli):
 
     TODO 3
     """
-    raise NotImplementedError("TODO 3")
+    return np.sum(np.abs(y_ramal - y_asli)) / len(y_asli)
 
 
 # ══════════════════════════════════════════════════════════════
