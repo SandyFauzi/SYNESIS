@@ -1,7 +1,7 @@
 """Hari 2 - numpy sampai paham.
 
 Cara pakai:
-    . .\\activate.ps1
+    . .\\scripts\\activate.ps1
     python notebooks\\hari02_numpy.py
 
 Bagian bertanda TODO kamu yang isi. Jangan lihat np.dot dulu.

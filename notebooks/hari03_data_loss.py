@@ -1,7 +1,7 @@
 """Hari 3 - data dan loss.
 
 Jalankan:
-    . .\\activate.ps1
+    . .\\scripts\\activate.ps1
     python notebooks\\hari03_data_loss.py
 
 Hari ini kamu membangun permukaan yang akan dituruni di Hari 7.

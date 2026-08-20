@@ -1,7 +1,7 @@
 """Sesi C - multivariat, overfitting, regularisasi.
 
 Jalankan:
-    . .\\activate.ps1
+    . .\\scripts\\activate.ps1
     python notebooks\\sesiC_multivariat.py
 
 Sampai sekarang modelmu punya dua kenop. Hari ini jadi banyak, dan seluruh
@@ -75,10 +75,11 @@ def desain_polinom(x, derajat):
     itu, geseran b berhenti jadi kasus khusus dan berubah jadi salah satu
     parameter biasa. Setelah ini tidak ada lagi w dan b terpisah, cuma
     satu vektor theta.
-
-    TODO 1
     """
-    raise NotImplementedError("desain_polinom")
+    X = np.ones((len(x), derajat + 1))
+    for i in range(1, derajat + 1):
+        X[:, i] = x ** i
+    return X
 
 
 def mse_matriks(X, y, theta):
@@ -89,10 +90,9 @@ def mse_matriks(X, y, theta):
 
     Satu baris cukup. Perhatikan bahwa rumus ini tidak peduli berapa
     kolom X punya. Itu seluruh gunanya menulis ulang dalam bentuk matriks.
-
-    TODO 2
     """
-    raise NotImplementedError("mse_matriks")
+    residu = X @ theta - y
+    return np.mean(residu**2)
 
 
 def gradien_matriks(X, y, theta, lam=0.0):
@@ -110,10 +110,12 @@ def gradien_matriks(X, y, theta, lam=0.0):
     boleh didenda. Mendendanya berarti memaksa garis lewat dekat titik
     asal, dan itu bukan yang kamu mau. Jadi jangan tambahkan suku denda
     pada theta[0].
-
-    TODO 3
     """
-    raise NotImplementedError("gradien_matriks")
+    n = len(y)
+    residu = X @ theta - y
+    denda = 2 * lam * theta
+    denda[0] = 0.0  # kolom 0 adalah bias, jangan didenda
+    return (2/n) * (X.T @ residu) + denda
 
 
 def latih_matriks(X, y, theta, lr, n_iter, lam=0.0):
@@ -123,10 +125,17 @@ def latih_matriks(X, y, theta, lr, n_iter, lam=0.0):
     theta jadi vektor, bukan dua angka terpisah.
 
     Hentikan lebih awal kalau theta sudah tidak berhingga.
-
-    TODO 4
     """
-    raise NotImplementedError("latih_matriks")
+    theta = theta.copy().astype(float)
+    riwayat_loss = []
+    for i in range(n_iter):
+        g = gradien_matriks(X, y, theta, lam)
+        theta = theta - lr * g
+        loss = mse_matriks(X, y, theta)
+        riwayat_loss.append(loss)
+        if not np.isfinite(theta).all() or not np.isfinite(loss):
+            break
+    return theta, riwayat_loss
 
 
 def ridge_tertutup(X, y, lam):

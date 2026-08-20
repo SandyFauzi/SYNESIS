@@ -1,7 +1,7 @@
 """Sesi B - lanskap dan langkah.
 
 Jalankan:
-    . .\\activate.ps1
+    . .\\scripts\\activate.ps1
     python notebooks\\sesiB_lanskap.py
 
 Sesi A memberi kamu angka. Sesi ini memberi kamu gambar.

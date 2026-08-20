@@ -12,7 +12,7 @@
 | Biaya | Rp 0 |
 | Prasyarat | Fisika Matematika I sampai III, Komputasi Numerik, pemrograman Python |
 
-Dokumen pendamping: [Roadmap.md](Roadmap.md) untuk rencana besar, [Bulan-0-Harian.md](Bulan-0-Harian.md) untuk rencana harian, [log.md](log.md) untuk catatan kerja.
+Dokumen pendamping: [Roadmap.md](Roadmap.md) untuk rencana besar, [Bulan-0-Harian.md](Bulan-0-Harian.md) untuk rencana harian, [log.md](../log.md) untuk catatan kerja.
 
 ---
 
@@ -345,13 +345,13 @@ Satu tolok ukur tambahan yang berlaku di semua modul: kamu bisa menjelaskan kode
 
 **Terjemahkan ke bahasa fisika.** Tiap konsep baru, tanyakan padanannya di fisika. Hampir selalu ada, dan itu keunggulan yang tidak dimiliki mayoritas orang yang belajar ML.
 
-**Catat di log.** Setiap proses yang selesai masuk [log.md](log.md), termasuk kesalahan dan cara memperbaikinya.
+**Catat di log.** Setiap proses yang selesai masuk [log.md](../log.md), termasuk kesalahan dan cara memperbaikinya.
 
 ---
 
 ## Alat
 
-Semuanya gratis dan berjalan lokal. Rincian versi ada di [README.md](README.md).
+Semuanya gratis dan berjalan lokal. Rincian versi ada di [README.md](../README.md).
 
 Python 3.12 dengan numpy, scipy, matplotlib, dan scikit-learn untuk fondasi. PyTorch untuk deep learning. librosa, faster-whisper, openWakeWord, dan Piper untuk suara. OpenCV dan InsightFace untuk visi. Ollama dengan Qwen3-4B untuk LLM lokal.
 
@@ -361,7 +361,7 @@ Perangkat: Ryzen 5 4600H, RAM 15,4 GB, GTX 1650 Ti dengan 4 GB VRAM. Cukup untuk
 
 ## Referensi
 
-Dokumen di repo ini: [Roadmap.md](Roadmap.md), [Bulan-0-Harian.md](Bulan-0-Harian.md), [Name.md](Name.md), [log.md](log.md).
+Dokumen di repo ini: [Roadmap.md](Roadmap.md), [Bulan-0-Harian.md](Bulan-0-Harian.md), [Name.md](Name.md), [log.md](../log.md).
 
 Bahan luar yang dipakai: nanoGPT dan micrograd karya Andrej Karpathy untuk Modul 1 dan 5, dataset MNIST untuk Modul 1, Google Speech Commands untuk Modul 3, dokumentasi InsightFace untuk Modul 4.
 

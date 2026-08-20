@@ -1,5 +1,5 @@
 # Aktifkan lingkungan SYNESIS.
-# Pakai:  . .\activate.ps1
+# Pakai dari akar repo:  . .\scripts\activate.ps1
 
 $venv = "E:\SYNESIS\.venv\Scripts\Activate.ps1"
 

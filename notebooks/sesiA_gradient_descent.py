@@ -1,7 +1,7 @@
 """Sesi A - gradient descent utuh.
 
 Jalankan:
-    . .\\activate.ps1
+    . .\\scripts\\activate.ps1
     python notebooks\\sesiA_gradient_descent.py
 
 Hari 3 kamu membangun permukaannya. Hari ini kelerengnya menggelinding.

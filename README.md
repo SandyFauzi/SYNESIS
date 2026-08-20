@@ -145,29 +145,55 @@ FaceAnalysis(name="buffalo_s", root=r"E:\SYNESIS\.cache\insightface")
 
 ```text
 S:\Code\Make A Jarvis\        workspace, repo git
-├── synesis\                  kode
-├── notebooks\                eksplorasi
-├── docs\                     dokumen
-│   └── akademik\             KPA & KRS (di-gitignore)
-├── activate.ps1              helper aktivasi venv
-└── *.md                      README, Roadmap, Bulan-0, Name
+|-- README.md                 halaman depan
+|-- log.md                    catatan kerja kronologis
+|-- requirements.txt
+|-- docs\                     dokumen rencana
+|   |-- Roadmap.md            rencana enam bulan
+|   |-- Silabus.md            silabus per modul
+|   |-- Modul.md              penjelasan konsep (+ Modul.pdf)
+|   |-- Bulan-0-Harian.md     rencana harian Bulan 0
+|   |-- Name.md               identitas dan etimologi
+|   `-- akademik\             KPA & KRS (di-gitignore)
+|-- notebooks\                latihan dan soal
+|   |-- hari02_numpy.py       ... sesiC_multivariat.py
+|   `-- soal-hari02.md        ... soal-sesiC.md
+|-- scripts\                  utilitas
+|   |-- activate.ps1          aktivasi venv di drive lain
+|   |-- verify.py             audit lingkungan
+|   `-- progress.ps1          pemantau unduhan
+|-- figures\                  keluaran plot (di-gitignore)
+`-- synesis\                  kode sistem
 
-E:\SYNESIS\                   gudang, tidak masuk git
-├── .venv\                    paket Python, sekitar 5 GB
-├── .cache\                   sekitar 8 GB
-│   ├── pip│   ├── huggingface│   ├── torch│   ├── ollama│   └── insightface└── data\                     dataset, sekitar 3 GB
+E:\SYNESIS                    gudang, tidak masuk git
+|-- .venv\                    paket Python, sekitar 5 GB
+|-- .cache\                   sekitar 8 GB
+|   |-- pip\
+|   |-- huggingface\
+|   |-- torch\
+|   |-- ollama\
+|   `-- insightface\
+`-- data\                     dataset, sekitar 3 GB
 ```
 
 venv berada di luar repo, jadi aktifkan lewat helper:
 
 ```powershell
-. .ctivate.ps1
+. .\scripts\activate.ps1
 ```
 
 Kalau enclosure `E:` tidak terpasang, venv tidak ada dan tidak ada yang jalan.
 Helper itu akan bilang.
 
 ### Cara memastikan
+
+Audit lengkap dalam satu perintah:
+
+```powershell
+python scripts\verify.py
+```
+
+Atau manual:
 
 ```powershell
 # venv aktif?
@@ -223,13 +249,13 @@ siapa pun yang menelusuri masalah tiga bulan kemudian.
 
 | Berkas | Isi |
 |---|---|
-| `Roadmap.md` | Rencana enam bulan, arsitektur, jembatan fisika ke ML |
-| `Bulan-0-Harian.md` | Diagnosa lingkungan dan rencana harian 13 sampai 31 Agustus |
-| `Name.md` | Identitas, etimologi, konvensi penamaan |
-| `Silabus.md` | Silabus per modul beserta tujuan pembelajarannya |
-| `Modul.md` | Penjelasan semua konsep dengan gambaran konkret, plus versi `Modul.pdf` |
-| `log.md` | Log kerja: apa yang dikerjakan, keputusan, dan kesalahan |
-| `README.md` | Berkas ini |
+| [`docs/Roadmap.md`](docs/Roadmap.md) | Rencana enam bulan, arsitektur, jembatan fisika ke ML |
+| [`docs/Silabus.md`](docs/Silabus.md) | Silabus per modul beserta tujuan pembelajarannya |
+| [`docs/Modul.md`](docs/Modul.md) | Penjelasan semua konsep dengan gambaran konkret, plus [`Modul.pdf`](docs/Modul.pdf) |
+| [`docs/Bulan-0-Harian.md`](docs/Bulan-0-Harian.md) | Diagnosa lingkungan dan rencana harian Bulan 0 |
+| [`docs/Name.md`](docs/Name.md) | Identitas, etimologi, konvensi penamaan |
+| [`log.md`](log.md) | Log kerja: apa yang dikerjakan, keputusan, dan kesalahan |
+| [`notebooks/`](notebooks) | Latihan berpasangan: scaffold `.py` dan soal `.md` |
 
 ---
 

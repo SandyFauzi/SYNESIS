@@ -1,6 +1,6 @@
 """Audit lingkungan SYNESIS.
 
-Jalankan tiap akhir bulan: python verify.py
+Jalankan tiap akhir bulan: python scriptserify.py
 Memastikan tidak ada yang bocor ke C: dan venv masih sehat.
 """
 import os
@@ -15,7 +15,7 @@ def cek_venv():
     benar = str(prefix).upper().startswith(r"E:\SYNESIS")
     print(f"{OK if benar else BAD} venv aktif : {prefix}")
     if not benar:
-        print("         Jalankan dulu:  . .\activate.ps1")
+        print(r"         Jalankan dulu:  . .\scripts\activate.ps1")
     return benar
 
 
