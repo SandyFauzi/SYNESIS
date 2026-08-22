@@ -80,7 +80,15 @@ class Value:
 
         TODO 1a
         """
-        raise NotImplementedError("Value.__add__")
+        other = other if isinstance(other, Value) else Value(other)
+        out = Value(self.data + other.data, (self, other), '+')
+
+        def _backward():
+            self.grad  += out.grad
+            other.grad += out.grad
+
+        out._backward = _backward
+        return out
 
     def __mul__(self, other):
         """Perkalian.
@@ -94,7 +102,15 @@ class Value:
 
         TODO 1b
         """
-        raise NotImplementedError("Value.__mul__")
+        other = other if isinstance(other, Value) else Value(other)
+        out = Value(self.data * other.data, (self, other), '*')
+
+        def _backward():
+            self.grad  += other.data * out.grad
+            other.grad += self.data  * out.grad
+
+        out._backward = _backward
+        return out
 
     def __pow__(self, k):
         """Pangkat dengan eksponen tetap. k adalah angka biasa, bukan Value.
@@ -104,7 +120,14 @@ class Value:
 
         TODO 1c
         """
-        raise NotImplementedError("Value.__pow__")
+        assert isinstance(k, (int, float)), "eksponen harus angka biasa"
+        out = Value(self.data ** k, (self,), f'**{k}')
+
+        def _backward():
+            self.grad += (k * self.data ** (k - 1)) * out.grad
+
+        out._backward = _backward
+        return out
 
     def relu(self):
         """Tekukan. relu(x) = maks(0, x).
@@ -116,7 +139,13 @@ class Value:
 
         TODO 1d
         """
-        raise NotImplementedError("Value.relu")
+        out = Value(max(0, self.data), (self,), 'relu')
+
+        def _backward():
+            self.grad += (self.data > 0) * out.grad
+
+        out._backward = _backward
+        return out
 
     # ---------- TODO 2 ----------
     def backward(self):
@@ -149,7 +178,20 @@ class Value:
 
         TODO 2
         """
-        raise NotImplementedError("Value.backward")
+        topo, terlihat = [], set()
+
+        def bangun(v):
+            if v not in terlihat:
+                terlihat.add(v)
+                for anak in v._prev:
+                    bangun(anak)
+                topo.append(v)
+
+        bangun(self)
+
+        self.grad = 1.0
+        for simpul in reversed(topo):
+            simpul._backward()
 
     # ---------- disediakan, turunan dari yang di atas ----------
     def __neg__(self):

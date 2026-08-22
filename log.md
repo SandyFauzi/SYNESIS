@@ -1062,6 +1062,68 @@ sebelum melangkah. Selisih tergeser `0.000e+00`.
 
 ---
 
+## 22 Agustus 2026 - Mesin autograd jalan, plus tiga temuan uji lanjutan
+
+Pemilik mengisi kelima TODO `bulan1_sesi1_autograd.py` dan merevisi jawaban
+1a, 2b, dan 4a di `soal-sesiD.md`. Ketiga revisi tepat.
+
+### Hasil menjalankan mesinnya
+
+Angkanya identik dengan versi acuan:
+
+- 9 baris uji beda hingga lolos semua
+- 300 ekspresi acak, galat relatif terburuk `1.866e-08`, nol gagal
+- Cocok dengan PyTorch di `0.000e+00` untuk ketiga peubah
+- Regresi kubik terlatih sampai loss `1.410770` lawan optimum `lstsq` `1.410678`
+
+### Uji lanjutan di luar tabel bawaan
+
+Enam kasus alias, tempat satu simpul dipakai berkali-kali dalam satu graf.
+Semua lolos, jadi keputusan `+=` di dalam `_backward` terbukti benar bukan
+cuma di `a * a`:
+
+| ekspresi | dL/da | harusnya |
+|---|---|---|
+| `a + a` | 2.000000 | 2 |
+| `(a*a)*(a*a)` | 19.652000 | 4a^3 |
+| `a - a` | 0.000000 | 0 |
+| `a / a` | 0.000000 | 0 |
+| `a*a*a + a*a` | 12.070000 | 3a^2 + 2a |
+| `relu(a)` di a=0 | 0.000000 | 0 |
+
+### Temuan 1, mesinnya mewarisi jebakan Soal 2b Sesi D
+
+Memanggil `backward()` dua kali tanpa menolkan grad menggandakan hasilnya:
+`6.0` lalu `12.0`, rasio tepat 2. Ini perilaku yang sama persis dengan yang
+baru saja dijelaskan pemilik di Soal 2b, sekarang di mesin buatannya sendiri.
+Scaffold Bagian 5 sudah menolkan grad manual. Di Sesi 2 loop itu ditulis
+sendiri, jadi jebakannya jadi miliknya sendiri.
+
+### Temuan 2, batas rekursi akan mematahkan Sesi 3
+
+`bangun` di dalam `backward` bersifat rekursif. Batas rekursi Python 1000,
+dan rantai terpanjang yang masih jalan terukur 996 operasi.
+
+Kedalaman DFS untuk satu MLP kira-kira `n_masukan + n_tersembunyi`, dan
+ramalan itu cocok dengan pengukuran:
+
+| arsitektur | kedalaman | hasil |
+|---|---|---|
+| 784 -> 16 -> 1 | 800 | lolos |
+| 784 -> 128 -> 1 | 912 | lolos |
+| 784 -> 200 -> 1 | 984 | lolos |
+| 784 -> 256 -> 1 | 1040 | RecursionError |
+
+Jadi MNIST dengan lapisan tersembunyi ukuran wajar akan patah. Perbaikannya
+menunggu Sesi 3, dan pilihannya ada tiga: susun topologi secara iteratif
+memakai tumpukan eksplisit, naikkan `sys.setrecursionlimit`, atau pindah ke
+`Value` berbasis array. Yang pertama yang benar.
+
+Ini bukan cacat di kode pemilik. Kerangka rekursif itu saya yang menuliskan di
+docstring, dan batasnya memang tidak disebut di sana.
+
+---
+
 ## Berikutnya
 
 **Bulan 1 Sesi 1 dikerjakan pemilik.** Lima TODO diisi, tiga koreksi Soal 0
