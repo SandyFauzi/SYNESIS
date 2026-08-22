@@ -1311,6 +1311,119 @@ Delapan bab dirender ulang. Durasinya tidak berubah: Bulan 0 tetap 2 menit
 
 ---
 
+## 22 Agustus 2026 - Belok ke sprint, lalu balik ke Bulan 2
+
+Pemilik meminta percepatan: SYNESIS harus jalan 25 Agustus karena langganan
+Claude habis 27 dan tidak ada dana perpanjangan.
+
+### Kesalahan saya, dua kali
+
+Pertanyaannya "memungkinkan ga kalau dipercepat". Saya menjawabnya dengan
+memasang Ollama. Dihentikan pemilik. Saya ulangi lagi setelah dia menjawab
+tiga pertanyaan, dihentikan lagi.
+
+Dua-duanya unduhan saya batalkan dan diverifikasi tidak meninggalkan apa pun:
+`ollama` tidak ada di PATH, `~/.ollama` tidak ada.
+
+Pelajarannya bukan "jangan install". Pertanyaan berbentuk "bisa tidak" itu
+minta penilaian kelayakan, bukan eksekusi. Dan keputusan seperti lokasi
+penyimpanan harus diambil sebelum pemasangan, bukan sesudah. Justru pemilik
+yang menangkap itu, bukan saya.
+
+### Hasil diskusi req.md
+
+Tiga kekeliruan di dokumen itu diluruskan:
+
+1. Yang disebut Mixture of Experts sebenarnya model routing. MoE itu
+   arsitektur di dalam satu model dengan router memilih sub-jaringan per token.
+   Beda hal.
+2. Yang disebut knowledge distillation sebenarnya membangun korpus untuk RAG.
+   Distillation itu melatih model kecil meniru distribusi model besar.
+3. Klaim "tumpah ke RAM, aman tanpa crash" terlalu optimis. Ollama bisa OOM,
+   dan kalaupun berhasil kecepatannya jatuh drastis.
+
+Temuan yang paling mengubah rencana: **bagian 1, 2, 3 req.md jalan di model
+3B, sedangkan bagian 4, 5, 6 terhalang ukuran model, bukan waktu ngoding.**
+MCP butuh model yang bisa mengeluarkan JSON sah dengan andal; agent loop
+otonom butuh perencanaan banyak langkah. Model 3B gagal di keduanya.
+
+Artinya langit-langitnya GPU, bukan usaha. Dan jalan menaikkannya bukan
+menulis lebih banyak kode, tapi mempersempit tugas sampai model kecil cukup.
+Itu persis Bulan 2.
+
+### OpenJarvis diperiksa
+
+Repo yang dimaksud pemilik nyata: open-jarvis/OpenJarvis, Stanford Hazy
+Research dan Scaling Intelligence Lab, 8.900 bintang, Apache 2.0, Python 3.10
+ke atas, memakai Ollama, Windows didukung native.
+
+Keputusan pemilik: SYNESIS tetap ditulis sendiri, OpenJarvis jadi acuan yang
+dibaca setelah tiap bulan selesai. Alasannya kalau macet setelah 27 Agustus
+dia men-debug tujuh berkas kecil buatannya, bukan kerangka riset Stanford.
+
+Risiko yang belum diperiksa: README OpenJarvis tidak menyebut kebutuhan VRAM
+sama sekali.
+
+### Keputusan pemilik, tercatat di docs/Rencana-Sprint-25-Agustus.md
+
+- Program Ollama di `D:\Apps\Ollama` lewat junction dari `C:`, cara yang
+  sudah dia pakai untuk Minecraft Java dan Julia
+- Model di `E:\SYNESIS\ollama-models` lewat `OLLAMA_MODELS`
+- Ollama nyala manual, karena VRAM harus bebas total saat main game
+- Tiga model sesuai req.md, bukan satu
+- Suara target Yukino Yukinoshita; kepribadian saya garap di `konfig.SISTEM`,
+  berkas model konversi suara pemilik yang sediakan
+
+### Yang ditulis
+
+Rangka SYNESIS, empat berkas, belum tersambung ke apa pun:
+
+- `synesis/konfig.py` semua tetapan di satu tempat
+- `synesis/otak.py` sambungan HTTP ke Ollama, dengan pesan error yang memberi
+  langkah perbaikan bukan cuma nama exception
+- `synesis/ingat.py` pencarian ke `knowledge/` pakai TF-IDF sklearn
+- `synesis/alat.py` baca berkas, cari, info sistem, dengan pagar folder dan
+  izin untuk perintah yang mengubah disk
+
+Plus `docs/Rencana-Sprint-25-Agustus.md`, berisi sprint tiga hari dan nasib
+Bulan 1 sampai 4.
+
+### Bulan 2 Sesi 1
+
+Atas permintaan pemilik, malam ini kembali ke kurikulum. Dia mau tetap belajar
+sungguhan, tidak cuma punya produk.
+
+`notebooks/bulan2_sesi1_kata.py` dan `notebooks/soal-bulan2-sesi1.md`. Tujuh
+TODO: bag-of-words, kemiripan kosinus, sigmoid, entropi silang, gradien
+logistik, softmax.
+
+Diverifikasi dengan versi terisi:
+
+| Ukuran | Hasil |
+|---|---|
+| kosakata dari 36 kalimat | 106 kata |
+| vektor yang nol | 97,2 persen |
+| galat gradien lawan beda hingga | 1,166e-10 |
+| akurasi biner | 100 persen |
+| akurasi enam kelas | 100 persen |
+| ukuran pengklasifikasi | 5,0 KB, nol VRAM |
+| perbandingan dengan Qwen2.5-3B | 378.816 kali |
+
+### Kesalahan yang ditemukan saat menyusun
+
+Bagian 2 versi pertama memakai empat pasangan kalimat yang **semuanya**
+menghasilkan kemiripan nol. Demonstrasinya tidak menunjukkan apa pun, dan
+kebutaan sinonim yang mau ditunjukkan jadi tidak terbedakan dari
+ketidakmiripan biasa.
+
+Diganti lima pasangan yang berjenjang: 0,516, 0,258, 0,204, lalu dua nol yang
+artinya berbeda. Bedanya jadi Soal 2a.
+
+Kelas kesalahan yang sama dengan uji hampa `relu(a*b)` di Bulan 1: contoh yang
+dipilih tidak bisa membedakan benar dari salah.
+
+---
+
 ## Berikutnya
 
 **Bulan 1 Sesi 1 dikerjakan pemilik.** Lima TODO diisi, tiga koreksi Soal 0
