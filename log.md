@@ -1424,6 +1424,65 @@ dipilih tidak bisa membedakan benar dari salah.
 
 ---
 
+## 22 Agustus 2026 - Bulan 1 Sesi 2, Neuron sampai MLP
+
+Pemilik minta Bulan 1 dituntaskan dulu sebelum lanjut. Benar urutannya.
+
+`notebooks/bulan1_sesi2_mlp.py` dan `notebooks/soal-bulan1-sesi2.md`. Tujuh
+TODO: `Neuron.__init__`, `Neuron.__call__`, `Layer.__init__`, `Layer.__call__`,
+`MLP.__init__`, `MLP.__call__`, `MLP.nolkan`. Semuanya di atas kelas `Value`
+buatan pemilik, nol `import torch`.
+
+### Hasil versi terisi
+
+| Ukuran | Hasil |
+|---|---|
+| parameter MLP 2-8-1 | 33, cocok dengan hitungan tangan |
+| galat gradien 17 parameter lawan beda hingga | 7,062e-12 |
+| akurasi garis lurus di cincin sepusat | 65,0 persen |
+| akurasi 8 neuron tersembunyi | 100,0 persen |
+| sebaran akurasi 6 seed, model 2-4-1 | 79,2 sampai 100,0 persen |
+| neuron mati di lr 8,0 | 8 dari 8, akurasi jatuh ke 50 persen |
+
+### Dua kesalahan yang ditemukan saat menyusun, keduanya kelas yang sama
+
+**Pertama, datanya salah pilih.** Versi awal memakai dua bulan sabit. Garis
+lurus dapat 87,5 persen dan MLP 89,2 persen. Selisih 1,7 persen tidak
+membuktikan apa pun, dan pemilik bisa dengan wajar menyimpulkan lapisan
+tersembunyi tidak berguna.
+
+Diganti dua cincin sepusat. Sekarang 65,0 lawan 100,0, dan mustahilnya garis
+lurus bisa dibuktikan di kertas dalam satu paragraf lewat argumen kecembungan.
+
+**Kedua, Bagian 5 membantah prosanya sendiri.** Dengan 8 neuron, kelima seed
+mencapai 100 persen. Teksnya mengklaim tiap titik awal mendarat di lembah yang
+berbeda, sementara tabel di atasnya menunjukkan semuanya mendarat sama.
+
+Diperbaiki dengan menyempitkan jaringan jadi 2-4-1, yang memberi sebaran nyata
+79,2 sampai 100,0. Ditambah percobaan kedua: seed dikunci, cuma lr diubah,
+dan di lr 8,0 kedelapan neuron mati dengan akurasi jatuh ke 50 persen.
+
+Kedua kesalahan ini kelas yang sama dengan uji hampa `relu(a*b)` di Sesi 1 dan
+pasangan kalimat nol semua di Bulan 2 Sesi 1: **contoh yang dipilih tidak bisa
+membedakan benar dari salah.** Tiga kali dalam satu hari. Pemeriksaannya
+sederhana dan harus jadi kebiasaan: setelah menyusun demonstrasi, tanya apakah
+hasilnya akan berbeda seandainya klaimnya salah.
+
+### Satu perbaikan kecil
+
+`latih` mencetak walau `kabar` dipasang sangat besar, karena `0 % 10**9 == 0`
+dan iterasi terakhir selalu dicetak. Akibatnya tabel Bagian 5 tersisipi baris
+kemajuan. Sekarang `kabar=0` berarti diam.
+
+### Gambar keluarannya
+
+`figures/bulan1_sesi2_batas.png` menunjukkan batas keputusan sebagai poligon,
+bukan kurva. Ruas-ruas lurus bertemu di sudut, mengurung cincin dalam. Itu
+membuat sifat linear sepotong-sepotong jaringan relu terlihat langsung, dan
+jadi bahan Soal 7.
+
+---
+
 ## Berikutnya
 
 **Bulan 1 Sesi 1 dikerjakan pemilik.** Lima TODO diisi, tiga koreksi Soal 0
