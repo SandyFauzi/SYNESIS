@@ -1259,6 +1259,58 @@ angkanya akan curang.
 
 ---
 
+## 22 Agustus 2026 - Teks video ditulis ulang dalam bahasa Inggris
+
+Permintaan pemilik: bahasa penjelasannya payah, ganti gaya buku teks tapi
+lebih intuitif, pakai bahasa Inggris, untuk kedua seri. Visual tidak diubah.
+
+Dipakai dua skill: feynman-perspective dan ai-feynman-techniek-coach, bukan
+sebagai dialog tapi sebagai metode menulis. Aturan yang diambil dari keduanya:
+
+- mulai dari benda konkret, jangan dari teori
+- kalimat pendek, satu gagasan per kalimat
+- jangan menumpuk istilah untuk terlihat dalam
+- istilah yang terpaksa dipakai langsung dijelaskan lewat perbandingan
+- nama sesuatu bukan pemahaman tentang sesuatu
+
+### Contoh perubahannya
+
+| Sebelum | Sesudah |
+|---|---|
+| Mesin Turunan | The Slope Machine |
+| aturan rantai. yang kamu pakai sejak Fisika Matematika I. | the chain rule. The same one from first year calculus. |
+| BEDA HINGGA / cuma mengevaluasi fungsi | NUDGE AND MEASURE / just runs the function twice |
+| data latih, data uji | data it studied, data it never saw |
+| derajat 9, test 923.58 | degree 9, unseen data 923.58 |
+| norma theta tanpa denda | size of weights, no spring |
+| lembah dengan bilangan kondisi 384 | a valley 384 times steeper one way than the other |
+| Osilator tak teredam, di dalam kodemu. | A pendulum with no friction, inside your code. |
+
+Yang diubah cuma teks yang muncul di layar. Komentar, nama fungsi, dan nama
+variabel di dalam kode tetap Indonesia, karena itu yang dibaca pemilik saat
+menyunting, bukan penonton.
+
+### Rincian teknis
+
+Delapan berkas disunting lewat daftar pasangan (lama, baru) yang diperiksa
+satu per satu, bukan cari-ganti buta. Tiap berkas dilaporkan berapa dari
+berapa yang cocok, supaya penggantian yang meleset ketahuan langsung.
+Hasilnya 114 dari 114 cocok, nol byte kendali di semua berkas.
+
+Tiga hal kecil ikut dibetulkan karena bahasanya berubah:
+
+1. `1{,}5` di rumus rantai Bab 4 jadi `1.5`. Koma desimal gaya Indonesia
+   salah baca di teks Inggris.
+2. Pemisah ribuan `1.032.000` jadi `1,032,000`.
+3. Status tabel rekursi `lolos` jadi `fits`, dipetakan saat menggambar bukan
+   diubah di datanya, supaya berkas `.npz` tetap cocok dengan skrip
+   pra-hitungnya.
+
+Delapan bab dirender ulang. Durasinya tidak berubah: Bulan 0 tetap 2 menit
+49 detik, Bulan 1 tetap 2 menit 10 detik.
+
+---
+
 ## Berikutnya
 
 **Bulan 1 Sesi 1 dikerjakan pemilik.** Lima TODO diisi, tiga koreksi Soal 0

@@ -84,9 +84,9 @@ class Bab4(Scene):
     def construct(self):
         self.camera.background_color = PALET["latar"]
 
-        jd = judul("Mesin Turunan", 38)
-        sj = subjudul(["Bulan 1  ·  isi loss.backward(),",
-                       "ditulis sendiri dari kosong"])
+        jd = judul("The Slope Machine", 34)
+        sj = subjudul(["Month 1  ·  what is actually inside",
+                       "loss.backward(), written from scratch"])
         mk, kk = merek(), kaki()
 
         self.play(FadeIn(mk, run_time=0.5), FadeIn(kk, run_time=0.5))
@@ -112,7 +112,7 @@ class Bab4(Scene):
             panah(n_r, n_L, PALET["garis"]),
         ]
 
-        sj_maju = pencacah("HITUNG MAJU   ·   nilai mengalir turun",
+        sj_maju = pencacah("FORWARD   ·   values flow downward",
                            PALET["biru"], 19)
         self.play(FadeIn(sj_maju, run_time=0.4))
 
@@ -127,15 +127,16 @@ class Bab4(Scene):
             self.play(*anim)
         self.wait(0.8)
 
-        ket_maju = label_kecil("tiap operasi mencatat siapa induknya. "
-                               "itu saja grafnya.", PALET["redup"], 15)
+        ket_maju = label_kecil("every operation writes down who its parents were. "
+                               "That is the whole graph.",
+                               PALET["redup"], 14)
         ket_maju.move_to([0, -4.05, 0])
         self.play(FadeIn(ket_maju, run_time=0.5))
         self.wait(1.2)
         self.play(FadeOut(ket_maju), run_time=0.3)
 
         # ---------- mundur ----------
-        sj_mundur = pencacah("HITUNG MUNDUR   ·   turunan mengalir naik",
+        sj_mundur = pencacah("BACKWARD   ·   slopes flow upward",
                             PALET["hijau"], 19)
         self.play(Transform(sj_maju, sj_mundur), run_time=0.5)
 
@@ -173,7 +174,7 @@ class Bab4(Scene):
                            r"\frac{\partial r}{\partial v}\,"
                            r"\frac{\partial v}{\partial u}\,"
                            r"\frac{\partial u}{\partial w}"
-                           r"=-2\cdot 1\cdot 1\cdot 1{,}5=-3",
+                           r"=-2\cdot 1\cdot 1\cdot 1.5=-3",
                            font_size=26, color=PALET["kuning"])
         r_rantai.move_to([0, -4.15, 0])
         if r_rantai.width > 8.2:
@@ -181,8 +182,8 @@ class Bab4(Scene):
         self.play(Write(r_rantai, run_time=1.4))
         self.wait(1.0)
 
-        ket_rantai = label_kecil("aturan rantai. yang kamu pakai sejak Fisika Matematika I.",
-                                 PALET["redup"], 15)
+        ket_rantai = label_kecil("the chain rule. The same one from first year calculus.",
+                                 PALET["redup"], 14)
         ket_rantai.move_to([0, -5.05, 0])
         self.play(FadeIn(ket_rantai, run_time=0.5))
         self.wait(1.6)
@@ -194,8 +195,8 @@ class Bab4(Scene):
             FadeOut(sj_maju), FadeOut(sj), run_time=0.7,
         )
 
-        sj2 = subjudul(["satu simpul dipakai dua kali,",
-                        "dan satu karakter menentukan benar atau salah"])
+        sj2 = subjudul(["One node used twice, and a single",
+                        "character decides right from wrong"])
         self.play(FadeIn(sj2, run_time=0.5))
 
         a_nilai = 1.7
@@ -212,8 +213,8 @@ class Bab4(Scene):
         self.play(FadeIn(n_a), FadeIn(n_p), Create(kiri), Create(kanan),
                   run_time=0.9)
 
-        ket_dua = label_kecil("dua jalur, dua sumbangan gradien ke simpul yang sama",
-                              PALET["redup"], 15)
+        ket_dua = label_kecil("two paths, two slope contributions into the same node",
+                              PALET["redup"], 14)
         ket_dua.move_to([0, -0.55, 0])
         self.play(FadeIn(ket_dua, run_time=0.5))
         self.wait(0.8)
@@ -223,7 +224,7 @@ class Bab4(Scene):
                  color=PALET["merah"]),
             Text(f"dL/da = {a_nilai:g}", font=FONT_MONO, weight=BOLD,
                  font_size=21, color=PALET["merah"]),
-            Text("GAGAL", font=FONT_MONO, weight=BOLD, font_size=17,
+            Text("FAILS", font=FONT_MONO, weight=BOLD, font_size=17,
                  color=PALET["merah"]),
         ).arrange(DOWN, buff=0.18).move_to([-2.05, -2.15, 0])
 
@@ -232,7 +233,7 @@ class Bab4(Scene):
                  color=PALET["hijau"]),
             Text(f"dL/da = {2 * a_nilai:g}", font=FONT_MONO, weight=BOLD,
                  font_size=21, color=PALET["hijau"]),
-            Text("lolos", font=FONT_MONO, weight=BOLD, font_size=17,
+            Text("passes", font=FONT_MONO, weight=BOLD, font_size=17,
                  color=PALET["hijau"]),
         ).arrange(DOWN, buff=0.18).move_to([2.05, -2.15, 0])
 
@@ -254,15 +255,15 @@ class Bab4(Scene):
                   FadeOut(ket_dua), FadeOut(salah), FadeOut(benar),
                   FadeOut(pk), FadeOut(sj2), run_time=0.7)
 
-        sj3 = subjudul(["tiga saksi yang tidak saling menyalin,",
-                        "dan dua di antaranya kamu yang tulis"])
+        sj3 = subjudul(["Three witnesses that never copied",
+                        "each other, and you wrote two of them"])
         self.play(FadeIn(sj3, run_time=0.5))
 
         saksi = VGroup()
         for nama, ket, warna in [
-            ("BEDA HINGGA", "cuma mengevaluasi fungsi\ntidak tahu apa-apa soal rantai", PALET["biru"]),
-            ("MESIN BUATANMU", "graf komputasi\n90 baris tulisan sendiri", PALET["kuning"]),
-            ("PYTORCH", "autograd industri\nditulis ribuan orang", PALET["ungu"]),
+            ("NUDGE AND MEASURE", "just runs the function twice\nknows nothing about the chain rule", PALET["biru"]),
+            ("YOUR OWN ENGINE", "a computation graph\n90 lines you wrote yourself", PALET["kuning"]),
+            ("PYTORCH", "industrial autograd\nwritten by thousands of people", PALET["ungu"]),
         ]:
             kotak = RoundedRectangle(width=7.6, height=1.42, corner_radius=0.14,
                                      fill_color=PALET["kartu"], fill_opacity=1.0,
@@ -281,17 +282,17 @@ class Bab4(Scene):
         self.wait(0.8)
 
         kartu = kartu_angka([
-            (f"{UJI_ACAK} ekspresi acak, galat", GALAT_TERBURUK),
-            ("cocok dengan PyTorch", COCOK_TORCH),
-            ("yang gagal", "0"),
+            (f"{UJI_ACAK} random expressions, worst gap", GALAT_TERBURUK),
+            ("agreement with PyTorch", COCOK_TORCH),
+            ("failures", "0"),
         ], warna_nilai=PALET["hijau"]).move_to([0, -2.55, 0])
         self.play(FadeIn(kartu, shift=UP * 0.2, run_time=0.7))
         self.wait(1.6)
 
         tutup = Paragraph(
-            "loss.backward() berhenti jadi kotak hitam",
-            "bukan karena dibaca dokumentasinya,",
-            "tapi karena ditulis ulang lalu dibuktikan cocok.",
+            "loss.backward() stopped being a black box",
+            "not by reading the documentation,",
+            "but by rewriting it and proving it agrees.",
             font=FONT_MONO, font_size=17, color=PALET["teks"],
             line_spacing=0.75, alignment="center",
         ).move_to([0, -4.75, 0])

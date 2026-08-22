@@ -67,11 +67,11 @@ def lintasan(lr, n=60, w0=0.0, b0=0.0):
 
 
 REZIM = [
-    (0.15, "terlalu kecil", PALET["biru"]),
-    (0.60, "pas", PALET["hijau"]),
-    (0.95, "berayun, tapi sampai", PALET["kuning"]),
-    (1.00, "tepat di batas", PALET["jingga"]),
-    (1.02, "lewat batas", PALET["merah"]),
+    (0.15, "too timid", PALET["biru"]),
+    (0.60, "just right", PALET["hijau"]),
+    (0.95, "bounces, still lands", PALET["kuning"]),
+    (1.00, "exactly at the limit", PALET["jingga"]),
+    (1.02, "one step too far", PALET["merah"]),
 ]
 
 KODE = """
@@ -84,9 +84,9 @@ class Bab2(ThreeDScene):
     def construct(self):
         self.camera.background_color = PALET["latar"]
 
-        jd = judul("Lanskap dan Langkah", 36)
-        sj = subjudul(["Sesi B  ·  ada batas langkah yang bisa",
-                       "dihitung sebelum training dimulai"])
+        jd = judul("How Big a Step", 36)
+        sj = subjudul(["Session B  ·  there is a step size limit",
+                       "you can compute before training starts"])
         mk, kk = merek(), kaki()
         self.add_fixed_in_frame_mobjects(jd, sj, mk, kk)
         self.remove(jd, sj, mk, kk)
@@ -124,7 +124,7 @@ class Bab2(ThreeDScene):
         self.play(Create(sumbu3d, run_time=1.0))
         self.play(Create(mangkuk, run_time=2.0))
 
-        lbl = label_kecil("sumbu datar: w dan b   ·   tinggi: seberapa salah",
+        lbl = label_kecil("floor: w and b   ·   height: how wrong you are",
                           PALET["redup"], 16)
         lbl.move_to([0, -3.55, 0])
         self.add_fixed_in_frame_mobjects(lbl)
@@ -160,8 +160,8 @@ class Bab2(ThreeDScene):
         self.wait(0.6)
 
         # ---------- naik ke atas: mangkuk jadi peta kontur ----------
-        sj2 = subjudul(["dilihat dari atas, mangkuknya",
-                        "jadi peta kontur"])
+        sj2 = subjudul(["Seen from directly above,",
+                        "the bowl becomes a contour map"])
         self.add_fixed_in_frame_mobjects(sj2)
         self.remove(sj2)
 
@@ -195,15 +195,15 @@ class Bab2(ThreeDScene):
         self.wait(0.8)
 
         # ---------- lima nilai lr ----------
-        sj3 = subjudul(["langkah yang sama, lima ukuran.",
-                        "hanya satu yang salah arah"])
+        sj3 = subjudul(["The same step, five sizes.",
+                        "Only one of them runs away"])
         self.add_fixed_in_frame_mobjects(sj3)
         self.remove(sj3)
         self.play(FadeOut(sj2), FadeIn(sj3), run_time=0.5)
 
         kartu_batas = kartu_angka([
-            ("lambda maks Hessian", f"{LAM_MAKS:.4f}"),
-            ("batas aman  2/lambda", f"{LR_BATAS:.6f}"),
+            ("steepest curvature", f"{LAM_MAKS:.4f}"),
+            ("safe limit  2/curvature", f"{LR_BATAS:.6f}"),
         ], warna_nilai=PALET["kuning"]).move_to([0, -5.15, 0])
         self.add_fixed_in_frame_mobjects(kartu_batas)
         self.play(FadeIn(kartu_batas, run_time=0.6))
@@ -245,8 +245,8 @@ class Bab2(ThreeDScene):
                   FadeOut(garis_terakhir[2]), FadeOut(kartu_batas), run_time=0.5)
 
         # ---------- angka penutup ----------
-        sj4 = subjudul(["ambangnya bukan tebakan.",
-                        "ia keluar dari nilai eigen Hessian"])
+        sj4 = subjudul(["The limit is not a guess. It falls",
+                        "out of the curvature of the bowl"])
         self.add_fixed_in_frame_mobjects(sj4)
         self.remove(sj4)
         self.play(FadeOut(sj3), FadeIn(sj4), run_time=0.5)
@@ -261,7 +261,7 @@ class Bab2(ThreeDScene):
         hasil = []
         for faktor, nama, _ in REZIM:
             jln = lintasan(faktor * LR_BATAS, n=60)
-            hasil.append((f"lr = {faktor:.2f} x batas", f"{jln[-1][2]:.2f}"))
+            hasil.append((f"lr = {faktor:.2f} x limit", f"{jln[-1][2]:.2f}"))
         kartu2 = kartu_angka(hasil, ukuran=18,
                              warna_nilai=PALET["teks"]).move_to([0, -5.55, 0])
         self.add_fixed_in_frame_mobjects(kartu2)
@@ -270,9 +270,9 @@ class Bab2(ThreeDScene):
         self.wait(1.4)
 
         tutup = Paragraph(
-            "Di batasnya tepat, ia berayun selamanya:",
-            "tidak menurun, tidak meledak.",
-            "Osilator tak teredam, di dalam kodemu.",
+            "Exactly at the limit it swings forever:",
+            "never settling, never blowing up.",
+            "A pendulum with no friction, inside your code.",
             font=FONT_MONO, font_size=18, color=PALET["teks"],
             line_spacing=0.75, alignment="center",
         ).move_to([0, -7.05, 0])

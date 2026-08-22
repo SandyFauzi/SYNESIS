@@ -36,16 +36,16 @@ REK_TABEL = ANGKA["rekursi_tabel"]
 
 
 def ribuan(n):
-    return f"{int(n):,}".replace(",", ".")
+    return f"{int(n):,}"
 
 
 class B1Bab3(Scene):
     def construct(self):
         self.camera.background_color = PALET["latar"]
 
-        jd = judul("Dinding di Depan", 34)
-        sj = subjudul(["mesinmu benar, dan itu sudah dibuktikan.",
-                       "yang belum: berapa ongkosnya"])
+        jd = judul("The Wall Ahead", 34)
+        sj = subjudul(["Your engine is correct, and that is proven.",
+                       "What is not yet known is what it costs."])
         mk, kk = merek(), kaki()
 
         self.play(FadeIn(mk, run_time=0.5), FadeIn(kk, run_time=0.5))
@@ -54,7 +54,7 @@ class B1Bab3(Scene):
         self.wait(0.4)
 
         # ---------- satu objek per angka ----------
-        kiri_judul = label_kecil("mesinmu", PALET["kuning"], 18)
+        kiri_judul = label_kecil("your engine", PALET["kuning"], 18)
         kanan_judul = label_kecil("PyTorch", PALET["ungu"], 18)
         kiri_judul.move_to([-2.15, 4.05, 0])
         kanan_judul.move_to([2.15, 4.05, 0])
@@ -83,10 +83,10 @@ class B1Bab3(Scene):
                             stroke_color=PALET["ungu"], stroke_width=0.7,
                             stroke_opacity=0.4))
 
-        kiri_ket = Paragraph("36 objek Python", "36 closure", "36 pointer",
+        kiri_ket = Paragraph("36 Python objects", "36 closures", "36 pointers",
                              font=FONT_MONO, font_size=14, color=PALET["redup"],
                              line_spacing=0.6, alignment="center")
-        kanan_ket = Paragraph("1 objek", "1 blok memori", "1 panggilan BLAS",
+        kanan_ket = Paragraph("1 object", "1 memory block", "1 BLAS call",
                               font=FONT_MONO, font_size=14, color=PALET["redup"],
                               line_spacing=0.6, alignment="center")
         kiri_ket.next_to(butir, DOWN, buff=0.26)
@@ -99,23 +99,23 @@ class B1Bab3(Scene):
         self.play(FadeIn(kiri_ket), FadeIn(kanan_ket), run_time=0.6)
         self.wait(1.2)
 
-        ket = label_kecil("angka yang disimpan sama banyak. ongkos mengurusnya tidak.",
+        ket = label_kecil("the same count of numbers. Not the same cost of managing them.",
                           PALET["redup"], 15).move_to([0, 0.35, 0])
         self.play(FadeIn(ket, run_time=0.5))
         self.wait(1.4)
 
         kartu1 = kartu_angka([
-            ("objek Value per iterasi", ribuan(VAL_PER_ITER)),
-            ("selama 4000 iterasi", ribuan(VAL_TOTAL)),
-            ("satu maju MLP 784-32-10", ribuan(VAL_MNIST)),
+            ("Value objects per iteration", ribuan(VAL_PER_ITER)),
+            ("across 4000 iterations", ribuan(VAL_TOTAL)),
+            ("one forward pass, 784-32-10", ribuan(VAL_MNIST)),
         ], ukuran=17, warna_nilai=PALET["kuning"]).move_to([0, -1.85, 0])
         self.play(FadeIn(kartu1, shift=UP * 0.2, run_time=0.7))
         self.wait(1.6)
 
         kartu2 = kartu_angka([
-            ("satu langkah, gaya Value", f"{WAKTU_VALUE:.2f} ms"),
-            ("satu langkah, numpy", f"{WAKTU_NUMPY:.2f} ms"),
-            ("selisihnya", f"{WAKTU_VALUE / max(WAKTU_NUMPY, 1e-9):.0f} kali"),
+            ("one step, object by object", f"{WAKTU_VALUE:.2f} ms"),
+            ("one step, whole arrays", f"{WAKTU_NUMPY:.2f} ms"),
+            ("ratio", f"{WAKTU_VALUE / max(WAKTU_NUMPY, 1e-9):.0f} times"),
         ], ukuran=17, warna_nilai=PALET["ungu"]).move_to([0, -4.25, 0])
         self.play(FadeIn(kartu2, shift=UP * 0.2, run_time=0.7))
         self.wait(1.8)
@@ -126,8 +126,8 @@ class B1Bab3(Scene):
                   FadeOut(kanan_ket), FadeOut(ket), FadeOut(kartu1),
                   FadeOut(kartu2), FadeOut(sj), run_time=0.7)
 
-        sj2 = subjudul(["ada dinding kedua, dan ini",
-                        "akan menghentikanmu di Sesi 3"])
+        sj2 = subjudul(["There is a second wall, and this one",
+                        "will stop you cold in Session 3"])
         self.play(FadeIn(sj2, run_time=0.5))
 
         kode = Paragraph(
@@ -135,7 +135,7 @@ class B1Bab3(Scene):
             "    if v not in terlihat:",
             "        terlihat.add(v)",
             "        for anak in v._prev:",
-            "            bangun(anak)          <-- memanggil dirinya",
+            "            bangun(anak)          <-- calls itself",
             "        topo.append(v)",
             font=FONT_MONO, font_size=15, color=PALET["teks"],
             line_spacing=0.62, alignment="left",
@@ -148,27 +148,29 @@ class B1Bab3(Scene):
         kode.move_to(kotak_kode.get_center())
 
         self.play(FadeIn(grup_kode, run_time=0.8))
-        ket_kode = label_kecil("rekursif. tiap simpul menambah satu bingkai tumpukan.",
+        ket_kode = label_kecil("recursive. Every node adds one frame to the stack.",
                                PALET["redup"], 15)
         ket_kode.next_to(grup_kode, DOWN, buff=0.24)
         self.play(FadeIn(ket_kode, run_time=0.5))
         self.wait(1.2)
 
         kartu3 = kartu_angka([
-            ("batas rekursi Python", ribuan(REK_LIMIT)),
-            ("rantai terpanjang yang jalan", ribuan(REK_BATAS)),
+            ("Python recursion limit", ribuan(REK_LIMIT)),
+            ("longest chain that survives", ribuan(REK_BATAS)),
         ], ukuran=18, warna_nilai=PALET["kuning"]).move_to([0, 0.55, 0])
         self.play(FadeIn(kartu3, shift=UP * 0.2, run_time=0.6))
         self.wait(1.2)
 
         # tabel arsitektur
         baris = VGroup()
-        kepala = Text(f"{'arsitektur':<22}{'kedalaman':>11}   hasil",
+        kepala = Text(f"{'network':<22}{'depth':>11}   result",
                       font=FONT_MONO, font_size=15, color=PALET["redup"])
         baris.add(kepala)
         for masuk, sem, dalam, status in REK_TABEL:
-            w = PALET["hijau"] if status == "lolos" else PALET["merah"]
-            t = Text(f"{f'{masuk} -> {sem} -> 1':<22}{dalam:>11}   {status}",
+            lolos = status == "lolos"
+            w = PALET["hijau"] if lolos else PALET["merah"]
+            tampil = "fits" if lolos else "RecursionError"
+            t = Text(f"{f'{masuk} -> {sem} -> 1':<22}{dalam:>11}   {tampil}",
                      font=FONT_MONO, font_size=15, color=w)
             baris.add(t)
         baris.arrange(DOWN, buff=0.16, aligned_edge=LEFT).move_to([0, -1.95, 0])
@@ -179,21 +181,21 @@ class B1Bab3(Scene):
             self.wait(0.12)
         self.wait(1.0)
 
-        rumus = MathTex(r"\text{kedalaman} \approx n_{\text{masuk}} + n_{\text{sembunyi}}",
+        rumus = MathTex(r"\text{depth} \approx n_{\text{inputs}} + n_{\text{hidden}}",
                         font_size=28, color=PALET["kuning"]).move_to([0, -3.85, 0])
         if rumus.width > 8.0:
             rumus.scale_to_fit_width(8.0)
         self.play(Write(rumus, run_time=1.0))
-        rket = label_kecil("ramalan sederhana, dan tabelnya cocok",
+        rket = label_kecil("a simple prediction, and the table agrees with it",
                            PALET["redup"], 15)
         rket.next_to(rumus, DOWN, buff=0.20)
         self.play(FadeIn(rket, run_time=0.5))
         self.wait(1.6)
 
         tutup = Paragraph(
-            "Jangan diperbaiki sekarang.",
-            "Biarkan pecah dulu di Sesi 3, lihat pesan errornya,",
-            "baru ganti telusur rekursif jadi tumpukan eksplisit.",
+            "Do not fix this yet.",
+            "Let it break in Session 3, read the error yourself,",
+            "then swap the recursion for an explicit stack.",
             font=FONT_MONO, font_size=16, color=PALET["teks"],
             line_spacing=0.75, alignment="center",
         ).move_to([0, -5.6, 0])

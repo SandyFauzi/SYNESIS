@@ -78,9 +78,9 @@ class Bab1(Scene):
         self.camera.background_color = PALET["latar"]
 
         # ---------- pembuka ----------
-        jd = judul("Menuruni Bukit")
-        sj = subjudul(["Sesi A  ·  bagaimana mesin menemukan",
-                       "garis terbaik tanpa pernah diberi tahu"])
+        jd = judul("Walking Downhill")
+        sj = subjudul(["Session A  ·  how a machine finds the",
+                       "best line without being told the answer"])
         mk, kk = merek(), kaki()
 
         self.play(FadeIn(mk, run_time=0.5), FadeIn(kk, run_time=0.5))
@@ -103,7 +103,7 @@ class Bab1(Scene):
             for xi, yi in zip(X, Y)
         ])
 
-        ket_data = label_kecil(f"{N} titik terukur, dengan derau",
+        ket_data = label_kecil(f"{N} measurements, noise and all",
                                PALET["redup"]).next_to(sumbu, DOWN, buff=0.22)
 
         self.play(Create(sumbu, run_time=0.9))
@@ -139,7 +139,7 @@ class Bab1(Scene):
         self.play(FadeIn(cacah, run_time=0.4))
         self.wait(0.6)
 
-        ket2 = label_kecil("garis salah, dan setiap merah adalah kesalahannya",
+        ket2 = label_kecil("A wrong line. Every red bar is one mistake.",
                            PALET["merah"], 16).next_to(sumbu, DOWN, buff=0.22)
         self.play(ReplacementTransform(ket_data, ket2), run_time=0.5)
         self.wait(0.8)
@@ -149,8 +149,9 @@ class Bab1(Scene):
             r"L(w,b)=\frac{1}{n}\sum_{i=1}^{n}\bigl(wx_i+b-y_i\bigr)^2",
             font_size=30, color=PALET["teks"],
         ).move_to([0, -4.30, 0])
-        rms_ket = label_kecil("dikuadratkan, supaya salah ke atas dan ke bawah "
-                              "sama beratnya", PALET["redup"], 15)
+        rms_ket = label_kecil("We square it so that missing high hurts "
+                              "exactly as much as missing low",
+                              PALET["redup"], 15)
         rms_ket.next_to(rms, DOWN, buff=0.22)
 
         self.play(Write(rms, run_time=1.2))
@@ -164,8 +165,8 @@ class Bab1(Scene):
             FadeOut(ket2), FadeOut(cacah), FadeOut(sj), run_time=0.7,
         )
 
-        sj2 = subjudul(["potong lanskapnya di satu arah,",
-                        "dan bentuknya selalu mangkuk"])
+        sj2 = subjudul(["Slice the landscape along one axis",
+                        "and you always get a bowl"])
         self.play(FadeIn(sj2, run_time=0.5))
 
         ws = np.linspace(-1.2, 7.2, 240)
@@ -214,7 +215,7 @@ class Bab1(Scene):
         self.play(Create(singgung, run_time=0.7))
 
         g0, _ = gradien(0.0, B_OPT, X, Y)
-        ket_g = label_kecil(f"kemiringan di sini = {g0:.2f},  jadi turun ke kanan",
+        ket_g = label_kecil(f"slope here = {g0:.2f}, so downhill is to the right",
                             PALET["hijau"], 16)
         ket_g.next_to(sumbu2, DOWN, buff=0.24)
         self.play(FadeIn(ket_g, run_time=0.5))
@@ -239,8 +240,8 @@ class Bab1(Scene):
                   FadeOut(aura), FadeOut(lbl_w), FadeOut(lbl_L),
                   FadeOut(sj2), run_time=0.6)
 
-        sj3 = subjudul(["empat baris ini yang melatih",
-                        "hampir semua model di dunia"])
+        sj3 = subjudul(["These four lines train almost",
+                        "every model in the world"])
         self.play(FadeIn(sj3, run_time=0.5))
 
         sumbu3 = Axes(
@@ -271,7 +272,7 @@ class Bab1(Scene):
         self.play(Create(garis3, run_time=0.5))
         self.play(FadeIn(pk, shift=UP * 0.2, run_time=0.7))
 
-        cacah3 = pencacah("iterasi 0 / 60   loss 100.00")
+        cacah3 = pencacah("iteration 0 / 60   loss 100.00")
         self.play(FadeIn(cacah3, run_time=0.4))
 
         # satu putaran pelan, memperlihatkan tiap baris
@@ -287,7 +288,7 @@ class Bab1(Scene):
         langkah = [2, 3, 5, 7, 10, 14, 18, 23, 29, 36, 44, 52, 59]
         for k in langkah:
             i, w, b, L = RIWAYAT[k]
-            baru = pencacah(f"iterasi {i} / {N_ITER}   loss {L:.2f}")
+            baru = pencacah(f"iteration {i} / {N_ITER}   loss {L:.2f}")
             self.play(
                 w_t.animate.set_value(w), b_t.animate.set_value(b),
                 Transform(cacah3, baru),
@@ -303,20 +304,20 @@ class Bab1(Scene):
 
         w_akhir, b_akhir = RIWAYAT[-1][1], RIWAYAT[-1][2]
         kartu = kartu_angka([
-            ("w ditemukan", f"{w_akhir:.6f}"),
-            ("b ditemukan", f"{b_akhir:.6f}"),
-            ("w sejati", f"{W_ASLI:.6f}"),
-            ("b sejati", f"{B_ASLI:.6f}"),
-            ("selisih ke lstsq", f"{abs(w_akhir - W_OPT):.2e}"),
+            ("w the machine found", f"{w_akhir:.6f}"),
+            ("b the machine found", f"{b_akhir:.6f}"),
+            ("w actually used", f"{W_ASLI:.6f}"),
+            ("b actually used", f"{B_ASLI:.6f}"),
+            ("gap to exact solution", f"{abs(w_akhir - W_OPT):.2e}"),
         ], warna_nilai=PALET["hijau"]).move_to([0, -3.9, 0])
 
         self.play(FadeIn(kartu, shift=UP * 0.2, run_time=0.7))
         self.wait(1.2)
 
         tutup = Paragraph(
-            "Tidak ada yang memberi tahu jawabannya.",
-            "Mesin cuma mengukur kesalahannya,",
-            "lalu melangkah menurun. Berulang kali.",
+            "Nobody handed the machine the answer.",
+            "It measured how wrong it was, took one step",
+            "downhill, and did that sixty times.",
             font=FONT_MONO, font_size=19, color=PALET["teks"],
             line_spacing=0.75, alignment="center",
         ).move_to([0, -6.45, 0])

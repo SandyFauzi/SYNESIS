@@ -34,7 +34,7 @@ KONDISI = ANGKA["opt_kondisi"]
 N_ITER = ANGKA["opt_n_iter"]
 
 OPTIMIZER = [
-    ("sgd", "SGD polos", PALET["merah"]),
+    ("sgd", "plain SGD", PALET["merah"]),
     ("momentum", "momentum", PALET["kuning"]),
     ("rmsprop", "RMSprop", PALET["biru"]),
     ("adam", "Adam", PALET["hijau"]),
@@ -48,9 +48,9 @@ class B1Bab4(Scene):
     def construct(self):
         self.camera.background_color = PALET["latar"]
 
-        jd = judul("Pegas dan Gesekan", 32)
-        sj = subjudul(["Bulan 1 Sesi 4  ·  kenapa optimizer modern",
-                       "semuanya osilator teredam"])
+        jd = judul("Spring and Friction", 32)
+        sj = subjudul(["Month 1 Session 4  ·  why every modern",
+                       "optimiser is a damped oscillator"])
         mk, kk = merek(), kaki()
 
         self.play(FadeIn(mk, run_time=0.5), FadeIn(kk, run_time=0.5))
@@ -63,7 +63,8 @@ class B1Bab4(Scene):
                      font_size=27, color=PALET["teks"]).move_to([0, 3.65, 0])
         if r1.width > 8.2:
             r1.scale_to_fit_width(8.2)
-        r1k = label_kecil("yang kamu temukan waktu lupa zero_()", PALET["redup"], 15)
+        r1k = label_kecil("what you found the day you forgot zero_()",
+                          PALET["redup"], 15)
         r1k.next_to(r1, DOWN, buff=0.20)
 
         self.play(Write(r1, run_time=1.2), FadeIn(r1k, run_time=0.5))
@@ -71,7 +72,7 @@ class B1Bab4(Scene):
 
         r2 = MathTex(r"m\,a = F", font_size=44, color=PALET["kuning"])
         r2.move_to([0, 2.15, 0])
-        r2k = label_kecil("hukum Newton, tanpa gesekan", PALET["kuning"], 15)
+        r2k = label_kecil("Newton second law, with no friction", PALET["kuning"], 15)
         r2k.next_to(r2, DOWN, buff=0.18)
         self.play(Write(r2, run_time=0.8), FadeIn(r2k, run_time=0.4))
         self.wait(1.2)
@@ -80,7 +81,7 @@ class B1Bab4(Scene):
                      font_size=28, color=PALET["hijau"]).move_to([0, 0.75, 0])
         r3b = MathTex(r"\theta_{k+1}=\theta_k+v_{k+1}",
                       font_size=28, color=PALET["hijau"]).move_to([0, 0.05, 0])
-        r3k = label_kecil("momentum: persamaan yang sama, gesekan dipasang lagi",
+        r3k = label_kecil("momentum: the same equation, with friction put back",
                           PALET["hijau"], 15)
         r3k.next_to(r3b, DOWN, buff=0.20)
         self.play(Write(r3, run_time=0.8), Write(r3b, run_time=0.8))
@@ -89,10 +90,10 @@ class B1Bab4(Scene):
 
         skala = VGroup(
             Text("beta = 0", font=FONT_MONO, font_size=16, color=PALET["redup"]),
-            Text("penurunan gradien biasa", font=FONT_MONO, font_size=14,
+            Text("plain gradient descent", font=FONT_MONO, font_size=14,
                  color=PALET["redup"]),
             Text("beta = 1", font=FONT_MONO, font_size=16, color=PALET["merah"]),
-            Text("osilator tak teredam, bug zero_()", font=FONT_MONO,
+            Text("frictionless swing, the zero_() bug", font=FONT_MONO,
                  font_size=14, color=PALET["merah"]),
         )
         skala[0].move_to([-2.15, -1.25, 0])
@@ -102,7 +103,7 @@ class B1Bab4(Scene):
         batang = Line([-3.5, -0.75, 0], [3.5, -0.75, 0],
                       stroke_color=PALET["garis"], stroke_width=3)
         penanda = Dot([0.6, -0.75, 0], radius=0.09, color=PALET["kuning"])
-        plabel = label_kecil("beta = 0.9, tempat hampir semua orang berada",
+        plabel = label_kecil("beta = 0.9, where almost everyone actually sits",
                              PALET["kuning"], 14)
         plabel.next_to(penanda, UP, buff=0.16)
 
@@ -117,8 +118,8 @@ class B1Bab4(Scene):
                   FadeOut(sj), run_time=0.7)
 
         # ---------- lembah sempit ----------
-        sj2 = subjudul([f"lembah dengan bilangan kondisi {KONDISI:.0f}.",
-                        "curam ke satu arah, hampir datar ke arah lain"])
+        sj2 = subjudul([f"A valley {KONDISI:.0f} times steeper one way",
+                        "than the other. A canyon, not a bowl."])
         self.play(FadeIn(sj2, run_time=0.5))
 
         wo, bo = float(THETA_OPT[0]), float(THETA_OPT[1])
@@ -142,15 +143,15 @@ class B1Bab4(Scene):
         self.play(FadeIn(peta, run_time=1.0))
         self.play(FadeIn(tanda, run_time=0.4))
 
-        ket = label_kecil("ungu terang = dasar lembah. ngarainya nyaris "
-                          "sempit tak terlihat.", PALET["redup"], 14)
+        ket = label_kecil("bright purple is the canyon floor. It is almost "
+                          "too narrow to see.", PALET["redup"], 14)
         ket.next_to(sumbu, DOWN, buff=0.20)
         self.play(FadeIn(ket, run_time=0.5))
         self.wait(1.2)
 
         # ---------- empat lintasan ----------
-        sj3 = subjudul(["empat cara melangkah,",
-                        "masing-masing dengan lr terbaiknya sendiri"])
+        sj3 = subjudul(["Four ways to take a step, each",
+                        "given its own best learning rate"])
         self.play(FadeOut(sj2), FadeIn(sj3), run_time=0.5)
 
         terakhir = None
@@ -163,7 +164,7 @@ class B1Bab4(Scene):
 
             it = ANGKA[f"opt_{kunci}_iterasi"]
             jarak = ANGKA[f"opt_{kunci}_jarak_akhir"]
-            teks_it = "tidak sampai" if it < 0 else f"iterasi {it}"
+            teks_it = "never arrives" if it < 0 else f"step {it}"
             cacah = pencacah(f"{nama}   {teks_it}", warna, 20)
 
             if terakhir is None:
@@ -181,10 +182,10 @@ class B1Bab4(Scene):
         pasangan = []
         for kunci, nama, _ in OPTIMIZER:
             it = ANGKA[f"opt_{kunci}_iterasi"]
-            pasangan.append((nama, "tidak sampai" if it < 0 else f"iterasi {it}"))
+            pasangan.append((nama, "never arrives" if it < 0 else f"step {it}"))
         kartu = kartu_angka(pasangan, ukuran=18,
                             warna_nilai=PALET["hijau"]).move_to([0, -3.55, 0])
-        ket_k = label_kecil(f"sampai 2 persen dari optimum, dalam {N_ITER} iterasi",
+        ket_k = label_kecil(f"steps needed to get within 2 percent, out of {N_ITER}",
                             PALET["redup"], 15)
         ket_k.next_to(kartu, DOWN, buff=0.20)
 
@@ -193,9 +194,9 @@ class B1Bab4(Scene):
         self.wait(2.0)
 
         tutup = Paragraph(
-            "SGD polos tidak pernah sampai, sekencang apa pun boleh melangkah.",
-            "Bukan karena kurang pintar, tapi karena lembahnya lonjong.",
-            "Sisanya cuma soal berapa banyak gesekan yang dipasang.",
+            "Plain SGD never arrives, however fast you let it go.",
+            "Not because it is stupid, but because the valley is a canyon.",
+            "Everything after that is a question of how much friction.",
             font=FONT_MONO, font_size=15, color=PALET["teks"],
             line_spacing=0.75, alignment="center",
         ).move_to([0, -5.75, 0])

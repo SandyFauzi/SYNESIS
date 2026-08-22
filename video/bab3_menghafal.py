@@ -103,9 +103,9 @@ class Bab3(Scene):
     def construct(self):
         self.camera.background_color = PALET["latar"]
 
-        jd = judul("Menghafal atau Paham", 34)
-        sj = subjudul(["Sesi C  ·  kenapa model yang lebih bebas",
-                       "justru jadi lebih bodoh"])
+        jd = judul("Memorise or Learn", 34)
+        sj = subjudul(["Session C  ·  why giving a model more",
+                       "freedom can make it worse"])
         mk, kk = merek(), kaki()
 
         self.play(FadeIn(mk, run_time=0.5), FadeIn(kk, run_time=0.5))
@@ -128,8 +128,8 @@ class Bab3(Scene):
             sumbu.plot(f_asli, x_range=[-3.2, 3.2],
                        color=PALET["redup"], stroke_width=2.6),
             num_dashes=46, dashed_ratio=0.55)
-        sejati_ket = label_kecil("garis putus: fungsi sebenarnya, "
-                                 "yang model tidak pernah lihat",
+        sejati_ket = label_kecil("dashed line: the rule that made the data. "
+                                 "The model never sees it.",
                                  PALET["redup"], 14)
         sejati_ket.next_to(sumbu, DOWN, buff=0.18)
 
@@ -143,8 +143,8 @@ class Bab3(Scene):
         pas = sumbu.plot(lambda t: kurva_polinom(KOEF[d_awal], t),
                          x_range=[-3.2, 3.2], color=PALET["kuning"],
                          stroke_width=4.2)
-        cacah = pencacah(f"derajat {d_awal}   train {RUGI_TR[d_awal]:.2f}"
-                         f"   test {RUGI_TE[d_awal]:.2f}", PALET["hijau"], 19)
+        cacah = pencacah(f"degree {d_awal}   seen {RUGI_TR[d_awal]:.2f}"
+                         f"   unseen {RUGI_TE[d_awal]:.2f}", PALET["hijau"], 19)
         self.play(Create(pas, run_time=0.8), FadeIn(cacah, run_time=0.4))
         self.wait(0.8)
 
@@ -153,7 +153,7 @@ class Bab3(Scene):
                 PALET["kuning"] if RUGI_TE[d] < 1000 else PALET["merah"])
             te = f"{RUGI_TE[d]:.2f}" if RUGI_TE[d] < 1e4 else f"{RUGI_TE[d]:.1e}"
             baru_cacah = pencacah(
-                f"derajat {d}   train {RUGI_TR[d]:.2f}   test {te}", warna, 19)
+                f"degree {d}   seen {RUGI_TR[d]:.2f}   unseen {te}", warna, 19)
             baru_pas = sumbu.plot(
                 lambda t, d=d: float(np.clip(kurva_polinom(KOEF[d], t), -16.4, 16.4)),
                 x_range=[-3.2, 3.2, 0.02], color=PALET["kuning"],
@@ -166,8 +166,8 @@ class Bab3(Scene):
         self.wait(0.6)
 
         lonjak = kartu_angka([
-            ("derajat 8, test", f"{RUGI_TE[8]:.4f}"),
-            ("derajat 9, test", f"{RUGI_TE[9]:.4f}"),
+            ("degree 8, unseen data", f"{RUGI_TE[8]:.4f}"),
+            ("degree 9, unseen data", f"{RUGI_TE[9]:.4f}"),
         ], warna_nilai=PALET["merah"]).move_to([0, -5.4, 0])
         self.play(FadeIn(lonjak, run_time=0.6))
         self.wait(1.3)
@@ -178,8 +178,8 @@ class Bab3(Scene):
                   FadeOut(sumbu), FadeOut(sejati_ket), FadeOut(cacah),
                   FadeOut(sj), run_time=0.7)
 
-        sj2 = subjudul(["latih terus turun. uji berbalik naik.",
-                        "di situlah menghafal dimulai"])
+        sj2 = subjudul(["Seen data keeps improving. Unseen data",
+                        "turns around. That turn is memorising."])
         self.play(FadeIn(sj2, run_time=0.5))
 
         sumbu2 = Axes(
@@ -189,9 +189,9 @@ class Bab3(Scene):
                          "tip_length": 0.14, "font_size": 18},
         ).move_to([0, Y_PANGGUNG + 0.35, 0])
 
-        lbl_x = label_kecil("derajat polinom", PALET["redup"], 16)
+        lbl_x = label_kecil("polynomial degree", PALET["redup"], 16)
         lbl_x.next_to(sumbu2, DOWN, buff=0.18)
-        lbl_y = label_kecil("log10 rugi", PALET["redup"], 16)
+        lbl_y = label_kecil("log10 error", PALET["redup"], 16)
         lbl_y.rotate(PI / 2).next_to(sumbu2, LEFT, buff=0.12)
 
         t_tr = [(d, np.log10(max(RUGI_TR[d], 1e-6))) for d in DERAJAT]
@@ -209,8 +209,8 @@ class Bab3(Scene):
         se = VGroup(*[Dot(sumbu2.c2p(a, b), radius=0.05, color=PALET["merah"])
                       for a, b in t_te])
 
-        ket_tr = label_kecil("data latih", PALET["biru"], 17)
-        ket_te = label_kecil("data uji", PALET["merah"], 17)
+        ket_tr = label_kecil("data it studied", PALET["biru"], 17)
+        ket_te = label_kecil("data it never saw", PALET["merah"], 17)
         ket_tr.move_to(sumbu2.c2p(11.2, t_tr[-1][1] + 0.9))
         ket_te.move_to(sumbu2.c2p(4.6, t_te[3][1] + 1.4))
 
@@ -223,7 +223,7 @@ class Bab3(Scene):
         pisah = DashedLine(sumbu2.c2p(8.5, -1.2), sumbu2.c2p(8.5, 7.2),
                            stroke_color=PALET["kuning"], stroke_width=2.4,
                            dash_length=0.09)
-        ket_pisah = label_kecil("15 titik data, 10 parameter", PALET["kuning"], 15)
+        ket_pisah = label_kecil("15 data points, 10 free knobs", PALET["kuning"], 15)
         ket_pisah.next_to(pisah, UP, buff=0.10)
         self.play(Create(pisah, run_time=0.6), FadeIn(ket_pisah, run_time=0.4))
         self.wait(1.6)
@@ -234,8 +234,8 @@ class Bab3(Scene):
                   FadeOut(ket_pisah), FadeOut(lbl_x), FadeOut(lbl_y),
                   FadeOut(sj2), run_time=0.7)
 
-        sj3 = subjudul(["obatnya sudah kamu pelajari",
-                        "di Fisika Dasar: pegas"])
+        sj3 = subjudul(["The cure is something you already",
+                        "know from first year physics: a spring"])
         self.play(FadeIn(sj3, run_time=0.5))
 
         r1 = MathTex(r"L = \mathrm{MSE} + \lambda \lVert \theta \rVert^2",
@@ -284,8 +284,8 @@ class Bab3(Scene):
 
         self.play(FadeIn(dinding), Create(titik_nol), FadeIn(lbl_nol),
                   FadeIn(pegas), FadeIn(massa), run_time=0.8)
-        ket_pegas = label_kecil("makin jauh theta dari nol, makin kuat ditarik balik",
-                                PALET["redup"], 15)
+        ket_pegas = label_kecil("the further a weight drifts, the harder it is pulled back",
+                                PALET["redup"], 14)
         ket_pegas.move_to([0, -1.65, 0])
         self.play(FadeIn(ket_pegas, run_time=0.5))
         for tujuan in [0.7, 1.9, 0.35, 1.1, 0.55]:
@@ -293,18 +293,18 @@ class Bab3(Scene):
         self.wait(0.5)
 
         kartu_r = kartu_angka([
-            (f"derajat {D_RIDGE}, tanpa denda", f"{TE_POLOS:.3e}"),
-            (f"derajat {D_RIDGE}, lambda 0.1", f"{TE_RIDGE:.4f}"),
-            ("norma theta tanpa denda", f"{NORMA_POLOS:.3e}"),
-            ("norma theta dengan denda", f"{NORMA_RIDGE:.4f}"),
+            (f"degree {D_RIDGE}, no spring", f"{TE_POLOS:.3e}"),
+            (f"degree {D_RIDGE}, spring on", f"{TE_RIDGE:.4f}"),
+            ("size of weights, no spring", f"{NORMA_POLOS:.3e}"),
+            ("size of weights, spring on", f"{NORMA_RIDGE:.4f}"),
         ], ukuran=17, warna_nilai=PALET["hijau"]).move_to([0, -4.2, 0])
         self.play(FadeIn(kartu_r, shift=UP * 0.2, run_time=0.7))
         self.wait(1.8)
 
         tutup = Paragraph(
-            "Model tidak dibuat lebih pintar.",
-            "Ia cuma dilarang punya bobot raksasa,",
-            "dan larangan itu bentuknya gaya pegas.",
+            "The model was not made smarter.",
+            "It was simply forbidden from having huge weights,",
+            "and that ban is shaped exactly like a spring.",
             font=FONT_MONO, font_size=18, color=PALET["teks"],
             line_spacing=0.75, alignment="center",
         ).move_to([0, -6.5, 0])

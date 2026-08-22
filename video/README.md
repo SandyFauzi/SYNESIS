@@ -3,6 +3,11 @@
 Penjelasan visual, format tegak 720x1280 supaya enak dilihat di layar telepon.
 Dua seri: Bulan 0 dan Bulan 1, masing-masing empat bab.
 
+Teks di layar berbahasa Inggris, ditulis dengan teknik Feynman: mulai dari
+hal konkret, kalimat pendek, tanpa tumpukan istilah, dan tiap istilah yang
+terpaksa dipakai langsung dijelaskan lewat perbandingan sehari-hari.
+Komentar dan nama variabel di dalam kode tetap Indonesia.
+
 Dibuat dengan Manim 0.19 memakai venv yang sudah ada di `S:\Code\manimations\.venv`.
 Repo ini tidak menyimpan venv sendiri.
 
@@ -10,10 +15,10 @@ Repo ini tidak menyimpan venv sendiri.
 
 | Bab | Judul | Isi | Durasi |
 |---|---|---|---|
-| 1 | Menuruni Bukit | Sesi A. Loss, gradien, dan empat baris training loop | 41,8 detik |
-| 2 | Lanskap dan Langkah | Sesi B. Permukaan loss 3D, kontur, dan batas `2/lambda_max` | 43,9 detik |
-| 3 | Menghafal atau Paham | Sesi C. Overfitting, dan Ridge sebagai Hukum Hooke | 43,0 detik |
-| 4 | Mesin Turunan | Sesi D dan Bulan 1. Graf komputasi dan isi `loss.backward()` | 40,2 detik |
+| 1 | Walking Downhill | Sesi A. Loss, gradien, dan empat baris training loop | 41,8 detik |
+| 2 | How Big a Step | Sesi B. Permukaan loss 3D, kontur, dan batas `2/lambda_max` | 43,9 detik |
+| 3 | Memorise or Learn | Sesi C. Overfitting, dan Ridge sebagai Hukum Hooke | 43,0 detik |
+| 4 | The Slope Machine | Sesi D dan Bulan 1. Graf komputasi dan isi `loss.backward()` | 40,2 detik |
 
 Gabungan keempatnya: `keluaran/synesis-bulan0-lengkap.mp4`, 2 menit 49 detik.
 
@@ -21,10 +26,10 @@ Gabungan keempatnya: `keluaran/synesis-bulan0-lengkap.mp4`, 2 menit 49 detik.
 
 | Bab | Judul | Isi | Durasi |
 |---|---|---|---|
-| 1 | Garis Tidak Cukup | Sesi 2. MLP, lipatan ReLU, dan titik awal yang menentukan | 30,4 detik |
-| 2 | Sepuluh Pilihan | Sesi 3. Softmax, entropi silang, dan angka tulisan tangan | 31,8 detik |
-| 3 | Dinding di Depan | Ongkos satu objek per angka, dan batas rekursi | 29,6 detik |
-| 4 | Pegas dan Gesekan | Sesi 4. Momentum, RMSprop, Adam sebagai osilator teredam | 38,3 detik |
+| 1 | A Line Is Not Enough | Sesi 2. MLP, lipatan ReLU, dan titik awal yang menentukan | 30,4 detik |
+| 2 | Ten Possible Answers | Sesi 3. Softmax, entropi silang, dan angka tulisan tangan | 31,8 detik |
+| 3 | The Wall Ahead | Ongkos satu objek per angka, dan batas rekursi | 29,6 detik |
+| 4 | Spring and Friction | Sesi 4. Momentum, RMSprop, Adam sebagai osilator teredam | 38,3 detik |
 
 Gabungannya: `keluaran/synesis-bulan1-lengkap.mp4`, 2 menit 10 detik.
 
