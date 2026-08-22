@@ -153,11 +153,14 @@ S:\Code\Make A Jarvis\        workspace, repo git
 |   |-- Silabus.md            silabus per modul
 |   |-- Modul.md              penjelasan konsep (+ Modul.pdf)
 |   |-- Bulan-0-Harian.md     rencana harian Bulan 0
+|   |-- Bulan-1-Harian.md     rencana Bulan 1, autograd sampai MNIST
 |   |-- Name.md               identitas dan etimologi
 |   `-- akademik\             KPA & KRS (di-gitignore)
 |-- notebooks\                latihan dan soal
-|   |-- hari02_numpy.py       ... sesiC_multivariat.py
-|   `-- soal-hari02.md        ... soal-sesiC.md
+|   |-- hari02_numpy.py       ... bulan1_sesi1_autograd.py
+|   |-- soal-hari02.md        ... soal-bulan1-sesi1.md
+|   |-- kunci-sesiD.md        kunci lengkap Sesi D
+|   `-- kunci_sesiD_bukti.py  enam percobaan pendukung kunci itu
 |-- scripts\                  utilitas
 |   |-- activate.ps1          aktivasi venv di drive lain
 |   |-- verify.py             audit lingkungan
@@ -254,6 +257,8 @@ siapa pun yang menelusuri masalah tiga bulan kemudian.
 | [`docs/Silabus.md`](docs/Silabus.md) | Silabus per modul beserta tujuan pembelajarannya |
 | [`docs/Modul.md`](docs/Modul.md) | Penjelasan semua konsep dengan gambaran konkret, plus [`Modul.pdf`](docs/Modul.pdf) |
 | [`docs/Bulan-0-Harian.md`](docs/Bulan-0-Harian.md) | Diagnosa lingkungan dan rencana harian Bulan 0 |
+| [`docs/Bulan-1-Harian.md`](docs/Bulan-1-Harian.md) | Rencana Bulan 1, dari mesin autograd sampai MNIST |
+| [`notebooks/kunci-sesiD.md`](notebooks/kunci-sesiD.md) | Kunci lengkap Sesi D, tiap klaim disertai pengukurannya |
 | [`docs/Name.md`](docs/Name.md) | Identitas, etimologi, konvensi penamaan |
 | [`log.md`](log.md) | Log kerja: apa yang dikerjakan, keputusan, dan kesalahan |
 | [`notebooks/`](notebooks) | Latihan berpasangan: scaffold `.py` dan soal `.md` |

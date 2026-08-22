@@ -40,3 +40,10 @@ docs/akademik/
 /handoff.md
 /rollout.jsonl
 /rollout-*.jsonl
+
+# Hasil ekspor .env ke Excel (berisi kredensial - jangan pernah di-commit)
+env-export.xlsx
+*.env.xlsx
+
+# Hasil ekspor data warga (PII + kredensial) - jangan pernah di-commit
+export-hifi/

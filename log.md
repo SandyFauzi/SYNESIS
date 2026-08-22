@@ -987,6 +987,81 @@ percakapan dan repo ini publik.
 
 ---
 
+## 22 Agustus 2026 - Kunci Sesi D dan rencana Bulan 1
+
+Permintaan pemilik: kerjakan sendiri soal Sesi D versi yang benar, lalu lanjut
+Bulan 1.
+
+### Yang dibuat
+
+- `notebooks/kunci_sesiD_bukti.py`, enam percobaan, tanpa TODO, jalan bersih
+  dengan exit 0
+- `notebooks/kunci-sesiD.md`, kunci lengkap keenam soal dengan vonis per soal
+- `docs/Bulan-1-Harian.md`, rencana empat sesi Bulan 1 beserta tolok ukurnya
+
+### Vonis enam soal
+
+Empat benar, dua salah. Yang salah, 2b dan 4a, bentuk kesalahannya sama persis:
+gejala diamati benar, sebab yang masuk akal muncul, lalu ditulis sebagai
+kesimpulan tanpa satu pun ramalan diperiksa.
+
+Soal 1a benar tapi sebabnya keliru. Klaim "matematika itu absolut" dipatahkan
+dengan menyelesaikan kuadrat terkecil yang sama lewat dua algoritma. Selisih
+antara `lstsq` dan persamaan normal naik dari `2.2e-16` di derajat 2 jadi
+`1.9e-06` di derajat 12, karena `cond(X.T X)` adalah kuadrat `cond(X)`.
+Kecocokan `1e-16` dengan sklearn terjadi karena keduanya memanggil LAPACK
+`gelsd` yang sama, bukan karena float64 kebal.
+
+### Kesalahan saya sendiri di sesi ini
+
+Saya menulis Bukti 4 dengan asumsi lupa `zero_()` menyebabkan ledakan, sama
+seperti yang ditulis pemilik. Saat dijalankan, ternyata tidak meledak sama
+sekali. Prosa yang sudah ditulis dipatahkan datanya sendiri, dan harus ditulis
+ulang seluruhnya.
+
+Itu justru menghasilkan temuan terbaik hari ini. Tanpa `zero_()`, rekurensinya
+jadi
+
+```text
+th[k+1] - 2*th[k] + th[k-1] = -lr * g(th[k])
+```
+
+yaitu `m*a = F` dengan `m = 1` dan `dt^2 = lr`, skema leapfrog. Penurunan
+gradien berubah jadi osilator tak teredam.
+
+Dua ramalan diuji, dua-duanya lolos:
+
+- amplitudo tidak meluruh. Setelah 4000 iterasi, `1.434e-01` jadi `1.423e-01`
+- ambang stabilnya `4/lambda_max`, bukan `2/lambda_max`. Ramalan `1.151125514`,
+  terukur lewat bagi dua `1.151167246`, galat relatif `3.6e-05`
+
+Jadi lupa `zero_()` justru menaikkan ambang lr dua kali lipat sambil menghapus
+kemampuan konvergen. Tidak ada error, tidak ada NaN.
+
+### Angka lain yang diukur
+
+Ongkos mode mundur lawan beda hingga, membuktikan kenapa autograd ada:
+
+| p | backward (ms) | beda hingga (ms) | hemat |
+|---|---|---|---|
+| 10 | 0.1155 | 0.28 | 2x |
+| 1000 | 0.1805 | 52.01 | 288x |
+| 10000 | 1.4615 | 6807.78 | 4658x |
+
+Ongkos tetap GPU di GTX 1650 Ti: kernel remeh `0.0203` ms, satu langkah
+training n=50 d=2 `0.6088` ms, transfer 50x2 `0.0295` ms, transfer 50000x1000
+`31.03` ms. Transfer kecil cuma 5 persen dari ongkos satu langkah, dan di
+benchmark itu data tidak pernah ditransfer sama sekali.
+
+Konvensi alpha sklearn diuji dengan tiga tebakan sekaligus. Cuma `lam * n` yang
+mendarat di `3.6e-16`, `lam` di `9.2e-01`, `lam / n` di `2.8e+00`.
+
+Arah geseran riwayat dipastikan lewat aturan yang tidak perlu diingat: yang
+entri pertamanya sama persis dengan loss di titik awal adalah yang mencatat
+sebelum melangkah. Selisih tergeser `0.000e+00`.
+
+---
+
 ## Berikutnya
 
 **Bulan 1 Sesi 1 dikerjakan pemilik.** Lima TODO diisi, tiga koreksi Soal 0
