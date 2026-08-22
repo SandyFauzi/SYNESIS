@@ -1124,6 +1124,73 @@ docstring, dan batasnya memang tidak disebut di sana.
 
 ---
 
+## 22 Agustus 2026 - Seri video Bulan 0 sampai autograd
+
+Permintaan pemilik: dia belajar secara visual, jadi Bulan 0 sampai mesin
+autograd dijelaskan ulang dalam bentuk video, mengikuti gaya contoh Tower of
+Hanoi yang dia berikan.
+
+### Contoh dibedah dulu
+
+Berkas contoh diukur, bukan ditebak: 720x1280 tegak, 30 bingkai per detik,
+20 detik. Bingkainya diambil dengan ffmpeg lalu dilihat langsung. Ciri
+gayanya: latar hampir hitam, judul mono berspasi lebar, dua baris subjudul,
+pencacah hijau, panggung visual di tengah, dan panel kode di bawah dengan
+baris aktif disorot.
+
+### Pilihan perkakas
+
+Manim, bukan Remotion. Dua-duanya ada dan dua-duanya jalan, tapi isinya
+matematika dan fisika, dan Manim memakai Python sehingga angka di layar bisa
+dihitung dari kode yang sama dengan notebooks. Remotion akan memaksa angka
+diketik ulang di TypeScript, dan itu melanggar aturan repo ini.
+
+Dipakai venv yang sudah ada di `S:\Code\manimations\.venv`, manim 0.19.0.
+Diperiksa lebih dulu: latex, xelatex, dvisvgm, dan ffmpeg semuanya ada.
+
+### Yang dibuat
+
+- `video/sinema.py` kit gaya bersama, termasuk `PanelKode` dengan penyorot baris
+- `video/bab1_menuruni.py` Sesi A, 41,8 detik
+- `video/bab2_lanskap.py` Sesi B, permukaan 3D lalu kontur, 43,9 detik
+- `video/bab3_menghafal.py` Sesi C, overfitting dan Hukum Hooke, 43,0 detik
+- `video/bab4_mesin.py` Sesi D dan Bulan 1, graf komputasi, 40,2 detik
+- `video/render.ps1` dan `video/README.md`
+
+Gabungannya 2 menit 49 detik, 8,6 MB.
+
+### Aturan yang dipegang
+
+Nol angka diketik manual. Tiap bab menghitung ulang datanya sendiri dengan
+generator dan seed yang sama dengan notebooks. Angka yang muncul di layar
+sudah dicocokkan dengan keluaran terminal: `w = 3.018114`, `lambda_max =
+15.7233`, batas `0.127200`, test derajat 8 `6.3470` lalu derajat 9 `923.5812`,
+Ridge derajat 12 dari `3.8e6` jadi `5.0121`.
+
+### Kesalahan yang ditemukan saat membangun
+
+1. `set_fill_by_value` menolak warna berupa string. Harus dibungkus
+   `ManimColor`. Pesannya menyesatkan: `'str' object has no attribute
+   'interpolate'`.
+2. Taraf kontur Bab 2 mula-mula dipasang sampai 66, padahal elips taraf itu
+   punya setengah sumbu 8,9 di arah `lambda_min` dan jauh keluar jendela.
+   Dihitung dulu batas yang muat, lalu dipakai taraf sampai 12,5.
+3. Kurva polinom Bab 3 dipangkas di 60, sehingga garis tegaknya menembus
+   judul dan kaki. Dipangkas ulang ke 16,4 supaya berhenti di tepi kotak plot.
+4. Heredoc bash gagal untuk berkas panjang, jadi berkas ditulis lewat Write.
+
+### Catatan mutu render
+
+Bendera `-ql` tidak menurunkan mutu di sini, karena ukuran bingkai dan laju
+bingkai dipaksa `siapkan()` di `sinema.py`. Keluarannya tetap 720x1280 pada 30
+bingkai per detik. Yang berubah cuma lama render.
+
+Keluaran video dan folder `media/` di-gitignore, karena bisa dibangun ulang
+dari sumbernya. Folder `Contoh Video/` juga, karena isinya berkas rujukan
+milik orang lain.
+
+---
+
 ## Berikutnya
 
 **Bulan 1 Sesi 1 dikerjakan pemilik.** Lima TODO diisi, tiga koreksi Soal 0

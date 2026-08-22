@@ -40,3 +40,8 @@ docs/akademik/
 /handoff.md
 /rollout.jsonl
 /rollout-*.jsonl
+
+# Keluaran render video (besar, bisa dibangun ulang dari sumbernya)
+video/media/
+video/keluaran/
+Contoh Video/
