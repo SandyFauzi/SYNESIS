@@ -1556,10 +1556,97 @@ jawaban, bukan di `bulan1_sesi1_autograd.py`.
 
 ---
 
+## 22 Agustus 2026 - Empat perbaikan Sesi 2, lalu Sesi 3+4 digabung
+
+Keempat butir wajib dari kunci dibereskan pemilik. Diperiksa:
+
+- inisialisasi jadi `random.gauss(0, 1) * sqrt(2/n)`
+- `exp` dan `log` ditulis di `Value` lengkap `_backward`, ditambahkan ke
+  tabel beda hingga Bagian 2 Sesi 1, dan dua-duanya lolos
+- dua kotak tolok ukur yang tercentang tanpa bukti diturunkan sendiri
+
+### Yang masih meleset di 2d
+
+Kodenya ditulis, tapi tetap tidak dijalankan. Angka yang dilaporkan, "sekitar
+0,5 dan sekitar 1,0", benar untuk `E[a^2]` sedangkan kodenya mengembalikan
+`np.var`. Dijalankan apa adanya:
+
+```
+np.var, skala sqrt(1/n) : 0.1515   (dia klaim ~0.5)
+np.var, skala sqrt(2/n) : 1.0484   (dia klaim ~1.0)
+
+dirata-rata 200 lemparan   np.var(a)   E[a^2]
+sqrt(1/n)                     0.3466   0.5110
+sqrt(2/n)                     0.6778   0.9980
+```
+
+Untuk `z ~ N(0, s^2)` dan `a = relu(z)`: `E[a^2] = s^2/2` tapi
+`Var(a) = 0.3408 s^2`, karena relu membuat keluarannya tidak lagi berpusat
+nol. Kesimpulannya benar, alatnya mengukur besaran lain, dan satu lemparan
+terlalu berisik untuk dibaca.
+
+### Sesi 3+4 digabung, atas permintaan pemilik
+
+`notebooks/bulan1_sesi34_mnist.py`, sembilan TODO, plus
+`notebooks/soal-bulan1-sesi34.md` berisi delapan soal dan dua belas kotak.
+
+Urutan bagiannya sengaja: entropi silang di atas `Value` (memakai `exp` dan
+`log` yang baru dia tulis), tabrak dinding waktu, tabrak dinding rekursi,
+tembus rekursi lewat backward iteratif, tembus waktu lewat `Tensor` numpy,
+MNIST, pembanding PyTorch, lalu tiga optimizer tulisan tangan.
+
+Versi terisi dijalankan penuh, keluar 0, tanpa peringatan:
+
+```
+gradien entropi silang lawan p - y     selisih 1.11e-16
+784-32-10 dengan Value                 6.2 jam per epoch
+784-256-10 dengan Value                RecursionError, kedalaman 1040
+784-256-10 sesudah backward iteratif   lolos, 2924 ms
+empat aturan turunan Tensor            galat relatif 2.791e-10
+MNIST, epoch terakhir                  96.03 persen
+MNIST, epoch dipilih lewat validasi    97.27 persen  (epoch 6)
+Value lawan Tensor numpy               sekitar 5000x
+numpy lawan PyTorch CPU                sekitar 3x
+bilangan kondisi lembah                484.0
+iterasi ke 1 persen                    SGD tidak pernah, momentum 63,
+                                       RMSprop 255, Adam 52
+```
+
+MNIST diunduh sekali ke `E:\SYNESIS\data`, 11 MB, lalu disimpan sebagai npz
+supaya jalan berikutnya tidak perlu jaringan.
+
+### Tiga hal yang dibetulkan waktu menyusunnya
+
+**Himpunan validasi tidak dipakai memilih apa pun.** Versi pertama membelah
+data jadi tiga lalu melaporkan akurasi uji di epoch terakhir. Itu upacara,
+bukan metode. Sekarang parameter di epoch dengan validasi terbaik disimpan,
+dan kedua angka dilaporkan berdampingan: 96,03 lawan 97,27. Selisih 1,24
+persen itu jadi bahan Soal 6.
+
+**Waktu epoch dilaporkan sebagai rata-rata.** Sebarannya 3,0 sampai 8,9 detik
+karena epoch pertama menyentuh 313 MB data untuk pertama kali. Sekarang yang
+dipakai nilai tengah, dan sebarannya ikut dicetak.
+
+**Gambar lintasan optimizer tidak terbaca.** Empat lintasan saling menimpa,
+dua di antaranya tertutup total. Diganti dua panel, dan panel kanan yang
+menentukan: jarak ke dasar terhadap iterasi dengan sumbu tegak logaritmik.
+Di situ perbedaan keempatnya terbaca langsung sebagai kemiringan garis.
+
+### Hasil yang tidak diduga tapi dipertahankan
+
+PyTorch GPU tidak menang lawan PyTorch CPU (1,4 lawan 1,4 detik). Batch 64 di
+jaringan 784-128-10 terlalu kecil untuk menutup ongkos tetap tiap panggilan
+kernel. Ini konsisten dengan Bukti 6 Sesi D dan jadi bahan Soal 5c, yang
+meminta dia mencari batas baliknya sendiri.
+
+---
+
 ## Berikutnya
 
-**Sesi 3.** MNIST sampai akurasi di atas 95 persen, lewat dua dinding yang
-sudah terukur di atas.
+**Bulan 1 Sesi 3+4 dikerjakan pemilik.** Sembilan TODO, delapan soal, dua
+belas kotak. Sesudah itu Bulan 1 tutup.
 
-**Sesi 4.** Pembanding PyTorch, plus menulis SGD-with-momentum, RMSprop, dan
-Adam sendiri, menutup janji dari Soal 4e Sesi B.
+**Bulan 2 Sesi 1** sudah siap di `soal-bulan2-sesi1.md`, tujuh TODO, belum
+dikerjakan.
+
+**Bulan 3** belum disusun.

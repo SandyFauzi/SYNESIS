@@ -147,6 +147,32 @@ class Value:
         out._backward = _backward
         return out
 
+    def exp(self):
+        """Eksponensial. f(x) = e^x
+        
+        d out / d self = e^x = out.data
+        """
+        out = Value(math.exp(self.data), (self,), 'exp')
+
+        def _backward():
+            self.grad += out.data * out.grad
+
+        out._backward = _backward
+        return out
+
+    def log(self):
+        """Logaritma natural. f(x) = ln(x)
+        
+        d out / d self = 1 / x
+        """
+        out = Value(math.log(self.data), (self,), 'log')
+
+        def _backward():
+            self.grad += (1.0 / self.data) * out.grad
+
+        out._backward = _backward
+        return out
+
     # ---------- TODO 2 ----------
     def backward(self):
         """Sebarkan gradien dari sini mundur ke seluruh induk.
@@ -241,6 +267,8 @@ def bagian2():
         # sama-sama nol, jadi kode yang salah pun ikut lolos.
         ("relu(a*b + 5)", lambda a, b: (a * b + 5.0).relu(), None),
         ("relu(a * b)",   lambda a, b: (a * b).relu(), None),
+        ("exp(a)",        lambda a, b: a.exp(),           lambda a, b: (math.exp(a), 0.0)),
+        ("log(a)",        lambda a, b: a.log(),           lambda a, b: (1.0 / a, 0.0)),
     ]
 
     print(f"  {'ekspresi':>14} {'dL/da':>12} {'beda hingga':>13} "

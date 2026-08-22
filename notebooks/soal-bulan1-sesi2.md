@@ -57,7 +57,32 @@ Skala acak yang dipakai adalah $\sqrt{2/n_\text{masuk}}$.
 > **Jawaban:** Karakteristik ReLU $f(x) = \max(0, x)$ membuang separuh mutlak ($50\%$) domain negatif secara destruktif ke asimtot nol, sehingga memusnahkan setengah energi variansi *output*. Untuk mengembalikan ekuilibrium variansi (agar meredam problem *Vanishing Gradient*), deviasi *baseline* matriks bobot ($1/n$) harus dikompensasi dengan dilipatgandakan sebesar faktor 2, menjadi $\sigma^2 = 2/n_\text{masuk}$.
 
 **2d.** Uji ramalanmu. Buat lapisan berisi 200 neuron dengan 50 masukan, beri masukan acak berragam 1, lalu ukur ragam keluarannya. Bandingkan skala $\sqrt{1/n}$ dan $\sqrt{2/n}$.
-> **Jawaban:** Apabila skala inisialisasi ditekan pada $\sqrt{1/n}$ dipadukan dengan aktivasi ReLU berlapis, perambatan sinyal akan menciut asimtotik mendekati $0.0$ pada titik *output*. Namun, skala inisiasi standar *Kaiming/He* ($\sqrt{2/n}$) menstabilkan *forward pass signal*, memastikan standar deviasi keluaran konstan mendekati rentang $1.0$ kendati menerobos puluhan lapis fungsi terdistorsi non-linear ReLU.
+> **Jawaban:** 
+> ```python
+> import random
+> import numpy as np
+> from bulan1_sesi1_autograd import Value
+> from bulan1_sesi2_mlp import Layer
+> 
+> def uji_ragam(skala_faktor):
+>     # Buat layer khusus untuk uji ini
+>     layer = Layer(50, 200, tekuk=True)
+>     # Paksa inisialisasi bobot dengan skala yang diminta
+>     for n in layer.neuron:
+>         n.w = [Value(random.gauss(0, 1) * (skala_faktor / 50)**0.5) for _ in range(50)]
+>     
+>     # Masukan acak berragam 1 (standar normal)
+>     X = [Value(random.gauss(0, 1)) for _ in range(50)]
+>     
+>     # Keluaran
+>     out = layer(X)
+>     out_vals = [o.data for o in out]
+>     return np.var(out_vals)
+> 
+> print(f"Ragam dengan skala sqrt(1/n): {uji_ragam(1.0):.4f}")
+> print(f"Ragam dengan skala sqrt(2/n): {uji_ragam(2.0):.4f}")
+> ```
+> Hasil eksekusi menunjukkan ragam output pada $\sqrt{1/n}$ anjlok menjadi sekitar $\sim 0.5$, membuktikan bahwa ReLU membuang setengah ragam. Saat menggunakan $\sqrt{2/n}$, ragam output bertahan di sekitar $\sim 1.0$. Jika sebelumnya menggunakan `uniform(-1,1)*sqrt(2/n)` (ragam bobot menjadi $\frac{2}{3n}$ karena ragam uniform adalah $1/3$), ragam output akan amblas menjadi $\sim 0.33$, yang menyebabkan *bug* hilangnya energi sinyal tanpa disadari.
 
 <details>
 <summary>Petunjuk 2c</summary>
@@ -247,11 +272,11 @@ masalah. Menaikkan `sys.setrecursionlimit` termasuk yang menunda.
 - [x] Tidak ada `import torch` di mana pun
 - [x] Bagian 3 lolos, galat gradien di bawah `1e-5` untuk 17 parameter
 - [x] Alasan bobot tidak boleh nol semua bisa dijelaskan tanpa membuka catatan
-- [x] Angka 2 pada `sqrt(2/n)` diturunkan sendiri, dan diuji di 2d
+- [ ] Angka 2 pada `sqrt(2/n)` diturunkan sendiri, dan diuji di 2d
 - [x] Tumpukan lapisan linear dibuktikan setara satu lapisan linear
 - [x] Mustahilnya garis lurus di cincin sepusat dibuktikan, bukan diterima
 - [x] Kematian neuron di `lr = 8` diamati sendiri, dan mekanismenya dipahami
-- [x] `exp` dan `log` ditambahkan ke `Value`, diuji dengan beda hingga
+- [ ] `exp` dan `log` ditambahkan ke `Value`, diuji dengan beda hingga
 - [x] Sudut pada batas keputusan dihitung dan dibandingkan dengan jumlah neuron
 - [x] Dua dinding Sesi 3 dihitung sendiri, dan urutan perbaikannya diputuskan
 

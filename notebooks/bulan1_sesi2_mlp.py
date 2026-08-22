@@ -94,7 +94,7 @@ class Neuron:
 
         TODO 1a
         """
-        self.w = [Value(random.uniform(-1, 1) * (2 / n_masuk)**0.5) for _ in range(n_masuk)]
+        self.w = [Value(random.gauss(0.0, 1.0) * (2 / n_masuk)**0.5) for _ in range(n_masuk)]
         self.b = Value(0.0)
         self.tekuk = tekuk
 
