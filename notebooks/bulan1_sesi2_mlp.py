@@ -94,7 +94,9 @@ class Neuron:
 
         TODO 1a
         """
-        raise NotImplementedError("Neuron.__init__")
+        self.w = [Value(random.uniform(-1, 1) * (2 / n_masuk)**0.5) for _ in range(n_masuk)]
+        self.b = Value(0.0)
+        self.tekuk = tekuk
 
     def __call__(self, x):
         """Hitung keluaran untuk satu contoh.
@@ -110,7 +112,8 @@ class Neuron:
 
         TODO 1b
         """
-        raise NotImplementedError("Neuron.__call__")
+        pra = sum((wi * xi for wi, xi in zip(self.w, x)), self.b)
+        return pra.relu() if self.tekuk else pra
 
     def parameters(self):
         return self.w + [self.b]
@@ -163,7 +166,7 @@ class Layer:
 
         TODO 2a
         """
-        raise NotImplementedError("Layer.__init__")
+        self.neuron = [Neuron(n_masuk, tekuk) for _ in range(n_keluar)]
 
     def __call__(self, x):
         """Kembalikan daftar keluaran. Kalau cuma satu, kembalikan Value-nya
@@ -172,7 +175,8 @@ class Layer:
 
         TODO 2b
         """
-        raise NotImplementedError("Layer.__call__")
+        out = [n(x) for n in self.neuron]
+        return out[0] if len(out) == 1 else out
 
     def parameters(self):
         return [p for n in self.neuron for p in n.parameters()]
@@ -188,14 +192,17 @@ class MLP:
 
         TODO 2c
         """
-        raise NotImplementedError("MLP.__init__")
+        sz = [n_masuk] + ukuran
+        self.lapisan = [Layer(sz[i], sz[i+1], tekuk=(i != len(ukuran)-1)) for i in range(len(ukuran))]
 
     def __call__(self, x):
         """Lewatkan x melalui semua lapisan berurutan.
 
         TODO 2d
         """
-        raise NotImplementedError("MLP.__call__")
+        for layer in self.lapisan:
+            x = layer(x)
+        return x
 
     def parameters(self):
         return [p for l in self.lapisan for p in l.parameters()]
@@ -209,7 +216,8 @@ class MLP:
 
         TODO 2e
         """
-        raise NotImplementedError("MLP.nolkan")
+        for p in self.parameters():
+            p.grad = 0.0
 
     def __repr__(self):
         return f"MLP({len(self.parameters())} parameter)"

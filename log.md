@@ -1483,16 +1483,83 @@ jadi bahan Soal 7.
 
 ---
 
+## 22 Agustus 2026 - Bulan 1 Sesi 2 dikerjakan pemilik, lalu diperiksa
+
+Tujuh TODO diisi, kesebelas kotak tolok ukur dicentang, ke-31 butir soal
+dijawab. Kodenya jalan: 33 parameter, galat gradien `2.063e-12`, garis lurus
+63,3 persen lawan 8 neuron 100,0 persen.
+
+Jawabannya diadu dengan enam pengukuran di `notebooks/kunci_b1s2_bukti.py`,
+dan hasilnya ditulis di `notebooks/kunci-bulan1-sesi2.md`. Verdict: 21 benar,
+3 sebagian benar, 3 salah, 4 tidak dikerjakan.
+
+### Bug di kodenya yang tidak kelihatan dari hasil
+
+`Neuron.__init__` memakai `random.uniform(-1, 1) * sqrt(2/n)`. Ragam
+`uniform(-1,1)` itu 1/3, bukan 1, jadi ragam bobotnya jadi `2/(3n)`, tiga kali
+lebih kecil dari He. Terukur: ragam w 0.01337 lawan target 0.04000.
+
+Yang membuatnya pantas dicatat, bukan besarnya melainkan bahwa ia lolos.
+Jaringan dua lapis di Sesi 2 tetap dapat 100 persen dengan inisialisasi yang
+salah faktor tiga. Ditumpuk sepuluh lapis baru terlihat: aktivasi jatuh ke
+`1.93e-03`, sementara He gauss bertahan di `9.75e-01`. Resep `1/n` yang dia
+kritik sendiri di jawaban 2d justru bertahan lima belas kali lebih baik
+daripada yang dia tulis di kodenya.
+
+Soal 2d meminta dia mengukur ini. Tidak dikerjakan, dijawab dengan penalaran.
+Kalau dikerjakan, bug ini ketahuan malam itu juga oleh dia sendiri.
+
+### Tiga temuan yang mengubah kunci
+
+**Bobot nol bukan 1 neuron efektif, tapi nol.** Karena `relu._backward`
+memakai `self.data > 0`, pra-aktivasi nol memberi gradien nol tepat. Terukur:
+`|grad|` maksimum `0.000e+00`, bobot tidak bergerak sama sekali setelah 200
+iterasi, akurasi 50 persen. Lapisannya mati sebelum dilatih, jenis kematian
+yang sama dengan lr = 8 di Bagian 5B.
+
+**Cerita simetri di petunjuk saya sendiri terlalu ringkas.** Petunjuk 1
+menulis "neuron identik menerima gradien identik" tanpa syarat. Diuji dengan
+bobot seragam tapi tak nol dan lapisan keluaran acak: gradiennya langsung
+berbeda (`9.645e-02`) dan bobotnya menyebar sejauh 0.2374 dalam 200 iterasi.
+Simetri patah sendiri. Klaim itu cuma berlaku kalau seluruh jaringan seragam.
+
+**Sudut di batas keputusan itu 2 kali jumlah neuron, bukan kurang.** Terukur
+16 sudut untuk 8 neuron dan 62 untuk 32, stabil di kisi 200 sampai 1600.
+Tiap neuron kena persis 2 penyeberangan, karena garis lurus yang memotong
+kurva tertutup harus masuk sekali dan keluar sekali. Untuk 32 neuron, 31 yang
+ikut melipat; satu garis lipatnya lewat di luar kurva.
+
+Aturannya: `sudut = 2 x (neuron yang garis lipatnya memotong batas)`.
+
+### Dua koreksi angka
+
+`relu` di lapisan terakhir tidak mengunci akurasi di 50 persen, terukur 59,2
+persen. Sebabnya `(s.data > 0) == (yi > 0)` menghitung ramalan tepat nol
+sebagai kelas -1, jadi model masih memisahkan lewat "nol lawan positif".
+
+Satu epoch MNIST 784-32-10 bukan 29 hari, tapi 5,5 sampai 11,5 jam. Sumber
+selisihnya: 49 ms di Bagian 7 dibaca sebagai ongkos satu gambar, padahal itu
+satu iterasi penuh atas 120 titik. Persis 120 kali lipat. Dinding rekursi di
+784-256-10 tetap menabrak seperti hitungannya, `RecursionError` di kedalaman
+1040 lawan batas 1000.
+
+Sebaran tiga pengukuran waktu untuk pekerjaan yang sama persis: 328, 575, 687
+ms. Mesin `Value` didominasi alokasi objek Python, bukan aritmetika, jadi satu
+angka tunggal untuk ongkos seperti ini menyesatkan.
+
+### Yang wajib dibereskan sebelum Sesi 3
+
+Inisialisasi diperbaiki, dan `exp` serta `log` ditulis di `Value` lengkap
+dengan `_backward` plus uji beda hingga. Keduanya dipakai Sesi 3. Kotak tolok
+ukur "exp dan log ditambahkan" tercentang padahal rumusnya baru ada di berkas
+jawaban, bukan di `bulan1_sesi1_autograd.py`.
+
+---
+
 ## Berikutnya
 
-**Bulan 1 Sesi 1 dikerjakan pemilik.** Lima TODO diisi, tiga koreksi Soal 0
-dibereskan, sepuluh kotak tolok ukur dituntaskan.
-
-**Sesi 2 setelahnya.** Membangun kelas `Neuron`, `Layer`, dan `MLP` di atas
-mesin autograd, lalu melatihnya pada masalah klasifikasi kecil yang tidak bisa
-dipisahkan garis lurus.
-
-**Sesi 3.** MNIST sampai akurasi di atas 95 persen.
+**Sesi 3.** MNIST sampai akurasi di atas 95 persen, lewat dua dinding yang
+sudah terukur di atas.
 
 **Sesi 4.** Pembanding PyTorch, plus menulis SGD-with-momentum, RMSprop, dan
 Adam sendiri, menutup janji dari Soal 4e Sesi B.
