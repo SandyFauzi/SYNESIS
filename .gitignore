@@ -35,3 +35,8 @@ desktop.ini
 
 # Dokumen akademik pribadi (nama, NPM, nilai) - jangan masuk git
 docs/akademik/
+
+# Artefak sementara ekspor szh-ex (rollout memuat isi percakapan)
+/handoff.md
+/rollout.jsonl
+/rollout-*.jsonl

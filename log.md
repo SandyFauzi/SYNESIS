@@ -895,24 +895,108 @@ Menggunakan skill `szh-ex` milik Claude untuk mengekspor sesi Antigravity ini. K
 - **Isi:** 12 pesan terpilih merangkum transisi dari Sesi C ke D, diskusi IPK Fisika (3.70), dan penyelesaian Bulan 0.
 - Sinkronisasi sukses didorong ke Github `SYNESIS` tanpa menimpa (`overwrite`) log sesi Claude yang sudah ada.
 
-## Berikutnya
+## Bulan 0 tutup, Bulan 1 Sesi 1 disiapkan · 21 Agustus 2026
 
-- **Masuk ke Bulan 1:** Membangun *Autograd* (Micrograd) secara manual dari nol.
+### Sesi D diselesaikan di sesi lain
+
+Sesi D dituntaskan lewat sesi Codex, commit `98b00b3`. Dijalankan ulang untuk
+verifikasi dan semuanya lolos:
+
+- Gradien tangan lawan `loss.backward()` sepakat di `1e-16` relatif untuk
+  empat nilai lambda
+- Koefisien cocok dengan scikit-learn sampai `1e-16`, kecuali koefisien 0 pada
+  Ridge yang berbeda `6.9e-05` karena beda konvensi pendendaan geseran
+- Riwayat loss numpy lawan PyTorch: `9.1e-01` kalau dibandingkan langsung,
+  `8.9e-16` setelah digeser satu iterasi
+- GPU kalah di `n=50 d=2` dengan rasio 0,24, dan menang 8 kali lipat di
+  `n=50000 d=1000`
+
+Dua bug di scaffold Sesi D buatan saya sudah diperbaiki sebelumnya. `ukur` kena
+`UnboundLocalError` karena `th -= ...` membuat Python menganggap `th` variabel
+lokal, diganti `th.sub_()`. Arah geseran riwayat juga terbalik, seharusnya
+`hn[:-1]` lawan `hp[1:]`.
+
+### Tiga koreksi jawaban yang diverifikasi dengan pengukuran
+
+**Sesi C 5c salah.** Lonjakan test loss derajat 8 ke 9 diklaim akibat float64
+ambyar. Diuji dengan menyelesaikan ulang memakai aritmetika pecahan eksak lewat
+`fractions.Fraction`, nol galat pembulatan:
+
+| derajat | cond | float64 | eksak | selisih relatif |
+|---|---|---|---|---|
+| 8 | 1.658e+09 | 6.3470 | 6.3470 | 9.5e-14 |
+| 9 | 2.533e+10 | 923.5812 | 923.5812 | 2.8e-12 |
+
+Aritmetika sempurna memberi jawaban identik, jadi lonjakan itu murni
+overfitting. Cond derajat 9 juga masih enam orde di bawah batas float64.
+
+**Sesi C 3b tafsirnya meleset.** Nilai eigen negatif ditafsirkan sebagai
+kerusakan perangkat keras. Sebenarnya galat pembulatan yang menumpuk, dan CPU
+bekerja sempurna sesuai IEEE 754.
+
+**Sesi D 4a salah sebab.** Ongkos tetap GPU diklaim transfer PCIe. Di benchmark
+itu `X` dan `y` dibuat langsung di GPU dan tidak pernah ditransfer. Terukur:
+
+```text
+satu kernel remeh (a+1)          :  0.0212 ms
+satu langkah training n=50 d=2   :  0.5335 ms
+transfer 50x2 CPU -> GPU         :  0.0255 ms
+transfer 50000x1000 CPU -> GPU   : 31.1508 ms
+```
+
+Transfer 50x2 cuma 5 persen dari ongkos satu langkah. Penyebab sebenarnya
+overhead peluncuran kernel dan dispatch Python. Intuisi PCIe baru benar di
+skala 200 MB, tempat transfer memakan 31 ms.
+
+Ketiganya jadi Soal 0 Bulan 1 Sesi 1.
+
+### Bulan 1 Sesi 1 disiapkan
+
+`notebooks/bulan1_sesi1_autograd.py` dan `notebooks/soal-bulan1-sesi1.md`.
+Mesin autograd bergaya micrograd, sekitar 90 baris.
+
+Lima TODO: `__add__`, `__mul__`, `__pow__`, `relu`, dan `backward` dengan
+urutan topologis. Sisanya disediakan sebagai turunan dari kelima itu.
+
+Enam bagian: uji tiap operasi lawan beda hingga, 300 ekspresi acak, pembanding
+PyTorch, dan melatih regresi kubik memakai mesin sendiri.
+
+Terverifikasi dengan versi terisi:
+
+- Kesembilan baris Bagian 2 lolos
+- 300 ekspresi acak, galat relatif terburuk `1.866e-08`, nol gagal
+- Cocok dengan PyTorch sampai `0.000e+00` untuk ketiga peubah
+- Melatih regresi kubik 4000 iterasi sampai loss `1.410770` lawan optimum
+  `lstsq` `1.410678`
+
+### Uji hampa yang ditemukan sendiri
+
+Baris uji `relu(a * b)` dengan `a=1.7` dan `b=-2.3` menghasilkan `a*b = -3.91`,
+jadi relu mati dan kedua sisi sama-sama nol. Ujinya lolos, tapi ia juga akan
+lolos untuk kode yang salah. Ditambahkan `relu(a*b + 5)` yang cabangnya aktif
+dan memberi `-2.3` serta `1.7`. Dijadikan Soal 2a.
+
+Ini kelas kesalahan yang sama dengan filter pencarian terlalu sempit di Hari 1,
+saat hasil kosong tampak sama persis dengan tidak ada aktivitas.
+
+### Kebersihan repo
+
+`handoff.md` dan `rollout.jsonl` tertinggal di akar dari ekspor sesi Codex.
+Ditambahkan ke `.gitignore`, terutama `rollout.jsonl` karena memuat isi
+percakapan dan repo ini publik.
 
 ---
 
-## Verifikasi sebelum push · 21 Agustus 2026
+## Berikutnya
 
-`notebooks/sesiD_pytorch.py` dijalankan ulang dari awal. Gradien manual dan
-PyTorch cocok sampai sekitar `1e-14`, parameter serta loss akhir kedua training
-loop identik, dan benchmark CPU/GPU selesai.
+**Bulan 1 Sesi 1 dikerjakan pemilik.** Lima TODO diisi, tiga koreksi Soal 0
+dibereskan, sepuluh kotak tolok ukur dituntaskan.
 
-Satu bug ditemukan pada pemeriksaan riwayat loss. NumPy mencatat sesudah
-pembaruan, sedangkan PyTorch mencatat sebelum pembaruan. Kode bermaksud
-membandingkan keduanya dengan geseran satu iterasi, tetapi arah irisannya
-terbalik. Perbandingan `hn[1:]` dengan `hp[:-1]` diperbaiki menjadi `hn[:-1]`
-dengan `hp[1:]`.
+**Sesi 2 setelahnya.** Membangun kelas `Neuron`, `Layer`, dan `MLP` di atas
+mesin autograd, lalu melatihnya pada masalah klasifikasi kecil yang tidak bisa
+dipisahkan garis lurus.
 
-Bug ini tidak mengubah hasil training. Ia hanya membuat pemeriksaan riwayat
-melaporkan selisih besar dan kemudian mencetak kesimpulan yang bertentangan
-dengan angkanya sendiri.
+**Sesi 3.** MNIST sampai akurasi di atas 95 persen.
+
+**Sesi 4.** Pembanding PyTorch, plus menulis SGD-with-momentum, RMSprop, dan
+Adam sendiri, menutup janji dari Soal 4e Sesi B.
