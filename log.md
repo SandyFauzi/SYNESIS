@@ -1191,6 +1191,74 @@ milik orang lain.
 
 ---
 
+## 22 Agustus 2026 - Seri video Bulan 1
+
+Permintaan pemilik: bikin seri video untuk Bulan 1.
+
+Masalahnya, Sesi 2 sampai 4 belum dikerjakan. Jadi seri ini menjelaskan
+konsep dan gejalanya, dan sengaja tidak menampilkan satu pun kode jawaban.
+MLP di skrip pra-hitung ditulis vektor penuh dengan numpy, bentuk yang
+berbeda dari kelas `Value` yang harus dibangun sendiri di Sesi 2.
+
+### Yang dibuat
+
+- `video/siapkan_data_bulan1.py`, lima bagian pengukuran, dijalankan dengan
+  venv SYNESIS karena butuh sklearn
+- `video/b1_bab1_garis.py` Sesi 2, 30,4 detik
+- `video/b1_bab2_angka.py` Sesi 3, 31,8 detik
+- `video/b1_bab3_dinding.py` ongkos dan batas rekursi, 29,6 detik
+- `video/b1_bab4_pegas.py` Sesi 4, 38,3 detik
+
+Gabungannya 2 menit 10 detik, 5,0 MB. Venv manim cuma punya numpy dan scipy,
+jadi angka yang butuh sklearn dihitung dulu lalu disimpan ke `bulan1.npz`.
+
+### Angka baru yang diukur
+
+| Ukuran | Nilai |
+|---|---|
+| akurasi garis lurus di dua bulan sabit | 90,67 persen |
+| akurasi MLP 2-8-1 | 99,33 persen |
+| titik awal yang nyangkut | 1 dari 8, berhenti di 92,33 persen |
+| akurasi uji angka 8x8 | 97,98 persen |
+| objek Value per iterasi regresi kubik | 258 |
+| satu langkah Value lawan numpy | 0,417 ms lawan 0,012 ms |
+| satu maju MLP 784-32-10 | 76.298 objek Value |
+| SGD polos di lembah cond 384 | tidak pernah sampai 2 persen |
+| Adam | iterasi 126 |
+
+### Empat kesalahan yang ditemukan sendiri
+
+1. Bentuk kisi disalahartikan. `GY.size` itu jumlah seluruh elemen, bukan
+   jumlah baris. Harus `len(gy), len(gx)`.
+2. Lanskap optimizer mula-mula pakai lembah Sesi B yang bilangan kondisinya
+   cuma 8. Di situ SGD polos justru menang, jadi demonstrasinya gagal
+   menunjukkan apa pun. Diganti dengan regresi yang `x`-nya tidak dibakukan,
+   rentang [2, 12], bilangan kondisi 384.
+3. Tabel rekursi memakai 784 di label tapi 64 di kode. Tabelnya berbohong,
+   dan angkanya kelihatan benar. Diperbaiki, dan setelah itu baris 256 memang
+   RecursionError seperti seharusnya.
+4. Elips kontur Bab 4 meluber keluar bingkai karena lembah cond 384 terlalu
+   lonjong. Diganti peta panas log-rugi.
+
+Ditambah satu kesalahan lama yang berulang: menulis berkas lewat string
+Python non-raw membuat `\a` jadi byte BEL di README. Ini kali keempat kelas
+kesalahan yang sama muncul. Pemindaian byte kendali setiap kali menulis
+berkas tetap wajib, dan itu yang menangkapnya.
+
+### Catatan jujur soal angka
+
+Seed 0 pada dua bulan sabit menghasilkan model yang nyangkut di 92,33 persen
+sementara tujuh seed lain tembus 99,33 persen. Godaannya memilih seed yang
+bagus dan diam. Yang dilakukan: seed bagus dipakai untuk gambar batas
+keputusan, dan sebaran kedelapan seed ditampilkan apa adanya sebagai isi
+pelajaran, karena justru itu yang baru di Bulan 1.
+
+Perbandingan optimizer juga diberi `lr` terbaik masing-masing lewat sapuan,
+bukan `lr` yang sama, karena skala Adam dan SGD memang berbeda dan menyamakan
+angkanya akan curang.
+
+---
+
 ## Berikutnya
 
 **Bulan 1 Sesi 1 dikerjakan pemilik.** Lima TODO diisi, tiga koreksi Soal 0

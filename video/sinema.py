@@ -231,3 +231,51 @@ def label_kecil(teks, warna=None, ukuran=17):
 def rumus(tex, ukuran=34, warna=None):
     m = MathTex(tex, font_size=ukuran, color=warna or PALET["teks"])
     return m
+
+
+# ══════════════════════════════════════════════════════════════
+# Data hasil pra-hitung, dipakai seri Bulan 1
+# ══════════════════════════════════════════════════════════════
+
+def muat_data(nama="bulan1"):
+    """Baca hasil siapkan_data_bulan1.py. Kembalikan (npz, dict angka)."""
+    import json
+    from pathlib import Path
+
+    import numpy as np
+
+    d = Path(__file__).resolve().parent / "data"
+    npz = np.load(d / f"{nama}.npz")
+    angka = json.loads((d / f"{nama}.json").read_text(encoding="utf-8"))
+    return npz, angka
+
+
+def _hex_ke_rgb(h):
+    h = h.lstrip("#")
+    return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
+
+
+def gambar_skala(nilai, warna_rendah, warna_tinggi, tinggi=4.6, halus=False):
+    """Ubah larik 2D 0..1 jadi ImageMobject dua warna.
+
+    Dipakai untuk peta keputusan dan citra angka. Lebih cepat ribuan kali
+    daripada menyusun satu Square per piksel.
+    """
+    import numpy as np
+
+    a = np.clip(np.asarray(nilai, dtype=float), 0.0, 1.0)
+    c0 = np.array(_hex_ke_rgb(warna_rendah), dtype=float)
+    c1 = np.array(_hex_ke_rgb(warna_tinggi), dtype=float)
+    rgb = c0[None, None, :] + (c1 - c0)[None, None, :] * a[:, :, None]
+    img = ImageMobject(rgb.astype(np.uint8))
+    if not halus:
+        img.set_resampling_algorithm(RESAMPLING_ALGORITHMS["nearest"])
+    img.height = tinggi
+    return img
+
+
+def garis_data(pasangan, warna, tebal=3.6):
+    """VMobject dari daftar titik layar."""
+    g = VMobject(stroke_color=warna, stroke_width=tebal)
+    g.set_points_as_corners(list(pasangan))
+    return g

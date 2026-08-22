@@ -1,12 +1,12 @@
 # Seri video SYNESIS
 
-Penjelasan visual Bulan 0 sampai mesin autograd, empat bab, format tegak
-720x1280 supaya enak dilihat di layar telepon.
+Penjelasan visual, format tegak 720x1280 supaya enak dilihat di layar telepon.
+Dua seri: Bulan 0 dan Bulan 1, masing-masing empat bab.
 
 Dibuat dengan Manim 0.19 memakai venv yang sudah ada di `S:\Code\manimations\.venv`.
 Repo ini tidak menyimpan venv sendiri.
 
-## Isi
+## Seri Bulan 0
 
 | Bab | Judul | Isi | Durasi |
 |---|---|---|---|
@@ -16,6 +16,43 @@ Repo ini tidak menyimpan venv sendiri.
 | 4 | Mesin Turunan | Sesi D dan Bulan 1. Graf komputasi dan isi `loss.backward()` | 40,2 detik |
 
 Gabungan keempatnya: `keluaran/synesis-bulan0-lengkap.mp4`, 2 menit 49 detik.
+
+## Seri Bulan 1
+
+| Bab | Judul | Isi | Durasi |
+|---|---|---|---|
+| 1 | Garis Tidak Cukup | Sesi 2. MLP, lipatan ReLU, dan titik awal yang menentukan | 30,4 detik |
+| 2 | Sepuluh Pilihan | Sesi 3. Softmax, entropi silang, dan angka tulisan tangan | 31,8 detik |
+| 3 | Dinding di Depan | Ongkos satu objek per angka, dan batas rekursi | 29,6 detik |
+| 4 | Pegas dan Gesekan | Sesi 4. Momentum, RMSprop, Adam sebagai osilator teredam | 38,3 detik |
+
+Gabungannya: `keluaran/synesis-bulan1-lengkap.mp4`, 2 menit 10 detik.
+
+Sesi 2 sampai 4 belum dikerjakan pemilik saat seri ini dibuat. Karena itu
+seri Bulan 1 menjelaskan konsep dan gejalanya, dan sengaja tidak menampilkan
+kode jawaban satu pun. MLP di `siapkan_data_bulan1.py` ditulis vektor penuh
+dengan numpy, bentuk yang berbeda dari kelas `Value` yang harus dibangun
+sendiri di Sesi 2.
+
+### Angka Bulan 1 dan asalnya
+
+| Angka | Muncul di | Asalnya |
+|---|---|---|
+| garis lurus 90,67 persen lawan MLP 99,33 persen | Bulan 1 Bab 1 | dua bulan sabit, 300 titik |
+| 1 dari 8 titik awal nyangkut di 92,33 persen | Bulan 1 Bab 1 | survei delapan seed |
+| akurasi uji 97,98 persen | Bulan 1 Bab 2 | angka 8x8 sklearn, 397 gambar uji |
+| 258 objek Value per iterasi, 1.032.000 total | Bulan 1 Bab 3 | cacah `Value.__init__` |
+| 0,417 ms lawan 0,012 ms | Bulan 1 Bab 3 | satu langkah Value lawan numpy |
+| batas rekursi 996, dinding di 784+256 | Bulan 1 Bab 3 | bagi dua pada mesin autograd pemilik |
+| SGD tidak sampai, Adam iterasi 126 | Bulan 1 Bab 4 | lembah bilangan kondisi 384 |
+
+Seri Bulan 1 membaca `video/data/bulan1.npz`. Bangun ulang berkas itu dengan
+venv SYNESIS, bukan venv manim, karena butuh sklearn:
+
+```powershell
+. .\scripts\activate.ps1
+python video\siapkan_data_bulan1.py
+```
 
 ## Aturan yang dipegang
 
@@ -54,9 +91,12 @@ Atau sekaligus empat-empatnya:
 ## Berkas
 
 - `sinema.py` kit gaya bersama: palet, bingkai tegak, judul, panel kode dengan
-  penyorot baris, dan kartu angka
-- `bab1_menuruni.py` sampai `bab4_mesin.py` satu bab satu berkas
-- `render.ps1` render keempatnya lalu menyambungnya jadi satu
+  penyorot baris, kartu angka, dan pembaca data
+- `bab1_menuruni.py` sampai `bab4_mesin.py` seri Bulan 0
+- `b1_bab1_garis.py` sampai `b1_bab4_pegas.py` seri Bulan 1
+- `siapkan_data_bulan1.py` pra-hitung seri Bulan 1, dijalankan dengan venv SYNESIS
+- `data/` hasil pra-hitung, tidak masuk git
+- `render.ps1` render seri Bulan 0 lalu menyambungnya jadi satu
 - `keluaran/` hasil render, tidak masuk git
 - `media/` berkas antara dari manim, tidak masuk git
 
