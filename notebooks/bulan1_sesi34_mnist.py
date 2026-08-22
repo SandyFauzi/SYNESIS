@@ -109,7 +109,10 @@ def softmax_silang_value(logit, kelas):
 
     TODO 1
     """
-    raise NotImplementedError("softmax_silang_value")
+    m = max(v.data for v in logit)
+    eksponen = [(v - m).exp() for v in logit]
+    peluang = eksponen[kelas] / sum(eksponen, Value(0.0))
+    return -peluang.log()
 
 
 def bagian1():
@@ -255,7 +258,20 @@ def backward_iteratif(akar):
 
     TODO 2
     """
-    raise NotImplementedError("backward_iteratif")
+    urutan, terlihat = [], set()
+    tumpukan = [(akar, False)]
+    while tumpukan:
+        v, sudah = tumpukan.pop()
+        if sudah:
+            urutan.append(v)
+        elif id(v) not in terlihat:
+            terlihat.add(id(v))
+            tumpukan.append((v, True))
+            tumpukan.extend((a, False) for a in reversed(tuple(v._prev)))
+
+    akar.grad = 1.0
+    for v in reversed(urutan):
+        v._backward()
 
 
 def bagian3(X, y):
@@ -264,27 +280,44 @@ def bagian3(X, y):
     asli = Value.backward
     Value.backward = backward_iteratif
     try:
+        # Dua hal yang bikin uji ini bisa membedakan benar dari asal-jalan.
+        #
+        # Pertama, ukurannya tidak mungil. Di jaringan 4-3-2 semua urutan
+        # topologis yang sah memberi jawaban identik sampai bit terakhir,
+        # jadi uji sebesar itu lolos apa pun yang kamu tulis.
+        #
+        # Kedua, kedua versi dijalankan pada GRAF YANG SAMA. Dua graf terpisah
+        # punya alamat objek berbeda, jadi urutan iterasi set-nya berbeda, dan
+        # selisih 1e-17 muncul dari situ, bukan dari kodemu.
         random.seed(0)
-        kecil = MLP(4, [3, 2])
-        r = rugi_batch_value(kecil, np.random.default_rng(0).normal(0, 1, (2, 4)),
-                             [0, 1])
-        kecil.nolkan()
-        r.backward()
-        g_iter = [p.grad for p in kecil.parameters()]
+        kecil = MLP(20, [12, 5])
+        Xk = np.random.default_rng(0).normal(0, 1, (4, 20))
+        yk = [0, 3, 1, 4]
+        r = rugi_batch_value(kecil, Xk, yk)
 
-        Value.backward = asli
-        random.seed(0)
-        kecil2 = MLP(4, [3, 2])
-        r2 = rugi_batch_value(kecil2, np.random.default_rng(0).normal(0, 1, (2, 4)),
-                              [0, 1])
-        kecil2.nolkan()
-        r2.backward()
-        g_rek = [p.grad for p in kecil2.parameters()]
+        lihat, tumpuk, simpul = set(), [r], []
+        while tumpuk:
+            v = tumpuk.pop()
+            if id(v) not in lihat:
+                lihat.add(id(v))
+                simpul.append(v)
+                tumpuk.extend(v._prev)
+
+        def gradien_lewat(cara):
+            for v in simpul:        # nolkan seluruh graf, bukan cuma parameter
+                v.grad = 0.0
+            cara(r)
+            return [p.grad for p in kecil.parameters()]
+
+        g_iter = gradien_lewat(backward_iteratif)
+        g_rek = gradien_lewat(asli)
 
         beda = max(abs(a - b) for a, b in zip(g_iter, g_rek))
-        print(f"  dulu diadu dengan versi rekursif di jaringan kecil")
+        print(f"  diadu dengan versi rekursif, {len(simpul)} simpul, graf sama")
         print(f"    parameter dibandingkan : {len(g_iter)}")
         print(f"    selisih gradien maks   : {beda:.3e}")
+        print(f"    beda bit               : "
+              f"{sum(1 for a, b in zip(g_iter, g_rek) if a != b)} dari {len(g_iter)}")
         print(f"    status                 : {'lolos' if beda < 1e-12 else 'GAGAL'}\n")
 
         Value.backward = backward_iteratif
@@ -355,7 +388,8 @@ class Tensor:
         out = Tensor(self.data @ other.data, (self, other), "@")
 
         def _backward():
-            raise NotImplementedError("Tensor.__matmul__ backward")
+            self.grad += out.grad @ other.data.T
+            other.grad += self.data.T @ out.grad
 
         out._backward = _backward
         return out
@@ -377,7 +411,11 @@ class Tensor:
         out = Tensor(self.data + other.data, (self, other), "+")
 
         def _backward():
-            raise NotImplementedError("Tensor.__add__ backward")
+            self.grad += out.grad
+            if other.data.shape == out.data.shape:
+                other.grad += out.grad
+            else:
+                other.grad += out.grad.sum(axis=0)
 
         out._backward = _backward
         return out
@@ -390,7 +428,7 @@ class Tensor:
         out = Tensor(np.maximum(self.data, 0), (self,), "relu")
 
         def _backward():
-            raise NotImplementedError("Tensor.relu backward")
+            self.grad += (self.data > 0) * out.grad
 
         out._backward = _backward
         return out
@@ -413,7 +451,19 @@ class Tensor:
 
         TODO 6
         """
-        raise NotImplementedError("Tensor.entropi_silang")
+        baris = np.arange(len(kelas))
+        eksponen = np.exp(self.data - self.data.max(axis=1, keepdims=True))
+        peluang = eksponen / eksponen.sum(axis=1, keepdims=True)
+        out = Tensor(-np.log(peluang[baris, kelas]).mean(), (self,),
+                     "entropi_silang")
+
+        def _backward():
+            grad = peluang.copy()
+            grad[baris, kelas] -= 1.0
+            self.grad += out.grad * grad / len(kelas)
+
+        out._backward = _backward
+        return out
 
     def backward(self):
         """Sama seperti Value, tapi urutannya sudah iteratif sejak awal.
@@ -730,7 +780,9 @@ def momentum(g, keadaan, lr, beta=0.9):
 
     TODO 7
     """
-    raise NotImplementedError("momentum")
+    v = beta * keadaan.get("v", np.zeros_like(g)) - lr * g
+    keadaan["v"] = v
+    return v, keadaan
 
 
 def rmsprop(g, keadaan, lr, beta=0.9, eps=1e-8):
@@ -746,7 +798,9 @@ def rmsprop(g, keadaan, lr, beta=0.9, eps=1e-8):
 
     TODO 8
     """
-    raise NotImplementedError("rmsprop")
+    s = beta * keadaan.get("s", np.zeros_like(g)) + (1 - beta) * g ** 2
+    keadaan["s"] = s
+    return -lr * g / (np.sqrt(s) + eps), keadaan
 
 
 def adam(g, keadaan, lr, b1=0.9, b2=0.999, eps=1e-8):
@@ -766,7 +820,12 @@ def adam(g, keadaan, lr, b1=0.9, b2=0.999, eps=1e-8):
 
     TODO 9
     """
-    raise NotImplementedError("adam")
+    keadaan["t"] = keadaan.get("t", 0) + 1
+    keadaan["m"] = b1 * keadaan.get("m", np.zeros_like(g)) + (1 - b1) * g
+    keadaan["s"] = b2 * keadaan.get("s", np.zeros_like(g)) + (1 - b2) * g ** 2
+    mh = keadaan["m"] / (1 - b1 ** keadaan["t"])
+    sh = keadaan["s"] / (1 - b2 ** keadaan["t"])
+    return -lr * mh / (np.sqrt(sh) + eps), keadaan
 
 
 def jalankan(A, y, aturan, lr, n_iter=300, th0=(0.0, 0.0)):

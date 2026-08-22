@@ -1641,10 +1641,105 @@ meminta dia mencari batas baliknya sendiri.
 
 ---
 
-## Berikutnya
+## 23 Agustus 2026 - Sesi 3+4 dikerjakan pemilik, Bulan 1 tutup
 
-**Bulan 1 Sesi 3+4 dikerjakan pemilik.** Sembilan TODO, delapan soal, dua
-belas kotak. Sesudah itu Bulan 1 tutup.
+Sembilan TODO diisi, 31 butir soal dijawab, dua belas kotak dicentang.
+Keluarannya identik dengan versi acuan sampai digit terakhir, keluar 0 tanpa
+peringatan.
+
+Jawabannya diadu dengan lima pengukuran di `notebooks/kunci_b1s34_bukti.py`,
+hasilnya di `notebooks/kunci-bulan1-sesi34.md`. **Verdict: 30 benar, 1 salah.**
+
+Bandingkan Sesi 2 yang empat butirnya tidak dikerjakan sama sekali. Kali ini
+tiap soal yang meminta angka dijawab dengan angka, termasuk 5b, 5c, dan 7d
+yang menuntut menulis percobaan sendiri di luar berkas sesi.
+
+### Yang salah: 6a, dan sebabnya bukan overfitting
+
+Dia menjelaskan penurunan validasi di epoch 7 sebagai overfitting. Diukur
+dengan menambah kolom akurasi latih:
+
+```
+ epoch   akurasi latih   akurasi validasi
+     6          98.10%             97.32%
+     7          97.11%             96.37%
+```
+
+Latih ikut jatuh bersama validasi. Overfitting berarti latih terus naik
+sementara validasi turun; model yang menghafal tidak tiba-tiba lupa. Yang
+terjadi: lr 0,1 dipertahankan sampai akhir dan langkah terakhir mendarat di
+tempat yang lebih buruk untuk kedua himpunan sekaligus.
+
+Berkas sesi tidak mencetak akurasi latih, jadi dua sebab yang berbeda
+kelihatan sama dari luar. Itu kelalaian saya waktu menyusunnya.
+
+### Temuan terbaik malam ini: reversed() yang menyelamatkan 3a
+
+Dia mengklaim gradien iteratif dan rekursif identik bit demi bit karena
+`reversed()` di dorongan anak menyamakan urutan DFS. Diuji pada graf yang
+sama dengan tiga cara telusur:
+
+```
+60-40-10, 8 contoh, 2850 parameter, 48829 simpul
+  iteratif + reversed        selisih 0.000e+00   beda bit    0 dari 2850
+  iteratif tanpa reversed    selisih 1.110e-16   beda bit 1764 dari 2850
+  iteratif anak diacak       selisih 1.110e-16   beda bit 1513 dari 2850
+```
+
+Ketiganya benar secara matematis. Yang berbeda cuma urutan penjumlahan, dan
+penjumlahan titik-mengambang tidak asosiatif. Tanpa `reversed()` kodenya
+tetap lolos semua uji beda hingga dan tetap melatih MNIST ke 97 persen; yang
+hilang cuma jaminan bit demi bit yang dia klaim.
+
+### Kelemahan berkas sesi yang temuan itu menyingkap
+
+Uji Bagian 3 semula memakai jaringan 4-3-2. Di ukuran itu ketiga cara telusur
+memberi `0.000e+00`, jadi ujinya lolos apa pun yang ditulis. Sekali lagi pola
+"contoh yang dipilih tidak bisa membedakan benar dari salah", kali ini di
+berkas saya.
+
+Diperbaiki dua hal sekaligus: diperbesar jadi 20-12-5 dengan 4 contoh, dan
+kedua versi sekarang dijalankan pada graf yang sama, karena dua graf terpisah
+punya alamat objek berbeda sehingga urutan iterasi set-nya berbeda dan
+selisih 1e-17 muncul dari situ, bukan dari kode yang diuji. Sesudah itu:
+
+```
+diadu dengan versi rekursif, 2956 simpul, graf sama
+  selisih gradien maks : 0.000e+00
+  beda bit             : 0 dari 317
+```
+
+### Klaim lain yang dikonfirmasi
+
+- 1c dan 1d: rugi identik `1.8358831657033847`, selisih gradien `2.220e-16`,
+  jumlah gradien `2.108e-16`. Ketiga angka yang dia laporkan kena.
+- 5c: titik balik GPU memang batch 256. Diulang tiga kali per titik; di batch
+  1024 GPU hampir tiga kali lebih cepat dari CPU.
+- 7d: lanskap `x^4/4 + y^2/2` dari (100,100) memang membalik urutannya.
+  RMSprop tiba di rugi 1 pada iterasi 783, momentum tidak pernah.
+- 7b: keempat angka turunan osilator teredamnya benar, dan dia sendiri
+  mencatat rasio terukur 4,84x berbeda dari ramalan asimtotik 12,9x.
+- 6d: sigma binomial 0,171 poin persen dan bias seleksi 0,70 poin persen,
+  dua-duanya benar.
+
+### Kebiasaan yang belum melekat
+
+5a, 5b, dan 5c melaporkan waktu sampai enam angka di belakang koma dari satu
+kali jalan. Kolom numpy batch 64 di pengukuran ulang: `2.264 / 2.785 / 6.587`
+detik untuk pekerjaan yang sama persis. Angka keenamnya tidak berarti apa-apa.
+
+Sama dengan keluhan yang saya kena sendiri di Bagian 5 kemarin. Muncul tiga
+kali malam ini plus sekali di 2d Sesi 2. Aturannya satu kalimat: kalau
+melaporkan waktu, laporkan sebarannya.
+
+### Bulan 1 tutup
+
+Kesepuluh kotak di `docs/Bulan-1-Harian.md` tertutup, termasuk "cocok dengan
+PyTorch" yang sudah dikerjakan di Bagian 4 Sesi 1.
+
+---
+
+## Berikutnya
 
 **Bulan 2 Sesi 1** sudah siap di `soal-bulan2-sesi1.md`, tujuh TODO, belum
 dikerjakan.
