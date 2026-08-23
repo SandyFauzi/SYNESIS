@@ -1739,9 +1739,102 @@ PyTorch" yang sudah dikerjakan di Bagian 4 Sesi 1.
 
 ---
 
+## 23 Agustus 2026 - Kanvas tulis tangan, produk akhir Bulan 1
+
+`notebooks/bulan1_kanvas.py`. Kanvas tkinter di kiri, tebakan plus batang
+peluang sepuluh kelas plus kotak 28x28 yang dilihat model di kanan.
+
+Nol dependensi baru: tkinter stdlib, Pillow sudah ada, `Tensor` dan `maju`
+dipakai ulang dari `bulan1_sesi34_mnist`. Bobot dilatih sekali lalu disimpan
+ke `E:\SYNESIS\data\mnist_model_128.npz`, akurasi uji 97,27 persen.
+
+Yang menentukan hidup-matinya bukan modelnya, tapi pengecilannya: potong ke
+kotak isi, skala sisi terpanjang jadi 20, tempel ke 28x28 dengan pusat massa
+di tengah. Itu cara MNIST dibuat, dan tanpa itu jaringan 97 persen menebak
+asal karena masukannya bukan benda yang sama dengan yang dilatihkan.
+
+Filter pengecilan BOX, bukan LANCZOS, karena BOX itu rata-rata luas yang
+dipakai MNIST asli dan tidak bisa berdering di tepi keras. Diukur pada 300
+gambar uji lewat jalur kanvas: BOX 95,3 persen, LANCZOS 95,0, BILINEAR 94,7.
+Coretan pena sintetis 22 piksel: 1 dan 7 di atas 99 persen, 4 di 82 persen.
+
+Satu koreksi ke diri sendiri. Uji pertama memberi 84,3 persen dan sempat
+saya kira preprocessing-nya bocor. Ternyata pembesaran LANCZOS di skrip
+ujinya yang berdering, bukan kodenya; jalur asli tidak pernah membesarkan
+apa pun. Ujinya yang salah, bukan yang diuji.
+
+Cuma angka 0-9. Huruf butuh EMNIST, 562 MB, belum diunduh.
+
+---
+
+## 24 Agustus 2026 - Bulan 2 Sesi 2 disiapkan
+
+`notebooks/bulan2_sesi2_intent.py` plus `notebooks/soal-bulan2-sesi2.md`.
+Tujuh TODO, delapan soal, dua belas kotak.
+
+Sesi 1 sudah ada sejak 22 Agustus dan belum dikerjakan, jadi tidak dibuat
+ulang. Sesi 2 menyambung tiga utang yang digantung Sesi 1: tidak ada data uji
+(Soal 6c), buta sinonim (Soal 3), dan salah tebak itu mahal (Soal 8c).
+
+Isinya: belahan tiga arah berstrata, TF-IDF, matriks bingung, presisi dan
+recall, ambang "tidak tahu", ekstraksi slot. Mesin belajarnya tidak baru sama
+sekali: `Tensor` dan `maju` dari Bulan 1 Sesi 3+4 diimpor apa adanya, nol
+baris autograd baru. Data 120 perintah bahasa Indonesia, 8 intent, disimpan
+sebagai teks di dalam berkas supaya pemilik menambahnya sendiri.
+
+Versi terisi jalan penuh, keluar 0:
+
+```
+himpunan uji 24 kalimat, sigma binomial 6,1 poin persen
+hitung kata   validasi 65,6  uji 68,2   terburuk 54,2  terbaik 79,2
+TF-IDF        validasi 65,6  uji 66,7   terburuk 50,0  terbaik 75,0
+ambang 0,00   18 benar  6 salah   0 tolak   0 dari 5 asing ditolak
+ambang 0,90    9 benar  0 salah  15 tolak   5 dari 5 asing ditolak
+0,004 milidetik per perintah, model 68,3 KB, kosakata 173 kata
+```
+
+### Tiga hal yang dibetulkan waktu menyusunnya
+
+**Perbandingan TF-IDF lawan hitung-kata seri di satu belahan.** Versi pertama
+melatih sekali dan melaporkan 75,0 lawan 75,0 di uji. Tidak ada resolusi.
+Diganti delapan belahan dengan seed berbeda: sebaran hasil 25 poin persen,
+selisih antar-resep 0,0 poin persen. Kesimpulan yang benar jadi "percobaan
+ini tidak bisa memutuskan", dan itu yang diminta Soal 3.
+
+**Ambang di Bagian 5 mentok.** Pemilihan epoch terbaik memakai `>` sehingga
+seri dimenangkan epoch paling awal, dan model berhenti waktu peluangnya masih
+hampir rata. Akibatnya di ambang 0,5 sudah 23 dari 24 ditolak, dan tabelnya
+tidak menunjukkan apa-apa. Diganti `>=` supaya seri dimenangkan yang lebih
+terlatih. Sekarang kurvanya punya bentuk.
+
+**Spesifikasi jam saya sendiri ngawur.** Docstring meminta "jam tiga"
+diterjemahkan jadi `15:00`. Itu menebak, dan "jam tiga" memang ambigu.
+Diperbaiki jadi `03:00` kecuali ada penanda sore atau malam, dan larangan
+menebak itu jadi Soal 7.
+
+---
+
+## Catatan disk, 24 Agustus 2026
+
+Pemilik melihat C: turun 3 GB dan bertanya. Diukur, tidak ada yang dihapus:
+
+```
+Temp total                                       3.6 GB
+  pip-unpack.../torch-2.6.0+cu124.whl   1.87 GB   20 Agu 01:22
+  WinGet/Ollama.Ollama.0.32.15           1.6 GB   22 Agu 19:07
+  claude (scratchpad)                     16 MB
+MNIST + bobot (E:)                        86 MB
+```
+
+Yang 1,6 GB itu sisa unduhan dua percobaan pasang Ollama yang dibatalkan
+pemilik pada 22 Agustus. Waktu itu saya melapor "tidak meninggalkan apa-apa";
+yang saya periksa cuma programnya terpasang atau tidak, bukan cache
+unduhannya. Laporan itu salah dan sudah dikoreksi.
+
+---
+
 ## Berikutnya
 
-**Bulan 2 Sesi 1** sudah siap di `soal-bulan2-sesi1.md`, tujuh TODO, belum
-dikerjakan.
+**Bulan 2 Sesi 1 dan 2** siap, empat belas TODO total, belum dikerjakan.
 
 **Bulan 3** belum disusun.
