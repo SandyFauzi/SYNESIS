@@ -4,6 +4,9 @@ Jalankan:
     . .\\scripts\\activate.ps1
     python notebooks\\bulan2_sesi2_intent.py
 
+Atau pakai berkas data lain:
+    python notebooks\\bulan2_sesi2_intent.py data\\bulan2\\perintah_train_generated.txt
+
 Sesi 1 berhenti di tempat yang enak dan menipu: akurasi 100 persen di enam
 kelas, tanpa satu pun data uji. Soal 6c waktu itu memintamu menyebut kenapa
 itu cacat. Malam ini cacatnya diperbaiki, dan gantinya kamu dapat angka yang
@@ -44,10 +47,11 @@ GARIS = "=" * 66
 # Data
 # ══════════════════════════════════════════════════════════════
 
-def muat_perintah():
-    """Baca PERINTAH di bawah berkas ini jadi (kalimat, label). Disediakan."""
+def muat_perintah(berkas=None):
+    """Baca data bawaan atau berkas ``label | kalimat``."""
+    sumber = Path(berkas).read_text(encoding="utf-8") if berkas else PERINTAH
     pasang = []
-    for baris in PERINTAH.strip().splitlines():
+    for baris in sumber.strip().splitlines():
         baris = baris.strip()
         if not baris or baris.startswith("#"):
             continue
@@ -437,11 +441,18 @@ AMBANG_INTENT = {
     "buka_berkas": 0.55,
     "cari_berkas": 0.40,
     "hitung": 0.60,
+    "info_sistem": 0.50,
     "jadwal": 0.85,
     "jalankan_program": 0.85,
+    "jelaskan_konsep": 0.40,
+    "kelola_repo": 0.90,
     "kontrol_sistem": 0.90,
+    "lanjut_tugas": 0.65,
     "obrol": 0.30,
+    "pasang_paket": 0.90,
     "ringkas_catatan": 0.55,
+    "tanya_umum": 0.30,
+    "ubah_proyek": 0.85,
 }
 
 
@@ -469,7 +480,7 @@ def tebak_dengan_ambang(param, X, ambang):
     return tebak
 
 
-def bagian5(param, pakai_idf, kos, uji_set, yte):
+def bagian5(param, pakai_idf, kos, label2i, uji_set, yte):
     print("\n" + GARIS, "\nBAGIAN 5  ambang tidak tahu\n", GARIS, sep="")
 
     Xte = vektorkan([k for k, _ in uji_set], kos, pakai_idf)
@@ -493,7 +504,8 @@ def bagian5(param, pakai_idf, kos, uji_set, yte):
         print(f"  {ambang:>8.2f}{benar:>10}{salah:>9}{tolak:>10}"
               f"{f'{int((ta == -1).sum())} dari {len(asing)}':>16}")
 
-    per_intent = np.array([AMBANG_INTENT[n] for n in sorted(AMBANG_INTENT)])
+    nama_label = [n for n, _ in sorted(label2i.items(), key=lambda kv: kv[1])]
+    per_intent = np.array([AMBANG_INTENT.get(n, 0.60) for n in nama_label])
     t = tebak_dengan_ambang(param, Xte, per_intent)
     ta = tebak_dengan_ambang(param, Xas, per_intent)
     benar = int((t == yte).sum())
@@ -652,7 +664,7 @@ def bagian7(param, pakai_idf, kos, uji_set):
 
   Ini yang dimaksud rencana Bulan 2 waktu bilang SYNESIS v0.1 sudah berguna
   tanpa satu pun LLM. Perintah yang kamu ketik tiap hari bukan masalah
-  penalaran bahasa. Ia masalah klasifikasi 8 kelas dengan kosakata
+  penalaran bahasa. Ia masalah klasifikasi {param[-1].data.size} kelas dengan kosakata
   {len(kos)} kata, dan itu selesai dalam waktu di atas.
 
   Soal 8 memintamu memutuskan di mana batasnya: perintah macam apa yang
@@ -803,7 +815,7 @@ obrol | lanjut saja
 
 
 if __name__ == "__main__":
-    pasang = muat_perintah()
+    pasang = muat_perintah(sys.argv[1] if len(sys.argv) > 1 else None)
     try:
         latih_set, sah_set, uji_set = belah_tiga(pasang)
         bagian1(pasang, latih_set, sah_set, uji_set)
@@ -818,7 +830,7 @@ if __name__ == "__main__":
         yte = ys[2]
 
         bagian4(nama, param, pakai, kos, label2i, uji_set, yte)
-        bagian5(param, pakai, kos, uji_set, yte)
+        bagian5(param, pakai, kos, label2i, uji_set, yte)
         bagian6()
         bagian7(param, pakai, kos, uji_set)
     except NotImplementedError as e:

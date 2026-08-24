@@ -46,3 +46,6 @@ video/media/
 video/keluaran/
 Contoh Video/
 video/data/
+
+# keluaran latihan, dibuat ulang tiap jalan
+data/bulan2/latihan_terakhir.log
