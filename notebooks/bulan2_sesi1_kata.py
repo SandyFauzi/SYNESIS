@@ -116,7 +116,8 @@ def bangun_kosakata(kalimat):
 
     TODO 1a
     """
-    raise NotImplementedError("bangun_kosakata")
+    kata = sorted({k for teks in kalimat for k in belah(teks)})
+    return {k: i for i, k in enumerate(kata)}
 
 
 def ke_vektor(teks, kosakata):
@@ -134,7 +135,11 @@ def ke_vektor(teks, kosakata):
 
     TODO 1b
     """
-    raise NotImplementedError("ke_vektor")
+    vektor = np.zeros(len(kosakata))
+    for kata in belah(teks):
+        if kata in kosakata:
+            vektor[kosakata[kata]] += 1
+    return vektor
 
 
 def bagian1():
@@ -182,7 +187,8 @@ def kemiripan(a, b):
 
     TODO 2
     """
-    raise NotImplementedError("kemiripan")
+    penyebut = np.linalg.norm(a) * np.linalg.norm(b)
+    return 0.0 if penyebut == 0 else float(a @ b / penyebut)
 
 
 def bagian2(kos):
@@ -238,7 +244,8 @@ def sigmoid(z):
 
     TODO 3a
     """
-    raise NotImplementedError("sigmoid")
+    z = np.clip(z, -60, 60)
+    return 1.0 / (1.0 + np.exp(-z))
 
 
 def rugi_silang(p, y):
@@ -254,7 +261,9 @@ def rugi_silang(p, y):
 
     TODO 3b
     """
-    raise NotImplementedError("rugi_silang")
+    eps = 1e-12
+    return float(-np.mean(y * np.log(p + eps) +
+                          (1 - y) * np.log(1 - p + eps)))
 
 
 def gradien_logistik(X, y, w, b):
@@ -270,7 +279,8 @@ def gradien_logistik(X, y, w, b):
 
     TODO 3c
     """
-    raise NotImplementedError("gradien_logistik")
+    galat = sigmoid(X @ w + b) - y
+    return X.T @ galat / len(y), float(galat.mean())
 
 
 def bagian3(kos):
@@ -400,7 +410,9 @@ def softmax(Z):
 
     TODO 5
     """
-    raise NotImplementedError("softmax")
+    Z = Z - np.max(Z, axis=-1, keepdims=True)
+    eksponen = np.exp(Z)
+    return eksponen / eksponen.sum(axis=-1, keepdims=True)
 
 
 def bagian5(kos):

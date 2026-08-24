@@ -1833,8 +1833,136 @@ unduhannya. Laporan itu salah dan sudah dikoreksi.
 
 ---
 
+## 24 Agustus 2026 - Bulan 2 Sesi 1 dan 2 dikerjakan
+
+Keempat berkas selesai diisi:
+
+- `notebooks/bulan2_sesi1_kata.py`
+- `notebooks/soal-bulan2-sesi1.md`
+- `notebooks/bulan2_sesi2_intent.py`
+- `notebooks/soal-bulan2-sesi2.md`
+
+Empat belas TODO kode sudah jalan. Sesi 1 lolos gradient check dengan galat
+relatif `1,166e-10` untuk bobot dan `1,440e-11` untuk bias. Sesi 2 kembali
+menghasilkan angka acuan: 80/16/24 data, kosakata 173 kata, hitung-kata
+68,2 persen, TF-IDF 66,7 persen, dan 0,004 milidetik per perintah.
+
+Ambang per intent ditambahkan berdasarkan ongkos salah. Hasil seed 0 berubah
+dari 15 benar, 5 salah, 4 tolak pada ambang global 0,50 menjadi 14 benar,
+3 salah, 7 tolak. Ia tidak dipakai sebagai pendeteksi data asing karena lima
+kalimat asing tetap lolos melalui kelas berongkos rendah. Kesimpulannya:
+ambang keamanan dan deteksi di-luar-kelas adalah dua masalah berbeda.
+
+Semua jawaban teori diisi dari hasil pengukuran. Dua dugaan awal dikoreksi:
+
+- Target selang kepercayaan selebar 5 poin pada akurasi 90 persen memerlukan
+  576 kalimat uji, jadi sekitar 3.840 total pada belahan 70/15/15. Target
+  300--500 hanya cukup untuk prototipe.
+- Softmax tanpa pengurangan maksimum belum rusak pada bobot awal `x1000`
+  untuk seed ini; logit terbesar baru 496. Kerusakan `nan` benar-benar muncul
+  pada `x1500`, saat logit mencapai 744 dan `exp` overflow.
+
+Pemeriksaan kasus tepi lolos untuk sigmoid `+-1000`, softmax logit `+-1000`,
+vektor seluruhnya nol, pembagian nol presisi/recall, belahan yang dapat
+diulang, frasa waktu terpanjang, `jam tiga -> 03:00`, dan
+`jam 3 sore -> 15:00`. Kedua skrip keluar dengan kode 0.
+
+### Yang sengaja belum ditutup
+
+Data tetap 120 kalimat. Menambah sampai 3.840 dan menambah lima frasa waktu
+harus memakai ucapan serta riwayat asli pemilik, bukan kalimat buatan agen.
+Karena itu satu kotak Sesi 2 tetap kosong.
+
+---
+
+## 24 Agustus 2026 - Bulan 2 diperiksa, tidak ada yang salah
+
+Jawaban kedua sesi diadu dengan empat pengukuran di
+`notebooks/kunci_b2_bukti.py`, hasilnya di `notebooks/kunci-bulan2.md`.
+
+Enam belas nilai terukur yang dia tulis, enam belas cocok sampai digit
+terakhir, termasuk lima keyakinan softmax sampai empat angka di belakang
+koma. Yang ada cuma satu angka tertukar waktu disalin, dan dua butir yang
+sengaja ditandai belum dikerjakan. Tolok ukur Sesi 1 dua belas dari dua
+belas, Sesi 2 sebelas dari dua belas.
+
+### Dia membantah berkas saya, dan dia benar
+
+Soal 7c Sesi 1 menyatakan softmax tanpa pengurangan maksimum menghasilkan
+`nan`, dan Soal 7d menyuruh membuktikannya dengan `W` awal dikali 1000.
+Diukur:
+
+```
+exp meluap di atas ln(1.8e308) = 709.78
+
+ kali W awal   logit maks    nan   akurasi  softmax
+        1000       496.17  False     86.1%  polos
+        1500       744.25   True       nan  polos
+        1500       744.25  False     72.2%  kurangi maks
+
+ambang terukur: pengali 1430.5, logit maks di situ 709.78
+```
+
+exp(496) sekitar 1e215, masih muat di float64. Pernyataan 7c benar secara
+umum, tapi pengali 1000 di 7d tidak cukup membuktikannya di data ini.
+Kalibrasi soalnya salah, dan itu kesalahan saya. Dia mengukur, menemukan
+dugaan soalnya tidak terbukti, lalu menuliskan itu alih-alih menuliskan apa
+yang soalnya harapkan.
+
+Tambahan yang belum dia sebut: di pengali 1500 versi yang mengurangi maksimum
+tetap hidup tapi akurasinya jatuh ke 72,2 persen. Pengurangan maksimum
+menyelamatkan dari `nan`, bukan dari inisialisasi buruk.
+
+### Satu pengujian saya yang keliru, bukan jawabannya
+
+Soal 2b Sesi 2, kebocoran kosakata untuk TF-IDF. Dia laporkan `68,8/66,1`,
+saya dapat `67,7`, dan sempat mengira angkanya meleset. Diukur tiga tingkat:
+
+```
+bersih                      TF-IDF   65.6%  66.7%
+kosakata bocor, IDF bersih  TF-IDF   68.8%  66.1%
+kosakata + IDF bocor        TF-IDF   68.8%  67.7%
+```
+
+Soal 2b cuma menyuruh mengubah satu baris, yaitu sumber kosakatanya. Saya
+membocorkan IDF-nya juga. Baris tengah percobaan yang benar, dan itu yang dia
+jalankan.
+
+Arah hasilnya lebih berharga daripada angkanya: validasi naik 65,6 ke 71,9
+sementara uji turun 68,2 ke 62,5. Ramalannya di 2b sudah menyebut itu lebih
+dulu, bahwa arah kebocoran tidak pasti.
+
+### Yang lain, dikonfirmasi
+
+- MSE lawan entropi silang: 100 persen di iterasi 85 lawan 54, persis. Cara
+  mengujinya benar, rugi diganti beserta gradiennya. Satu angka tertukar:
+  rugi akhir MSE `0,009026`, dia tulis `0,000926`.
+- 642 parameter untuk 36 contoh, rasio gradien 500 kali, dan turunan `p - y`
+  lengkap sampai selesai. Semua benar.
+- 576 kalimat uji dan 3.840 total untuk selang 5 poin, benar. Kesimpulannya
+  menunjukkan batas angka 300-500 yang saya tulis sendiri di rencana Bulan 2.
+- Ambang per intent 14/3/7 lawan global 15/5/4, dan kelima keyakinan perintah
+  butuh-LLM, semua sama persis.
+
+### Yang paling berharga
+
+Dia menyimpulkan sendiri, tanpa diminta soal, bahwa ambang ongkos BUKAN
+pendeteksi kalimat asing: nol dari lima kalimat asing tertolak karena kelas
+murah seperti `obrol` sengaja longgar. Ambang per intent bahkan menangkap
+lebih sedikit perintah-butuh-LLM daripada ambang global, 2 lawan 4, dengan
+sebab yang sama.
+
+Keluhan tersisa dari kunci Bulan 1 Sesi 3+4 adalah "laporkan sebaran, bukan
+satu angka". Sesi 2 menutupnya lewat tiga hal yang tidak diminta eksplisit:
+menyatakan percobaan tidak bisa memutuskan alih-alih memilih pemenang,
+menerjemahkannya ke ralat alat lawan sinyal, dan menuliskan ramalan lebih
+dulu sebelum mengukur.
+
+---
+
 ## Berikutnya
 
-**Bulan 2 Sesi 1 dan 2** siap, empat belas TODO total, belum dikerjakan.
+**Bulan 2:** pemilik mengumpulkan kalimat nyata secara bertahap; prototipe
+kode Sesi 1 dan 2 sudah selesai. Sambungan ke `synesis/alat.py` belum dibuat.
 
 **Bulan 3** belum disusun.

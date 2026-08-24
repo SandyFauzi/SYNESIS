@@ -72,7 +72,24 @@ def belah_tiga(pasang, seed=0, bagian=(0.7, 0.15, 0.15)):
 
     TODO 1
     """
-    raise NotImplementedError("belah_tiga")
+    if not np.isclose(sum(bagian), 1.0):
+        raise ValueError("jumlah proporsi belahan harus 1")
+
+    kelompok = {}
+    for contoh in pasang:
+        kelompok.setdefault(contoh[1], []).append(contoh)
+
+    rng = np.random.default_rng(seed)
+    latih, sah, uji = [], [], []
+    for label in sorted(kelompok):
+        contoh = kelompok[label]
+        urut = rng.permutation(len(contoh))
+        n_latih = int(len(contoh) * bagian[0])
+        n_sah = int(len(contoh) * bagian[1])
+        latih.extend(contoh[i] for i in urut[:n_latih])
+        sah.extend(contoh[i] for i in urut[n_latih:n_latih + n_sah])
+        uji.extend(contoh[i] for i in urut[n_latih + n_sah:])
+    return latih, sah, uji
 
 
 # ══════════════════════════════════════════════════════════════
@@ -154,7 +171,12 @@ def bobot_idf(kalimat, kosakata):
 
     TODO 2
     """
-    raise NotImplementedError("bobot_idf")
+    df = np.zeros(len(kosakata))
+    for teks in kalimat:
+        for kata in set(re.findall(r"[a-z0-9]+", teks.lower())):
+            if kata in kosakata:
+                df[kosakata[kata]] += 1
+    return np.log((1 + len(kalimat)) / (1 + df)) + 1
 
 
 def vektorkan(kalimat, kosakata, idf=None):
@@ -172,7 +194,17 @@ def vektorkan(kalimat, kosakata, idf=None):
 
     TODO 3
     """
-    raise NotImplementedError("vektorkan")
+    X = np.zeros((len(kalimat), len(kosakata)))
+    for i, teks in enumerate(kalimat):
+        for kata in re.findall(r"[a-z0-9]+", teks.lower()):
+            if kata in kosakata:
+                X[i, kosakata[kata]] += 1
+
+    if idf is not None:
+        X *= idf
+        panjang = np.linalg.norm(X, axis=1, keepdims=True)
+        np.divide(X, panjang, out=X, where=panjang != 0)
+    return X
 
 
 def bagian2(latih, sah, kos, idf):
@@ -325,7 +357,9 @@ def matriks_bingung(benar, tebak, n_kelas):
 
     TODO 4
     """
-    raise NotImplementedError("matriks_bingung")
+    M = np.zeros((n_kelas, n_kelas), dtype=int)
+    np.add.at(M, (benar, tebak), 1)
+    return M
 
 
 def presisi_recall(M):
@@ -347,7 +381,12 @@ def presisi_recall(M):
 
     TODO 5
     """
-    raise NotImplementedError("presisi_recall")
+    benar = np.diag(M)
+    presisi = np.divide(benar, M.sum(axis=0), out=np.zeros_like(benar, dtype=float),
+                        where=M.sum(axis=0) != 0)
+    recall = np.divide(benar, M.sum(axis=1), out=np.zeros_like(benar, dtype=float),
+                       where=M.sum(axis=1) != 0)
+    return presisi, recall
 
 
 def bagian4(nama, param, pakai_idf, kos, label2i, uji_set, yte):
@@ -394,6 +433,18 @@ def bagian4(nama, param, pakai_idf, kos, label2i, uji_set, yte):
 # BAGIAN 5 - ambang tidak tahu
 # ══════════════════════════════════════════════════════════════
 
+AMBANG_INTENT = {
+    "buka_berkas": 0.55,
+    "cari_berkas": 0.40,
+    "hitung": 0.60,
+    "jadwal": 0.85,
+    "jalankan_program": 0.85,
+    "kontrol_sistem": 0.90,
+    "obrol": 0.30,
+    "ringkas_catatan": 0.55,
+}
+
+
 def tebak_dengan_ambang(param, X, ambang):
     """Kembalikan array indeks kelas, atau -1 kalau modelnya kurang yakin.
 
@@ -407,7 +458,15 @@ def tebak_dengan_ambang(param, X, ambang):
 
     TODO 6
     """
-    raise NotImplementedError("tebak_dengan_ambang")
+    logit = maju(param, X).data
+    eksponen = np.exp(logit - logit.max(axis=1, keepdims=True))
+    peluang = eksponen / eksponen.sum(axis=1, keepdims=True)
+    tebak = peluang.argmax(axis=1)
+    batas = np.asarray(ambang)
+    if batas.ndim:
+        batas = batas[tebak]
+    tebak[peluang.max(axis=1) < batas] = -1
+    return tebak
 
 
 def bagian5(param, pakai_idf, kos, uji_set, yte):
@@ -433,6 +492,15 @@ def bagian5(param, pakai_idf, kos, uji_set, yte):
         salah = len(yte) - benar - tolak
         print(f"  {ambang:>8.2f}{benar:>10}{salah:>9}{tolak:>10}"
               f"{f'{int((ta == -1).sum())} dari {len(asing)}':>16}")
+
+    per_intent = np.array([AMBANG_INTENT[n] for n in sorted(AMBANG_INTENT)])
+    t = tebak_dengan_ambang(param, Xte, per_intent)
+    ta = tebak_dengan_ambang(param, Xas, per_intent)
+    benar = int((t == yte).sum())
+    tolak = int((t == -1).sum())
+    salah = len(yte) - benar - tolak
+    print(f"  {'per kelas':>8}{benar:>10}{salah:>9}{tolak:>10}"
+          f"{f'{int((ta == -1).sum())} dari {len(asing)}':>16}")
 
     print("""
   Kolom terakhir kalimat yang sama sekali di luar semua intentmu. Model tanpa
@@ -482,7 +550,45 @@ def ekstrak_slot(kalimat):
 
     TODO 7
     """
-    raise NotImplementedError("ekstrak_slot")
+    teks = kalimat.lower().strip()
+    slot = {}
+
+    for frasa in sorted(WAKTU, key=len, reverse=True):
+        pola = rf"\b{re.escape(frasa)}\b"
+        if re.search(pola, teks):
+            slot["waktu"] = WAKTU[frasa]
+            teks = re.sub(pola, " ", teks, count=1)
+            break
+
+    angka = {
+        "satu": 1, "dua": 2, "tiga": 3, "empat": 4, "lima": 5,
+        "enam": 6, "tujuh": 7, "delapan": 8, "sembilan": 9,
+        "sepuluh": 10, "sebelas": 11, "dua belas": 12,
+    }
+    cocok = re.search(
+        r"\bjam\s+(dua belas|sebelas|sepuluh|sembilan|delapan|tujuh|enam|"
+        r"lima|empat|tiga|dua|satu|[0-9]{1,2})(?:\s+(pagi|siang|sore|malam))?\b",
+        teks,
+    )
+    if cocok:
+        mentah, penanda = cocok.groups()
+        jam = angka.get(mentah, int(mentah) if mentah.isdigit() else 0)
+        if penanda in {"siang", "sore", "malam"} and 1 <= jam < 12:
+            jam += 12
+        if 0 <= jam <= 23:
+            slot["jam"] = f"{jam:02d}:00"
+        teks = teks[:cocok.start()] + " " + teks[cocok.end():]
+
+    teks = re.sub(
+        r"^(?:tolong\s+)?(?:buka(?:in|kan)?|tampilkan|cari(?:in|kan)?|temukan|"
+        r"ingatkan(?:\s+aku)?|jadwalkan|setel)\b",
+        "",
+        teks,
+    )
+    objek = " ".join(teks.split())
+    if objek:
+        slot["objek"] = objek
+    return slot
 
 
 def bagian6():
