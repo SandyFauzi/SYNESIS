@@ -3,30 +3,77 @@
 Data sintetis hanya untuk latihan. Jangan pakai sebagai data uji.
 """
 
+import random
 import re
 from pathlib import Path
 
 
 AKAR = Path(__file__).resolve().parent.parent
 KELUAR = AKAR / "data" / "bulan2"
-TARGET_PER_INTENT = 72
+TARGET_PER_INTENT = 1_000
 
-PEMBUNGKUS_PERINTAH = (
-    ("", ""),
-    ("tolong ", ""),
-    ("coba ", ""),
-    ("bisa ", " gak"),
-    ("sera ", ""),
-    ("", " dong"),
+BENTUK_PERINTAH = (
+    "{teks}",
+    "tolong {teks}",
+    "coba {teks}",
+    "bisa bantu {teks}",
+    "sera {teks}",
+    "boleh {teks}",
+    "aku mau kamu {teks}",
+    "saya butuh kamu {teks}",
+    "minta bantu {teks}",
+    "please {teks}",
+    "bantuin {teks}",
+    "langsung {teks}",
+    "sekarang {teks}",
+    "kalau bisa {teks}",
+    "bisakah kamu {teks}",
 )
-PEMBUNGKUS_OBROL = (
-    ("", ""),
-    ("sera, ", ""),
-    ("eh, ", ""),
-    ("", " ya"),
-    ("", " dong"),
-    ("hmm, ", ""),
+
+BENTUK_OBROL = (
+    "{teks}",
+    "sera {teks}",
+    "eh {teks}",
+    "hmm {teks}",
+    "btw {teks}",
+    "jujur {teks}",
+    "aku cuma mau bilang {teks}",
+    "saya mau bilang {teks}",
+    "oh iya {teks}",
+    "yaudah {teks}",
 )
+
+AKHIR_PERINTAH = (
+    "", " sekarang", " dulu", " ya", " dong", " sekalian",
+    " dengan aman", " dan kasih tahu hasilnya", " tanpa mengubah yang lain",
+    " pakai cara paling sederhana", " buat kebutuhan kuliah", " di laptop ini",
+)
+
+AKHIR_OBROL = (
+    "", " ya", " dong", " sih", " sekarang", " hari ini", " wkwk",
+    " tapi serius", " aja", " kok",
+)
+
+# Satu penggantian per variasi menjaga kalimat tetap mudah dibaca sekaligus
+# menambah gaya formal, santai, singkatan, dan campuran Indonesia-Inggris.
+GANTI_KATA = {
+    "buka": ("bukain", "tampilkan", "akses"),
+    "cari": ("cariin", "temukan", "lacak"),
+    "lihat": ("cek", "tampilkan", "periksa"),
+    "jalankan": ("run", "mulai", "eksekusi"),
+    "ringkas": ("ringkasin", "rangkum", "buat ringkasan dari"),
+    "jelaskan": ("jelasin", "terangkan", "bantu pahami"),
+    "perbaiki": ("benerin", "betulkan", "fix"),
+    "rapihkan": ("rapihin", "bereskan", "tata ulang"),
+    "lanjutkan": ("lanjutin", "teruskan", "sambung"),
+    "install": ("pasang", "instal", "setup"),
+    "file": ("berkas",),
+    "folder": ("direktori",),
+    "komputer": ("pc",),
+    "laptop": ("perangkat",),
+    "saya": ("aku", "sy"),
+    "yang": ("yg",),
+}
 
 CONTOH = {
     "buka_berkas": [
@@ -144,18 +191,68 @@ CONTOH = {
 }
 
 
+def normalkan(teks):
+    return " ".join(re.findall(r"[a-z0-9]+", teks.lower()))
+
+
+def variasi_kata(teks):
+    """Kembalikan teks asli dan versi dengan satu kata diganti."""
+    hasil = {teks}
+    for lama, pengganti in GANTI_KATA.items():
+        pola = rf"\b{re.escape(lama)}\b"
+        if re.search(pola, teks):
+            hasil.update(re.sub(pola, baru, teks) for baru in pengganti)
+    return hasil
+
+
+def teks_eval():
+    """Jaga agar 41 pesan ujian tidak pernah masuk data sintetis."""
+    berkas = KELUAR / "perintah_eval_real.txt"
+    if not berkas.exists():
+        return set()
+    hasil = set()
+    for baris in berkas.read_text(encoding="utf-8").splitlines():
+        if baris.strip() and not baris.startswith("#"):
+            _, teks = baris.split("|", 1)
+            hasil.add(normalkan(teks))
+    return hasil
+
+
 def buat_sintetis():
-    """Buat jumlah seimbang, tanpa kalimat duplikat."""
+    """Buat data seimbang, unik, dan tidak bertumpuk dengan data ujian."""
     baris = []
+    dipakai = set()
+    dilarang = teks_eval()
+
     for label, contoh in CONTOH.items():
-        pembungkus = PEMBUNGKUS_OBROL if label == "obrol" else PEMBUNGKUS_PERINTAH
-        variasi = {
-            re.sub(r"\s+", " ", f"{awal}{teks}{akhir}".lower()).strip()
-            for teks in contoh for awal, akhir in pembungkus
-        }
-        if len(variasi) < TARGET_PER_INTENT:
-            raise ValueError(f"contoh {label} hanya {len(variasi)}")
-        baris.extend(f"{label} | {teks}" for teks in sorted(variasi)[:TARGET_PER_INTENT])
+        bentuk = BENTUK_OBROL if label == "obrol" else BENTUK_PERINTAH
+        akhir = AKHIR_OBROL if label == "obrol" else AKHIR_PERINTAH
+        variasi = set()
+
+        for dasar in contoh:
+            for inti in variasi_kata(dasar):
+                for pola in bentuk:
+                    for penutup in akhir:
+                        teks = re.sub(
+                            r"\s+", " ", f"{pola.format(teks=inti)}{penutup}".lower()
+                        ).strip(" ,.!?")
+                        normal = normalkan(teks)
+                        if normal not in dilarang and normal not in dipakai:
+                            variasi.add(teks)
+
+        # ponytail: pengacakan deterministik cukup; model generatif baru perlu
+        # kalau data nyata tetap kurang setelah dataset ini dipakai.
+        variasi = sorted(variasi)
+        random.Random(f"synesis-bulan2-{label}-v2").shuffle(variasi)
+        terpilih = variasi[:TARGET_PER_INTENT]
+        if len(terpilih) < TARGET_PER_INTENT:
+            raise ValueError(
+                f"contoh {label} hanya menghasilkan {len(terpilih)} variasi"
+            )
+
+        dipakai.update(normalkan(teks) for teks in terpilih)
+        baris.extend(f"{label} | {teks}" for teks in terpilih)
+
     return baris
 
 
@@ -214,6 +311,7 @@ def main():
 
     assert len(sintetis) == len(CONTOH) * TARGET_PER_INTENT
     assert len(sintetis) == len(set(sintetis))
+    assert not ({normalkan(x.split("|", 1)[1]) for x in sintetis} & teks_eval())
     print(f"sintetis : {len(sintetis)} kalimat, {len(CONTOH)} intent")
     print(f"nyata    : {len(pesan)} kandidat aman, belum dilabeli")
     print(f"folder   : {KELUAR}")

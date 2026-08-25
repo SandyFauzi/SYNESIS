@@ -1,0 +1,18 @@
+{
+  "name": "synesis-bulan1-visual",
+  "private": true,
+  "scripts": {
+    "preview": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts Bulan1Visual ../keluaran/bulan1-sesi1-4-visual.mp4 --public-dir=public --codec=h264 --crf=18 --bundle-cache=false"
+  },
+  "dependencies": {
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "remotion": "4.0.486"
+  },
+  "devDependencies": {
+    "@remotion/cli": "4.0.486",
+    "@types/react": "19.2.7",
+    "typescript": "5.9.3"
+  }
+}

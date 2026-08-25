@@ -1960,9 +1960,649 @@ dulu sebelum mengukur.
 
 ---
 
+## 24 Agustus 2026 - Data intent dari arsip nyata dan generator
+
+SSD `S:` dipindai secara baca-saja. Folder aplikasi, game, cache, video,
+Recycle Bin, dan folder sistem diabaikan. Sumber yang benar-benar memuat gaya
+perintah pemilik adalah dua arsip `knowladge/sessions` dan `rollout.jsonl` di
+repo ini. Log Aslab dan chat kelompok sengaja tidak diambil karena memuat
+NPM/nilai orang lain dan tidak relevan untuk intent SYNESIS.
+
+Tiga sumber disalin, bukan dipindah, ke `data/bulan2/raw`. SHA-256 sumber
+sebelum, sumber sesudah, dan salinan dibandingkan; ketiganya identik. Hash
+disimpan di `data/bulan2/raw/SHA256.txt`. Tidak ada sumber yang berubah,
+berpindah, atau terhapus.
+
+`scripts/generate_bulan2_data.py` ditambahkan. Hasil lokalnya, yang memang
+diabaikan Git lewat aturan `data/`:
+
+- 1.080 kalimat sintetis, 15 intent, tepat 72 per intent.
+- 41 pesan pengguna nyata yang sudah membuang path dan nomor panjang.
+- 41 pesan nyata berlabel utama untuk smoke test gaya bahasa.
+
+Tujuh kelas ditambahkan karena muncul nyata di percakapan pemilik:
+`info_sistem`, `ubah_proyek`, `kelola_repo`, `pasang_paket`,
+`jelaskan_konsep`, `tanya_umum`, dan `lanjut_tugas`. Loader Sesi 2 sekarang
+bisa menerima berkas `label | kalimat` lewat argumen baris perintah, tanpa
+mengubah perilaku data bawaan.
+
+Hasil yang tidak boleh disalahartikan:
+
+```text
+validasi sintetis         100,0 persen
+pesan nyata               21/41 = 51,2 persen
+pesan nyata non-duplikat  19/39 = 48,7 persen
+```
+
+Skor 100 persen terjadi karena pola generator yang sama tersebar ke belahan
+validasi. Ia bukan bukti memahami bahasa pemilik. Angka sekitar 49 persen
+adalah batas awal yang lebih jujur. Data sintetis dipakai untuk latihan saja;
+pesan nyata baru harus tetap menjadi ujian.
+
+---
+
+## 25 Agustus 2026 - Bulan 2 Sesi 3 dan 4 disusun, dan roadmap saya terbantah
+
+Dua berkas latihan baru, `bulan2_sesi3_embedding.py` (8 TODO) dan
+`bulan2_sesi4_synesis.py` (7 TODO), beserta soalnya. Semua angka di bawah
+diukur lebih dulu, sebelum kalimatnya ditulis.
+
+### Sesi 3 menyerang sebab, bukan gejala
+
+Sesi 2 berakhir di 56,1 persen pada 41 pesan nyata, dengan OOV 55,2 persen.
+Sesi 3 membangun tiga jalan keluar dan mengukur ketiganya.
+
+Yang pertama, dasar pembanding yang selama ini hilang:
+
+```text
+resep                     akurasi      selang 95 persen
+tebak ubah_proyek terus     39.0%          24.1 .. 54.0
+model Sesi 2                56.1%          40.9 .. 71.3
+```
+
+Batas bawah model cuma 1,9 poin di atas menebak buta. Semua tabel sesudah ini
+dibaca dengan selang selebar 30 poin di kepala.
+
+Yang kedua, n-gram karakter. Kekerabatan morfologis jatuh gratis dari ejaan:
+`hapus` dan `menghapus` berkosinus 0,721, padahal dengan kolom kata 0,000.
+Tapi sapuan panjang potongannya merentang 43,9 sampai 58,5 persen, dan lebar
+itu jauh di dalam derau.
+
+Yang ketiga, vektor kata dari korpus repo sendiri lewat ko-okurensi, PPMI,
+dan SVD. Ini yang mengejutkan:
+
+```text
+   token dibaca  pasangan   median peringkat    acak
+          15455        12                535     600
+          38638        12                583     600
+          77276        12                 12     600
+         154553        12                  4     600
+```
+
+Median peringkat 4 dari 2.000 kata, dengan pembanding acak 1.000. Vektor
+katanya bagus, dan lompatannya tajam antara 38 ribu dan 77 ribu token.
+
+Dan justru itu yang membuat hasil hilirnya berarti: representasi yang jelas
+bagus cuma menggeser akurasi 51,2 ke 56,1 persen, di dalam selang.
+
+### Tiga tuas ditarik, dan yang ketiga membantah rencana saya
+
+```text
+TUAS A  tambah kalimat nyata      0 -> 20 kalimat : 54,1 -> 55,2 persen
+TUAS B  naikkan porsinya          2,6 -> 51,6 persen porsi : datar
+TUAS C  gabungkan jadi 2 kelas    85,4 persen, dasar mayoritas 85,4 persen
+```
+
+Tuas B menutup dugaan yang paling masuk akal, yaitu bahwa 20 kalimat nyata
+tenggelam di antara 750 sintetis. Dinaikkan sampai lebih dari separuh data
+latih, hasilnya tetap datar. Dugaan itu salah.
+
+Tuas C yang paling penting, dan hasilnya menyakitkan buat saya:
+
+```text
+pesan yang intentnya PUNYA alat : 6 dari 41
+pesan yang butuh model bahasa   : 35 dari 41
+```
+
+Bagian 4 di `docs/Roadmap.md`, yang saya tulis sendiri, menyatakan 80 sampai
+90 persen pemakaian harian bisa ditangani pengklasifikasi tanpa LLM. Di
+sampel ini angkanya 15 persen.
+
+Keberatan yang harus ikut dicatat supaya jujur: 41 pesan itu semuanya dari
+satu arsip, yaitu percakapan merancang proyek ini bersama agen pemrograman,
+dan itu memang percakapan terbuka dari ujung ke ujung. Ia bukan sampel cara
+pemilik akan memakai SYNESIS untuk membuka berkas praktikum. Tapi ia
+satu-satunya rekaman pemakaian nyata yang ada, dan sampai ada yang lain,
+dialah bukti terbaik.
+
+Kesimpulan yang keluar dari ketiga tuas: yang paling kurang dari Bulan 2
+bukan representasi, bukan arsitektur, dan bukan jumlah epoch. Yang kurang
+catatan pemakaian yang mewakili.
+
+### Sesi 4 membangun alat pencatat itu, sekaligus SYNESIS v0.1
+
+Utang tertua Bulan 2 ditutup di sini. Di Sesi 2, `AMBANG_INTENT` disetel
+tangan, lima belas angka tanpa alasan yang bisa dipertahankan. Sekarang
+kelima belasnya turun dari dua tetapan ongkos:
+
+```text
+ongkos menolak = 1,0
+ongkos salah   = BACA 2,0  TULIS 20,0  MERUSAK 200,0  BAHASA 3,0
+ambang         = 1 - ongkos_tolak / ongkos_salah
+```
+
+Dua belas dari lima belas ambang tangan ternyata terlalu longgar. Yang
+terlonggar `obrol` dan `tanya_umum`, masing-masing meleset 0,37.
+
+Lalu ketiga kebijakan diadu dengan ongkos total, bukan akurasi:
+
+```text
+kebijakan              benar  salah  tolak   ongkos   ongkos/pesan
+argmax polos              23     18      0    447,0          10,90
+ambang tangan Sesi 2      15     10     16    242,0           5,90
+ongkos harapan            15      7     19     39,0           0,95
+selalu menolak             0      0     41     41,0           1,00
+```
+
+Baris yang paling banyak benar adalah baris yang paling mahal. Urutan menurut
+akurasi dan urutan menurut ongkos berbeda, dan itu seluruh isi Bagian 3.
+
+Baris terakhir sengaja saya sisakan sebagai soal, karena hasilnya tidak
+nyaman: kebijakan ongkos harapan cuma menang 2,0 dari kebijakan yang tidak
+pernah melakukan apa pun. Sebabnya model ongkosnya memberi 0 untuk tindakan
+benar, jadi melakukan hal yang benar tidak dihargai, cuma tidak dihukum.
+Soal 3e memintanya diperbaiki.
+
+Pagar jalur diadu dengan delapan serangan, delapan-delapannya ditolak. Pipa
+ujung ke ujung di 41 pesan: 1 sampai bertindak, 0 bertindak salah.
+
+Mode percakapan jalan. `buka laporan praktikum minggu lalu` sampai memanggil
+alat, dan hasilnya `Tidak ada berkas di S:\Code\Make A Jarvis\laporan
+praktikum`. Itu bukan kegagalan pagar; itu langkah yang memang belum ada,
+yaitu penerjemah frasa manusia jadi pola nama berkas. Sudah jadi Soal 4c.
+
+### Empat kesalahan saya di sesi ini
+
+1. Saya menulis bahwa PPMI membuang lebih dari separuh sel matriks. Diukur:
+   dari 8,0 persen taknol ke 7,3 persen, jadi sekitar sepersepuluh dari yang
+   terisi. Penyaringan terbesarnya ada di nilai sel, bukan jumlahnya: lima
+   kata tersering memegang 7,7 persen massa mentah, tinggal 0,5 persen
+   sesudah PPMI. Kalimatnya diganti, dan pengukuran massa itu dijadikan
+   keluaran supaya tidak perlu dipercaya begitu saja.
+
+2. Saya menulis bahwa diagonal matriks ko-okurensi harus nol. Tidak. Kata
+   yang sering muncul dua kali dalam satu jendela, dan 1.173 kata punya
+   diagonal taknol. Yang dicegah cuma pasangan kata dengan dirinya di posisi
+   yang sama. Jadi Soal 4b.
+
+3. Sapuan ukuran korpus versi pertama mengembalikan `nan` untuk dua titik
+   terkecil, karena kosakatanya ikut mengecil bersama korpusnya sehingga
+   tidak ada pasangan uji yang tersedia. Diperbaiki dengan memaku kosakata
+   ke korpus penuh, sehingga yang berubah cuma satu variabel.
+
+4. Bagian 7 versi pertama menulis kesimpulan "kalau menambah kalimat nyata
+   menggeser lebih jauh daripada representasi" sebelum diukur. Diukur,
+   ternyata datar juga. Bagian itu ditulis ulang jadi tiga tuas, dan Tuas B
+   ditambahkan justru untuk menutup dugaan saya sendiri.
+
+Satu catatan kebersihan: menguji Sesi 4 sempat menulis `data/bulan2/audit.jsonl`
+berisi 86 baris dari jalannya uji saya, bukan pemakaian pemilik. Berkas itu
+dipindahkan keluar repo ke folder sementara, tidak dihapus, supaya
+`audit.jsonl` yang nanti tumbuh benar-benar berisi pemakaian sungguhan.
+
+---
+
+## 26 Agustus 2026 - Bulan 3 disusun dan dikerjakan, SYNESIS v0.2 bicara
+
+Lima sesi, empat berkas latihan baru beserta soalnya, dua modul baru di
+`synesis/`, dan satu berkas bukti yang menguji ulang lima puluh klaim di
+seluruh bulan. Semua angka di bawah diukur lebih dulu, sebelum kalimatnya
+ditulis, dan yang meleset dari ramalan saya ditinggalkan apa adanya.
+
+### Sesi 1: konvolusi, dan satu istilah yang dipakai salah
+
+Konvolusi 1D dan 2D ditulis dari definisinya, lalu diadu dengan numpy dan
+scipy. Selisihnya nol sampai batas float64 untuk ketiga mode.
+
+Dua hasil yang layak dibawa seumur hidup. Yang pertama, titik silang FFT:
+
+```text
+     N     K   langsung (ms)    FFT (ms)    rasio
+  1024    16           0.025       0.072     0.35
+  1024  1024           0.141       0.066     2.13
+ 65536    16           1.077       5.919     0.18
+ 65536  1024           6.421       5.880     1.09
+```
+
+Titik silangnya tumbuh dengan log N, bukan dengan N, jadi menaikkan panjang
+sinyal enam puluh empat kali lipat hampir tidak menggesernya. Untuk kernel
+CNN yang cuma tiga titik, FFT tidak pernah menang, dan itulah kenapa tidak
+ada framework yang memakainya untuk lapisan konvolusi.
+
+Yang kedua, dan yang paling sering dilewatkan buku teks: `nn.Conv2d`
+mengerjakan KORELASI SILANG, bukan konvolusi. Terukur, dengan kernel Sobel
+yang antisimetris, selisih keduanya 7,84 sedangkan tanggapan maksimumnya
+3,918 — persis dua kali lipat, karena membalik kernel antisimetris membalik
+tandanya. Untuk kernel simetris seperti kotak dan tajam, selisihnya nol.
+
+im2col mengubah konvolusi jadi satu perkalian matriks dan mempercepatnya
+548 kali dibandingkan gelung Python, dengan harga memori 8,7 kali lipat.
+Bagian itu jadi fondasi seluruh Sesi 3.
+
+### Sesi 2: suara jadi gambar, tanpa librosa
+
+Spektrogram, bank mel, dan MFCC ditulis dari nol dengan `wave` bawaan Python
+dan numpy. librosa sengaja tidak dipasang, dan alasannya bukan kemurnian:
+fungsi yang sama dipasang ke `synesis/suara.py` di Sesi 5, dan menyeret numba
+dan soundfile untuk tujuh puluh baris matematika tidak sepadan.
+
+Tiga angka yang keluar cocok dengan turunannya di kertas:
+
+```text
+jendela     cuping samping (dB)   lebar cuping utama   gain koheren
+kotak                     -13.3                  2.0          1.000
+hann                      -31.5                  4.0          0.500
+```
+
+Turunan analitik untuk kotak memberi 20 log10(2/3pi) = -13,46 dB, dan yang
+terukur -13,26. Selisih 0,2 dB berasal dari hampiran letak puncaknya.
+
+Hasil kali resolusi waktu dan frekuensi tetap 1,00 untuk setiap panjang
+bingkai, dan itu bukan kebetulan aritmetika melainkan prinsip ketakpastian
+yang sama dengan yang saya turunkan di Fisika Kuantum, tanpa tetapan Planck
+karena tidak ada kuantisasi yang terlibat.
+
+MFCC diukur, bukan diceritakan. Tapis mel bersebelahan bertumpang tindih 50
+persen sehingga keluarannya berkorelasi 0,599; DCT menurunkannya jadi 0,193,
+dan 99,7 persen tenaganya tersisa di 13 koefisien pertama.
+
+### Sesi 3: CNN dari nol, dan perbandingan yang jarang dilakukan orang
+
+Tiga operasi ditambahkan ke `Tensor` Bulan 1: im2col, bentuk_ulang, dan
+maks_kolam. Konvolusinya sendiri TIDAK punya aturan turunan baru; ia lahir
+dari `__matmul__` dan `__add__` yang sudah ada sejak Agustus. Gradien
+gabungannya diperiksa terhadap selisih terhingga dan meleset 1,71e-09.
+
+Lalu perbandingan yang jarang dilakukan tutorial mana pun: CNN dan MLP
+diadu pada JUMLAH BOBOT yang sama, bukan pada arsitektur yang enak dilihat.
+
+```text
+model                            bobot    detik   akurasi uji
+CNN 8-16, kolam 2x2              5.258     22.2        96.43%
+MLP 7 tersembunyi                5.575      0.4        84.05%
+```
+
+Selisih 12,4 poin di 10.000 gambar uji, selangnya 0,6 poin, jadi terukur.
+Kolom detik menyimpan pelajaran yang kedua: CNN 55 kali lebih lambat untuk
+bobot yang sama. Berbagi bobot menghemat PARAMETER, bukan hitungan, dan itu
+pertukaran yang sengaja diambil karena parameter mahal sedangkan hitungan
+tinggal menunggu.
+
+Versi PyTorch dari arsitektur yang sama, dengan bobot yang disalin, memberi
+keluaran yang berbeda 1,07e-14. Dua implementasi bebas, angka yang sama.
+
+### Ramalan saya di Sesi 3 terbalik, dan itu yang paling berguna
+
+Bagian 6 mengukur apakah spektrogram boleh diperlakukan sebagai gambar.
+Ramalan saya: sumbu frekuensi tidak stasioner (pola pada 200 Hz berarti hal
+lain daripada pola yang sama pada 4.000 Hz), sumbu waktu stasioner (kata bisa
+diucapkan kapan saja).
+
+Terukur, dengan ukuran yang sama persis untuk kedua sumbu:
+
+```text
+sumbu            rasio tanpa pra-tekan   rasio dengan pra-tekan
+frekuensi                        0.389                    0.114
+waktu                            0.376                    0.406
+```
+
+Urutannya terbalik dari ramalan saya, dan dua sebabnya keduanya berguna.
+
+Pertama, saya sedang mengukur akibat kerja saya sendiri. Pra-penekanan satu
+baris dari Sesi 2 memang dipasang untuk meratakan sumbu frekuensi, dan ia
+bekerja jauh lebih baik daripada yang saya duga: 0,389 turun jadi 0,114.
+
+Kedua, sumbu waktu tidak stasioner karena DATANYA, bukan karena suaranya.
+Speech Commands memotong tiap ucapan jadi tepat satu detik dengan katanya di
+tengah, jadi posisi memang membawa informasi di dalam dataset itu. Di
+pemakaian nyata, ketika SYNESIS mendengarkan terus-menerus, kata bisa mendarat
+di mana saja.
+
+Konsekuensinya langsung dan terukur di Sesi 4, dan itulah yang membuat
+pengukuran ini berharga meskipun ramalannya salah.
+
+### Sesi 4: himpunan uji yang akhirnya cukup besar
+
+Speech Commands v0.02 diunduh sebagai aliran dan hanya kata yang dipakai yang
+ditulis ke disk: 42.546 berkas dari 2.510 pembicara, ditambah 2.400 potongan
+sunyi dari derau latar.
+
+Belahannya menurut PEMBICARA, bukan menurut berkas, dan pemeriksanya satu
+baris: nol pembicara muncul di lebih dari satu belahan. Kebocoran yang
+dicegahnya adalah kebocoran yang menaikkan angka, dan bug yang menaikkan
+angka tidak akan pernah saya cari sampai ketemu.
+
+Untuk pertama kalinya sejak Agustus, himpunan ujinya 4.594 ucapan dan
+selangnya 1,74 poin, bukan 30 poin seperti 41 kalimat Bulan 2.
+
+Hipotesis dari Sesi 2 diuji, lengkap dengan pengendalinya:
+
+```text
+fitur           dimensi   parameter   detik   akurasi uji
+log-mel 40           40      49.884     109        95.52%
+MFCC 13              13      44.508      76        94.21%
+MFCC 40              40      49.884     115        94.17%
+```
+
+Baris ketiga yang menentukan: ia punya dimensi dan jumlah parameter yang
+IDENTIK dengan log-mel, jadi kalau yang berperan sekadar jumlah dimensi, ia
+seharusnya menyusul. Ia tidak menyusul. Arah buktinya menunjuk ke struktur
+lokal, sesuai mekanisme yang saya usulkan di Sesi 2.
+
+Tapi selisihnya 1,35 poin dan selangnya 1,74 poin, jadi hipotesisnya belum
+terbukti. Ditulis apa adanya di berkas soalnya.
+
+Satu angka yang baru saya sadari perlu dilaporkan: menjalankan ulang seluruh
+tabel dengan seed, data, dan kode yang sama memberi 95,49 / 94,32 / 94,14.
+Selisih antarjalan sampai 0,11 poin, karena kernel cuDNN memakai penjumlahan
+atomik yang urutannya tidak dijamin. Itu lantai derau pengukuran, dan
+sekarang tercatat.
+
+### Augmentasi, dan himpunan uji yang buta terhadap masalahnya sendiri
+
+```text
+model                        uji sejajar   uji digeser    jatuh
+tanpa augmentasi                  95.28%        92.77%    2.50
+geseran waktu +-100 ms            95.52%        93.84%    1.68
+```
+
+Kolom pertama berselisih 0,24 poin, yaitu dua kali lantai derau. Kalau cuma
+itu yang dibaca, kesimpulannya augmentasi tidak berguna.
+
+Kolom kedua menggeser ucapan ujinya sampai 250 milidetik dan menghapus
+kebutaan itu. Himpunan uji resmi Speech Commands berbagi cacat dengan data
+latihnya: keduanya kliping satu detik dengan kata di tengah. Model yang
+memungut "di tengah" sebagai ciri tetap benar di sana, dan gagal di ruangan.
+
+Ini yang paling saya bawa dari Sesi 4: himpunan uji yang benar secara
+prosedur, terpisah dari data latih dan tidak dipakai memilih apa pun, tetap
+bisa salah secara isi.
+
+### Wake word, ambang dari ongkos, dan penyalaan per jam
+
+Kelas positifnya `marvin` sebagai pengganti sampai pemilik merekam suaranya
+sendiri. AUC 0,9907, akurasi 98,82 persen.
+
+Ambangnya TIDAK diambil dari titik kesalahan setara, karena kedua kesalahan
+tidak sama mahal. Kerangkanya sama dengan lima belas ambang intent Bulan 2:
+
+```text
+ambang 0,500   100 x 0,00364 + 0,2593 = 0,623
+ambang 0,738   100 x 0,00000 + 0,4074 = 0,407   <- minimum
+ambang 0,900   100 x 0,00000 + 0,4444 = 0,444
+```
+
+Bentuk umumnya layak dicatat: dengan ongkos yang sangat tak simetris,
+jawabannya selalu ambang TERENDAH yang sudah menutup kesalahan mahalnya.
+
+Lalu angka yang benar-benar menentukan apakah SYNESIS layak dibiarkan
+menyala, dan yang jauh lebih jujur daripada FAR di atas: nol penyalaan
+sepanjang 6,7 menit derau latar, di keempat ambang yang diuji. Beban
+prosesornya 3,1 persen untuk sepuluh jendela per detik.
+
+### Sesi 5: SYNESIS v0.2 mendengar dan menjawab
+
+```text
+mikrofon -> VAD -> wake word -> perekam -> Whisper -> pipa niat Bulan 2
+                                                   -> Piper -> RVC -> speaker
+```
+
+VAD ditulis sendiri, bukan silero, dan ambangnya relatif terhadap lantai
+derau ruangan yang diukur sebagai persentil ke-20 dari tiga detik terakhir.
+Ambang mutlak tidak mungkin bekerja: ruangan, jarak ke mikrofon, dan AGC
+Windows bersama-sama bisa menggeser sinyal 40 dB.
+
+Anggaran latensinya, seluruhnya terukur:
+
+```text
+tunggu diam sebelum berhenti merekam       700 ms
+transkripsi, berapa pun panjang ucapan    2600 ms   Whisper small, TETAP
+pipa niat Bulan 2                            5 ms
+Piper untuk 3 detik balasan                210 ms   RTF 0,07
+RVC untuk 3 detik balasan                  330 ms   RTF 0,11 di GPU
+-------------------------------------------------  +
+                                          3845 ms   batas Modul.md 3.000 ms
+```
+
+MELAMPAUI batas 845 milidetik. Versi pertama catatan ini mengaku lolos
+dengan margin 215 milidetik, dan itu kesalahan ketujuh saya di bulan ini:
+transkripsi dihitung sebagai RTF dikali durasi ucapan, padahal Whisper
+menambahkan bantalan sampai 30 detik sehingga ongkosnya TETAP.
+
+```text
+1,0 detik ucapan -> 2,48 detik      3,0 detik -> 2,60 detik
+2,0 detik        -> 2,64 detik      8,0 detik -> 2,60 detik
+```
+
+Angka RTF 0,77 kebetulan benar untuk satu klip 3,98 detik yang dipakai
+mengukurnya, dan salah untuk yang lain. RTF ukuran yang keliru untuk model
+yang membantali masukannya.
+
+Suku terbesarnya tetap transkripsi, sekarang 68 persen. Model `base` diukur
+sebagai jalan keluar dan TIDAK bisa dipakai: pada suara pemilik ia lebih
+lambat (6,37 detik lawan 3,52 detik untuk 12 detik ucapan) sekaligus jauh
+lebih buruk, karena model yang menebak ngawur menghasilkan lebih banyak
+token dan tiap token dibayar waktu. Yang tersisa: Whisper di GPU, atau
+transkripsi mengalir.
+
+### RVC ditulis ulang, karena dua paketnya tidak bisa dipasang
+
+`req.md` bagian 5 meminta suara Yukino lewat RVC. Dua paket yang ada gagal
+di tahap penyelesaian dependensi, bukan di tahap pemakaian:
+
+```text
+rvc-python  -> fairseq==0.12.2   tidak ada wheel untuk Python 3.12
+rvc-inferpy -> faiss-cpu==1.7.3  tidak ada wheel untuk Python 3.12
+```
+
+Pilihannya memasang Python 3.10 khusus untuk satu paket, atau menulis
+lintasan inferensinya sendiri. Saya menulisnya: `synesis/rvc.py`, sekitar
+500 baris, arsitektur SynthesizerTrnMs768NSFsid yaitu VITS dengan dekoder
+NSF-HiFiGAN. ContentVec diambil dari `transformers`, F0 dari YIN yang ditulis
+sendiri, faiss tidak dipakai sama sekali.
+
+Tiga pemeriksa, berurutan dari yang paling lemah ke yang paling menggigit:
+
+```text
+353 dari 353 kunci .pth cocok dengan state_dict model, bentuknya juga
+nada keluaran mengikuti nada masukan: median -4 sen, 74,4 persen dalam 50 sen
+Whisper membaca keluarannya sebagai kalimat Indonesia
+```
+
+Yang ketiga yang menutup perkara. Masukannya
+`"Halo Sandy, laporan praktikum minggu lalu sudah saya buka."` dan Whisper
+membaca keluaran RVC-nya sebagai
+`"Halo Sandy, laporan 4 tikung minggu lalu sudah saya buka."` Sepuluh dari
+sebelas kata terbaca oleh model yang tidak tahu apa-apa tentang RVC.
+
+Satu kata rusak, dan tersangka utamanya indeks faiss 136 MB yang tidak
+dipakai. Cara memisahkannya dari dua tersangka lain sudah jadi Soal 4c.
+
+Waktunya: muat 22 detik sekali, lalu 0,42 detik untuk 4 detik audio di GPU,
+dan 6,63 detik di CPU. RTF 1,66 di CPU berarti lebih lambat daripada waktu
+nyata, dan itulah satu-satunya alasan RVC memakai GPU meskipun Roadmap
+menjanjikan seluruh Bulan 3 di CPU. `RVC_AKTIF = False` mengembalikan janji
+itu dengan harga suara Piper polos.
+
+### Enam kesalahan saya di bulan ini
+
+1. Ramalan stasioneritas saya terbalik. Saya menulis Bagian 6 Sesi 3 dengan
+   keyakinan bahwa sumbu frekuensi yang tidak stasioner. Terukur, sumbu waktu
+   yang tidak stasioner, dan sebabnya cara dataset dipotong. Ramalannya saya
+   tinggalkan di dalam berkas supaya bisa dibandingkan.
+
+2. Ambang wake word semula saya ambil dari titik kesalahan setara, yaitu
+   0,047. Akibatnya Bagian 6 melaporkan latensi minus 2.000 milidetik, karena
+   model menyala di jendela pertama yang isinya derau. Angka mustahil itu
+   yang menunjukkan bahwa ambangnya salah, bukan latensinya.
+
+3. Latensi diukur terhadap titik acuan yang salah. Sesudah ambangnya
+   diperbaiki, angkanya masih minus 300 milidetik, dan sebabnya saya mengukur
+   terhadap ujung kliping satu detik, bukan terhadap akhir tenaga katanya.
+   Kliping Speech Commands punya 250 milidetik sunyi di tiap ujung.
+
+4. `roc` saya tidak menangani peringkat SERI, jadi dua kumpulan skor yang
+   identik memberi AUC 0,25 dan bukan 0,5. Yang menangkapnya bukan mata saya
+   melainkan `kunci_b3_bukti.py`, yang memang saya tulis untuk itu.
+
+5. `bikin_model` tidak memaku seed sebelum bobotnya diinisialisasi, jadi dua
+   baris tabel yang seharusnya cuma berbeda pada fiturnya juga berbeda pada
+   bobot awalnya. Perbandingan di Bagian 3 dan 4 kehilangan pengendaliannya
+   sampai baris itu dipindahkan.
+
+6. Pengunduh Speech Commands versi pertama tidak menangani awalan `./` pada
+   nama anggota tar. Ia berjalan empat menit tanpa satu pun pesan galat dan
+   tanpa satu pun berkas tertulis. Kegagalan yang paling mahal memang yang
+   diam.
+
+Ditambah satu yang bukan kesalahan saya tetapi memakan waktu sama banyaknya:
+torch dan ctranslate2 masing-masing membawa cuDNN sendiri, jadi memanggil
+faster-whisper lebih dulu membuat RVC mati dengan
+`Could not load symbol cudnnGetLibConfig. Error code 127`. Tambalannya satu
+konvolusi 3x3 di atas tensor 8x8 sebelum Whisper dimuat, ditandai `ponytail:`
+dengan cara memeriksa kapan ia boleh dihapus.
+
+### Wake word akhirnya dilatih dengan suara pemilik
+
+Pemilik merekam sendiri di hari yang sama: 44 ucapan "hey synesis" dan 24
+ucapan yang bunyinya mirip tetapi bukan. Daftar apa yang perlu diucapkan
+beserta variasinya ditulis lebih dulu di `synesis/SCRIPT.md`, dan bagian
+negatifnya yang paling menentukan: `sinusitis`, `sintesis`, `genesis`,
+`hey series`, `sis`, `esis`, ditambah delapan kalimat percakapan biasa.
+
+Ke-24 negatif itu mendarat di folder yang salah, yaitu `suara/bangun`
+bernomor 044 sampai 067, karena `rekam_contoh` selalu menulis ke sana.
+Ketahuan dengan mentranskripsi berkas di sekitar batasnya:
+
+```text
+bangun_043  'Bangun Seren'      <- positif, Whisper tidak tahu kata "synesis"
+bangun_044  'Hey!'              <- negatif, sudah masuk daftar bagian B
+bangun_053  'Genesis'
+bangun_067  'Udah itu aja'
+```
+
+Dipindahkan ke `suara/bukan`, lalu dilatih:
+
+```text
+positif 44   negatif 24 + 1.320 Speech Commands
+AUC 0,9867   ambang 0,960 dari ongkos 100 banding 1
+
+ambang   lolos positif   lolos negatif mirip
+ 0,500          93,2%              20,8%
+ 0,900          90,9%               0,0%
+ 0,960          90,9%               0,0%
+ 0,990          59,1%               0,0%
+```
+
+Baris 0,900 dan 0,960 identik, dan itu bentuk yang sama dengan yang muncul
+di Sesi 4 dengan `marvin`: sekali FAR menyentuh nol, menaikkan ambang cuma
+menambah kegagalan mengenali tanpa membeli apa pun.
+
+Tiga rekaman puncaknya di bawah 0,05 dan sebaiknya diulang. Sisanya sehat:
+puncak 0,004 sampai 0,700 dengan median 0,269, tidak satu pun mentok.
+
+### Peluncur .exe, dan kenapa isinya cuma 8 MB
+
+`SYNESIS.exe` di akar repo. Yang dikemas PyInstaller hanya `synesis/luncur.py`,
+yaitu menu yang mencari python di `E:\SYNESIS\.venv` lalu memanggilnya.
+torch, onnxruntime, dan seluruh bobot tetap di tempatnya.
+
+```text
+kemas peluncur saja     8,0 MB, dibangun 16 detik
+kemas seluruh SYNESIS   sekitar 3 GB, belasan menit, dan pecah tiap kali
+                        torch atau onnxruntime menambah berkas data yang
+                        tidak terdeteksi PyInstaller
+```
+
+Harga keputusan itu perlu ditulis terang-terangan: .exe-nya BUKAN paket
+portabel. Memindahkan SYNESIS ke komputer lain berarti memindahkan repo dan
+`E:\SYNESIS`, bukan menyalin satu berkas.
+
+`SYNESIS.cmd` mengerjakan hal yang sama tanpa perlu dibangun ulang, dan itu
+yang dipakai kalau `luncur.py` baru saja diubah.
+
+### Manual ditulis ulang
+
+`synesis/MANUAL.md` sebelumnya berbahasa Inggris dan cuma memuat v0.1. Ia
+ditulis ulang dalam bahasa Indonesia untuk v0.2: peluncur, dua mode, kelas
+risiko, rantai suara lengkap dengan anggaran waktunya, wake word beserta
+angkanya, tiga bahasa, pagar keamanan, peta seluruh berkas, tabel kerusakan,
+dan bagian batasnya yang jujur.
+
+`script.md` ikut dipindahkan jadi `synesis/SCRIPT.md`, supaya seluruh dokumen
+yang dibaca saat memakai SYNESIS ada di satu folder dengan kodenya.
+
+### Satu alat kecil yang lahir dari kesalahan pemilik
+
+Rekaman pertama pemilik satu berkas m4a sepanjang 26,9 detik berisi kalimat
+menyambung, bukan 44 ucapan terpisah. Dari situ lahir
+`python -m synesis.suara potong`, yang membaca m4a lewat `av` tanpa ffmpeg,
+memotongnya per ucapan dengan VAD Bulan 3, dan melaporkan tiap potongan:
+
+```text
+  no    mulai   durasi   puncak  catatan
+   1    0.15s    8.51s    0.985  terlalu panjang, mungkin dua ucapan menyatu
+   2   10.53s   16.48s    0.493  terlalu panjang, mungkin dua ucapan menyatu
+```
+
+Dua peringatan itu yang jadi aturan nomor satu di `SCRIPT.md`: berhenti
+sekitar satu detik sesudah tiap ucapan, karena pemotongnya bekerja dari jeda
+dan bukan dari hitungan.
+
+### Suara Yukino dalam tiga bahasa
+
+Piper menentukan bahasa dan iramanya, RVC menentukan warna suaranya. Jadi
+menambah bahasa cuma menambah satu berkas .onnx, dan orangnya tetap sama.
+
+Diperiksa dengan mengembalikan keluaran RVC ke Whisper, tiap bahasa dengan
+kode bahasanya sendiri:
+
+```text
+en  piper  -> Good evening, Sandy. I am Sineces. Your lab report ... already open.
+en  yukino -> Good evening, Sandy. I am Sineces. Your lab report ... already open.
+id  piper  -> Halo Sandy, saya Shinesis. Naporan praktikku minggu lalu sudah saya buka.
+id  yukino -> Halo Sandy, saya Shenezis. Laporan Paktikum Minggu lalu sudah saya buka.
+```
+
+Baris en identik kata per kata, dan baris id yukino justru LEBIH benar
+daripada keluaran Piper-nya sendiri. Bahasa Jepang butuh `pyopenjtalk-plus`,
+karena `pyopenjtalk` asli tidak punya wheel untuk Python 3.12.
+
+Suara pemilik sendiri juga dikonversi jadi Yukino sebagai uji arah sebaliknya.
+f0 median pemilik 144 Hz, Yukino 261 Hz, jadi jarak nadanya +10,4 semiton,
+dan `nada=+10` yang paling benar: f0 keluarannya mendarat di 248 Hz dan
+transkripsinya paling utuh di antara ketiga pilihan.
+
+---
+
 ## Berikutnya
 
-**Bulan 2:** pemilik mengumpulkan kalimat nyata secara bertahap; prototipe
-kode Sesi 1 dan 2 sudah selesai. Sambungan ke `synesis/alat.py` belum dibuat.
+**Bulan 3 tutup.** Wake word sudah dilatih dengan suara pemilik sendiri,
+AUC 0,9867, dan peluncurnya tinggal diklik dua kali. Yang tersisa cuma
+menyetelnya sesudah dipakai sungguhan, dan itu memerlukan jam pemakaian,
+bukan baris kode.
 
-**Bulan 3** belum disusun.
+**Bulan 2** masih punya utang yang sama seperti sebelumnya: 41 kalimat nyata
+terlalu sedikit, dan hipotesis label tumpang tindih belum diuji. Keduanya
+tidak menghalangi Bulan 4, dan `audit.jsonl` sekarang terisi jauh lebih cepat
+karena perintah bisa masuk lewat suara.
+
+**Roadmap:** klaim 80 sampai 90 persen di Bagian 4 `docs/Roadmap.md` masih
+belum punya dukungan pengukuran. Satu janji lain sudah terbukti dilanggar
+dengan sengaja: "semua di CPU, GPU disimpan untuk Bulan 6" tidak berlaku
+untuk RVC, yang RTF-nya 1,66 di CPU.
+
+**Bulan 4** belum disusun. Menurut Roadmap: metric learning dan pengenalan
+wajah, sekitar 20 jam, tiga sesi. Kurva ROC dan kalibrasi ambang yang dipakai
+di Bulan 3 Sesi 4 dan 5 akan dipakai lagi di sana untuk FAR dan FRR wajah,
+jadi bagian itu sudah punya fondasinya.

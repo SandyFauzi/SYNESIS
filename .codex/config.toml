@@ -1,0 +1,5 @@
+[mcp_servers.canva]
+command = "npx"
+args = ["-y", "mcp-remote@0.1.43", "https://mcp.canva.com/mcp", "--auth-timeout", "120"]
+startup_timeout_sec = 90
+tool_timeout_sec = 120

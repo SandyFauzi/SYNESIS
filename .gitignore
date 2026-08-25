@@ -29,6 +29,13 @@ figures/*.mp4
 .env
 *.key
 
+# Gudang runtime SYNESIS. audit.jsonl memuat kalimat perintah apa adanya,
+# jadi juga jalur absolut, nama, dan penanda akademik. model_intent.npz
+# artefak bangunan, bisa dibuat ulang dengan scripts/latih_bulan2.py.
+# Soal 7d Bulan 2 Sesi 4.
+synesis/model/*
+!synesis/model/.gitkeep
+
 # OS
 Thumbs.db
 desktop.ini
@@ -49,3 +56,7 @@ video/data/
 
 # keluaran latihan, dibuat ulang tiap jalan
 data/bulan2/latihan_terakhir.log
+
+# Peluncur hasil bangun. Dibuat ulang dengan scripts/bangun_exe.py
+SYNESIS.exe
+scratch/

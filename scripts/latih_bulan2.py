@@ -30,15 +30,17 @@ from pathlib import Path
 import numpy as np
 
 AKAR = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(AKAR))
 sys.path.insert(0, str(AKAR / "notebooks"))
 
 import bulan2_sesi1_kata as S1        # noqa: E402
 import bulan2_sesi2_intent as S2      # noqa: E402
+from synesis import konfig            # noqa: E402
 
 DATA = AKAR / "data" / "bulan2"
 LATIH = DATA / "perintah_train_generated.txt"
 NYATA = DATA / "perintah_eval_real.txt"
-MODEL = DATA / "model_intent.npz"
+MODEL = konfig.MODEL_INTENT
 
 GARIS = "=" * 70
 

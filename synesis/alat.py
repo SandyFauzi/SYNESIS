@@ -1,20 +1,10 @@
-"""Alat yang bisa dipanggil SYNESIS: baca berkas, cari berkas, lihat sistem.
+"""Alat yang bisa dipanggil SYNESIS, dan pagar yang membatasinya.
 
-Dua keputusan desain yang perlu kamu tahu, karena keduanya soal keamanan dan
-bukan soal selera.
-
-Pertama, protokolnya satu baris teks, bukan JSON. Model 3 miliar parameter
-sering gagal mengeluarkan JSON yang sah. Kalau JSON-nya rusak, seluruh
-pemanggilan gagal. Satu baris `[[ALAT nama|argumen]]` jauh lebih mudah
-dikeluarkan model kecil dan jauh lebih mudah diperiksa mata manusia.
-
-Kedua, ada pagar. Alat cuma boleh menyentuh folder di konfig.FOLDER_BOLEH, dan
-apa pun yang mengubah disk berhenti dulu untuk minta izin. Tanpa pagar ini,
-satu salah tafsir bisa membuat SYNESIS membaca atau menghapus apa saja. Model
-kecil sering salah tafsir. Ini bukan paranoia, ini perhitungan.
+Dua lapisan, keduanya lewat `_aman`:
+  1. jalur  — harus di dalam konfig.FOLDER_BOLEH, sesudah resolve()
+  2. isi    — nama berkas rahasia ditolak walau letaknya sah
 """
 
-import os
 import re
 import shutil
 import subprocess
@@ -26,71 +16,54 @@ from . import konfig
 
 POLA = re.compile(r"\[\[ALAT\s+([a-z_]+)\s*\|?\s*([^\]]*)\]\]", re.IGNORECASE)
 
+# Lapisan 2. Pagar jalur meloloskan .git/config, .env, dan kunci SSH selama
+# letaknya di dalam FOLDER_BOLEH.
+POLA_RAHASIA = re.compile(
+    r"^(\.env(\..*)?|\.git|\.ssh|\.aws|\.npmrc|id_[a-z0-9]+"
+    r"|.*\.(key|pem|pfx|p12)|credentials(\..*)?|secrets?\..*)$",
+    re.IGNORECASE)
+
 
 class DitolakPagar(PermissionError):
     pass
 
 
-# ══════════════════════════════════════════════════════════════
-# Pagar
-# ══════════════════════════════════════════════════════════════
+def _bukan_rahasia(p):
+    for bagian in p.parts[1:]:
+        if ":" in bagian:
+            raise DitolakPagar(f"'{p}' uses an NTFS alternate data stream.")
+        if POLA_RAHASIA.match(bagian):
+            raise DitolakPagar(
+                f"'{p}' blocked by the secrets layer via '{bagian}'.\n"
+                f"  Edit POLA_RAHASIA in synesis/alat.py if you really need it.")
+    return p
+
 
 def _aman(p):
-    """Pastikan jalur berada di dalam salah satu folder yang diizinkan.
-
-    resolve() dipanggil dulu supaya '..' dan symlink tidak bisa dipakai
-    menyelinap keluar. Tanpa resolve(), 'S:/Code/../../Windows' akan lolos.
-    """
+    """resolve() dulu, supaya '..' dan symlink tidak bisa menyelinap keluar."""
     p = Path(p).expanduser().resolve()
     for boleh in konfig.FOLDER_BOLEH:
         try:
             p.relative_to(Path(boleh).resolve())
-            return p
         except ValueError:
             continue
+        return _bukan_rahasia(p)
     raise DitolakPagar(
-        f"'{p}' di luar folder yang diizinkan.\n"
-        f"  Yang boleh: {', '.join(str(b) for b in konfig.FOLDER_BOLEH)}\n"
-        f"  Ubah daftarnya di synesis/konfig.py kalau memang perlu."
-    )
+        f"'{p}' is outside the allowed folders.\n"
+        f"  Allowed: {', '.join(str(b) for b in konfig.FOLDER_BOLEH)}\n"
+        f"  Edit the list in synesis/konfig.py if you really need it.")
 
 
-# ══════════════════════════════════════════════════════════════
-# Alat baca, tidak mengubah apa pun
-# ══════════════════════════════════════════════════════════════
+# ── alat baca ────────────────────────────────────────────────────
 
-def baca_berkas(arg):
-    """baca_berkas|S:/Code/Make A Jarvis/log.md"""
-    p = _aman(arg.strip())
-    if not p.is_file():
-        return f"Tidak ada berkas di {p}"
-    try:
-        isi = p.read_text(encoding="utf-8", errors="replace")
-    except OSError as e:
-        return f"Gagal membaca {p}: {e}"
-    if len(isi) > konfig.BERKAS_MAKS_BACA:
-        isi = isi[:konfig.BERKAS_MAKS_BACA] + "\n\n[dipotong, berkas terlalu panjang]"
-    return f"Isi {p.name}:\n{isi}"
+# Daftar berkas terakhir yang ditawarkan ke pengguna, supaya ia bisa memilih
+# dengan nomor. Keadaan global memang, dan itu sesuai sifatnya: yang dimaksud
+# "nomor dua" selalu daftar yang barusan disebut, bukan daftar mana pun.
+PILIHAN = []
 
 
-def daftar_berkas(arg):
-    """daftar_berkas|S:/Code/Make A Jarvis/notebooks"""
-    p = _aman(arg.strip() or konfig.AKAR)
-    if not p.is_dir():
-        return f"Bukan folder: {p}"
-    baris = []
-    for anak in sorted(p.iterdir())[:120]:
-        if anak.name.startswith("."):
-            continue
-        tanda = "/" if anak.is_dir() else ""
-        ukuran = "" if anak.is_dir() else f"  {anak.stat().st_size // 1024} KB"
-        baris.append(f"  {anak.name}{tanda}{ukuran}")
-    return f"Isi {p}:\n" + ("\n".join(baris) if baris else "  (kosong)")
-
-
-def cari_berkas(arg):
-    """cari_berkas|*.py            atau     cari_berkas|sesiA*"""
-    pola = arg.strip() or "*"
+def _temukan(pola, batas=40):
+    """Semua berkas di FOLDER_BOLEH yang cocok pola glob."""
     if not any(c in pola for c in "*?"):
         pola = f"*{pola}*"
     hasil = []
@@ -99,50 +72,72 @@ def cari_berkas(arg):
         if not akar.exists():
             continue
         for p in akar.rglob(pola):
-            if any(bagian.startswith(".") for bagian in p.parts):
+            if any(b.startswith(".") for b in p.parts) or not p.is_file():
                 continue
-            hasil.append(str(p))
-            if len(hasil) >= 40:
-                break
-        if len(hasil) >= 40:
-            break
-    return "Ketemu:\n" + "\n".join(f"  {h}" for h in hasil) if hasil else \
-        f"Tidak ada berkas cocok dengan '{pola}'"
+            hasil.append(p)
+            if len(hasil) >= batas:
+                return hasil
+    return hasil
 
 
-def info_sistem(arg=""):
-    """info_sistem"""
-    mem = psutil.virtual_memory()
-    baris = [
-        f"  CPU dipakai   : {psutil.cpu_percent(interval=0.4):.0f} persen",
-        f"  RAM           : {mem.used / 2**30:.1f} dari {mem.total / 2**30:.1f} GB",
-    ]
-    for huruf in ("C:", "E:", "S:"):
-        try:
-            d = shutil.disk_usage(huruf + "\\")
-            baris.append(f"  Disk {huruf}       : sisa {d.free / 2**30:.0f} GB "
-                         f"dari {d.total / 2**30:.0f} GB")
-        except OSError:
-            pass
+def baca_berkas(arg):
+    """Terima jalur, nama, atau potongan nama.
+
+    `ekstrak_slot` mengembalikan frasa manusia ("laporan praktikum"), bukan
+    jalur. Kalau jalurnya tidak ada, dicari dulu. Satu yang cocok dibuka;
+    beberapa yang cocok dilaporkan supaya kamu yang memilih, bukan ditebak.
+    """
+    arg = arg.strip()
+    p = _aman(arg)
+    if not p.is_file():
+        cocok = _temukan(arg)
+        if not cocok:
+            return f"No file named '{arg}' in the allowed folders."
+        if len(cocok) > 1:
+            # Bernomor, bukan sekadar didaftar. Nomornya yang membuat daftar
+            # ini bisa dibacakan lewat suara: "satu, dua, tiga" bisa
+            # diucapkan, jalur absolut tidak.
+            global PILIHAN
+            PILIHAN = list(cocok[:12])
+            daftar = "\n".join(
+                f"  {i + 1:>2}  {x.name}   {x.parent.name}"
+                for i, x in enumerate(PILIHAN))
+            return (f"'{arg}' matches {len(cocok)} files. "
+                    f"Say the number:\n{daftar}")
+        p = _bukan_rahasia(cocok[0])
     try:
-        keluaran = subprocess.run(
-            ["nvidia-smi", "--query-gpu=name,memory.used,memory.total",
-             "--format=csv,noheader,nounits"],
-            capture_output=True, text=True, timeout=8)
-        if keluaran.returncode == 0 and keluaran.stdout.strip():
-            nama, pakai, total = [x.strip() for x in
-                                  keluaran.stdout.strip().split(",")]
-            baris.append(f"  GPU           : {nama}, VRAM {pakai} dari {total} MB")
-    except (OSError, subprocess.SubprocessError, ValueError):
-        baris.append("  GPU           : nvidia-smi tidak terbaca")
-    return "Keadaan sistem:\n" + "\n".join(baris)
+        isi = p.read_text(encoding="utf-8", errors="replace")
+    except OSError as e:
+        return f"Could not read {p}: {e}"
+    if len(isi) > konfig.BERKAS_MAKS_BACA:
+        isi = isi[:konfig.BERKAS_MAKS_BACA] + "\n\n[truncated]"
+    return f"{p.name}:\n{isi}"
+
+
+def daftar_berkas(arg):
+    p = _aman(arg.strip() or konfig.AKAR)
+    if not p.is_dir():
+        return f"Not a folder: {p}"
+    baris = []
+    for anak in sorted(p.iterdir())[:120]:
+        if anak.name.startswith("."):
+            continue
+        tanda = "/" if anak.is_dir() else ""
+        ukuran = "" if anak.is_dir() else f"  {anak.stat().st_size // 1024} KB"
+        baris.append(f"  {anak.name}{tanda}{ukuran}")
+    return f"{p}:\n" + ("\n".join(baris) if baris else "  (empty)")
+
+
+def cari_berkas(arg):
+    hasil = _temukan(arg.strip() or "*")
+    return "Found:\n" + "\n".join(f"  {h}" for h in hasil) if hasil else \
+        f"No file matches '{arg.strip() or '*'}'"
 
 
 def cari_isi(arg):
-    """cari_isi|gradient descent      cari teks di dalam berkas .md dan .py"""
     kata = arg.strip()
     if len(kata) < 3:
-        return "Kata kunci terlalu pendek, minimal tiga huruf."
+        return "Keyword too short, three letters minimum."
     hasil = []
     for akar in konfig.FOLDER_BOLEH:
         akar = Path(akar)
@@ -163,39 +158,56 @@ def cari_isi(arg):
                 break
         if len(hasil) >= 25:
             break
-    return f"'{kata}' ditemukan di:\n" + "\n".join(hasil) if hasil else \
-        f"'{kata}' tidak ketemu."
+    return f"'{kata}' found in:\n" + "\n".join(hasil) if hasil else \
+        f"'{kata}' not found."
 
 
-# ══════════════════════════════════════════════════════════════
-# Alat yang mengubah sesuatu. Semuanya minta izin dulu.
-# ══════════════════════════════════════════════════════════════
+def info_sistem(arg=""):
+    mem = psutil.virtual_memory()
+    baris = [
+        f"  CPU      : {psutil.cpu_percent(interval=0.4):.0f} percent",
+        f"  RAM      : {mem.used / 2**30:.1f} of {mem.total / 2**30:.1f} GB",
+    ]
+    for huruf in ("C:", "E:", "S:"):
+        try:
+            d = shutil.disk_usage(huruf + "\\")
+            baris.append(f"  Disk {huruf}  : {d.free / 2**30:.0f} GB free "
+                         f"of {d.total / 2**30:.0f} GB")
+        except OSError:
+            pass
+    try:
+        keluaran = subprocess.run(
+            ["nvidia-smi", "--query-gpu=name,memory.used,memory.total",
+             "--format=csv,noheader,nounits"],
+            capture_output=True, text=True, timeout=8)
+        if keluaran.returncode == 0 and keluaran.stdout.strip():
+            nama, pakai_, total = [x.strip() for x in
+                                   keluaran.stdout.strip().split(",")]
+            baris.append(f"  GPU      : {nama}, VRAM {pakai_} of {total} MB")
+    except (OSError, subprocess.SubprocessError, ValueError):
+        baris.append("  GPU      : nvidia-smi unavailable")
+    return "System:\n" + "\n".join(baris)
+
+
+# ── alat yang mengubah sesuatu ───────────────────────────────────
 
 def jalankan(arg, izin=None):
-    """jalankan|python --version
-
-    Tidak pernah dijalankan tanpa persetujuan manusia. `izin` adalah fungsi
-    yang menerima teks perintah dan mengembalikan True atau False. cli.py yang
-    menyediakannya.
-    """
+    """`izin` fungsi(teks) -> bool. Tanpa itu, tidak pernah jalan."""
     perintah = arg.strip()
     if not perintah:
-        return "Perintah kosong."
+        return "Empty command."
     if izin is None or not izin(perintah):
-        return f"Dibatalkan. Perintah tidak dijalankan: {perintah}"
+        return f"Cancelled. Command not run: {perintah}"
     try:
         hasil = subprocess.run(perintah, shell=True, capture_output=True,
                                text=True, timeout=60, cwd=str(konfig.AKAR))
     except subprocess.TimeoutExpired:
-        return "Perintah dihentikan karena lewat 60 detik."
-    keluar = (hasil.stdout or "") + (hasil.stderr or "")
-    keluar = keluar.strip()[:4000] or "(tidak ada keluaran)"
-    return f"Keluar dengan kode {hasil.returncode}:\n{keluar}"
+        return "Command killed after 60 seconds."
+    keluar = ((hasil.stdout or "") + (hasil.stderr or "")).strip()[:4000]
+    return f"Exit code {hasil.returncode}:\n{keluar or '(no output)'}"
 
 
-# ══════════════════════════════════════════════════════════════
-# Daftar dan pengurai
-# ══════════════════════════════════════════════════════════════
+# ── daftar dan pengurai ──────────────────────────────────────────
 
 DAFTAR = {
     "baca_berkas": (baca_berkas, "baca isi satu berkas", False),
@@ -208,7 +220,7 @@ DAFTAR = {
 
 
 def keterangan_untuk_model():
-    """Teks yang diselipkan ke prompt supaya model tahu alat apa yang ada."""
+    """Teks untuk prompt LLM di Bulan 6. Belum dipakai v0.1."""
     baris = [f"- {nama}: {ket}" for nama, (_, ket, _) in DAFTAR.items()]
     return (
         "Kamu punya alat. Untuk memakainya, tulis SATU baris persis begini "
@@ -219,29 +231,60 @@ def keterangan_untuk_model():
         "[[ALAT info_sistem|]]\n"
         "[[ALAT cari_berkas|*.py]]\n"
         "[[ALAT baca_berkas|S:/Code/Make A Jarvis/log.md]]\n\n"
-        "Pakai alat hanya kalau memang perlu. Kalau pertanyaannya bisa "
-        "dijawab langsung, jawab langsung tanpa alat."
-    )
+        "Pakai alat hanya kalau memang perlu.")
 
 
 def temukan(teks):
-    """Cari pemanggilan alat di jawaban model. Kembalikan (nama, argumen) atau None."""
     m = POLA.search(teks or "")
     if not m:
         return None
-    nama = m.group(1).lower().strip()
-    arg = m.group(2).strip()
+    nama, arg = m.group(1).lower().strip(), m.group(2).strip()
     return (nama, arg) if nama in DAFTAR else None
 
 
 def pakai(nama, arg, izin=None):
-    """Jalankan satu alat, kembalikan hasilnya sebagai teks."""
     if nama not in DAFTAR:
-        return f"Alat '{nama}' tidak ada."
+        return f"No such tool: '{nama}'."
     fungsi, _, berbahaya = DAFTAR[nama]
     try:
         return fungsi(arg, izin) if berbahaya else fungsi(arg)
     except DitolakPagar as e:
-        return f"Ditolak pagar keamanan.\n{e}"
+        return f"Blocked by the safety gate.\n{e}"
     except Exception as e:                       # noqa: BLE001
-        return f"Alat '{nama}' gagal: {type(e).__name__}: {e}"
+        return f"Tool '{nama}' failed: {type(e).__name__}: {e}"
+
+
+def _demo():
+    for jalur in ["../../../../Windows/win.ini", "C:/Users", "~/.bashrc",
+                  "//localhost/C$/Windows"]:
+        try:
+            _aman(jalur)
+            raise AssertionError(f"lolos: {jalur}")
+        except (DitolakPagar, OSError):
+            pass
+
+    for jalur in [konfig.AKAR / ".git" / "config", konfig.AKAR / ".env",
+                  "S:/Code/apa.key", konfig.AKAR / "log.md:ads"]:
+        try:
+            _aman(jalur)
+            raise AssertionError(f"lolos: {jalur}")
+        except DitolakPagar:
+            pass
+
+    assert _aman(konfig.AKAR / "log.md").name == "log.md"
+
+    # nama telanjang, bukan jalur: dicari, bukan langsung gagal
+    assert "log.md" in baca_berkas("log.md")
+    assert "No file named" in baca_berkas("zzzqqqwww")
+    assert _temukan("log.md") and all(p.is_file() for p in _temukan("*.py", 5))
+    assert temukan("[[ALAT info_sistem|]]") == ("info_sistem", "")
+    assert temukan("[[ALAT tidak_ada|x]]") is None
+    assert temukan("bukan alat") is None
+    assert "no such tool" in pakai("tidak_ada", "").lower()
+    assert "Cancelled" in jalankan("echo hai")           # izin None
+    assert "Cancelled" in jalankan("echo hai", lambda _: False)
+    print("alat: lulus")
+
+
+if __name__ == "__main__":
+    _demo()
