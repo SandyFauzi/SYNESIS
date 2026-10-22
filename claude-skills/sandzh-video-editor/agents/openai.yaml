@@ -1,0 +1,4 @@
+interface:
+  display_name: "Sandzh Video Editor"
+  short_description: "Adaptasi editing Sandzh sesuai kategori video"
+  default_prompt: "Gunakan $sandzh-video-editor untuk mengedit video ini dengan profil Sandzh yang paling sesuai."
